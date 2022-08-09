@@ -13,9 +13,7 @@ Add the following lines of code into service.sh to completely turn off IPV6 (thi
 #
 
 sysctl -w net.ipv6.conf.all.accept_ra=0
-
 sysctl -w net.ipv6.conf.default.accept_ra=0
-
 sysctl -w net.ipv6.conf.wlan0.accept_ra=0
 
 #
@@ -32,4 +30,3 @@ More functions please explore by yourself! 🥰
 Help document: https://docs.adlyq.ml/
 
 console link: http://127.0.0.1:9090/ui/#/
-#
