@@ -13,11 +13,15 @@ Turn off IPV6 completely on the device as this can cause some problems
 Add the following lines of code into service.sh to completely turn off IPV6 (this is a layer of insurance) 
 
 
+#
+
 sysctl -w net.ipv6.conf.all.accept_ra=0
 
 sysctl -w net.ipv6.conf.default.accept_ra=0
 
 sysctl -w net.ipv6.conf.wlan0.accept_ra=0
+
+#
 
 
 Using the yacd browser panel
