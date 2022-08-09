@@ -23,6 +23,8 @@ sysctl -w net.ipv6.conf.wlan0.accept_ra=0
 
 Using the yacd browser panel
 
+Optimize log display,you can delete the last saved log by yourself after each start and stop
+
 Added the function of automatically selecting nodes in specified regions, currently only supports: HK US
 
 The verbose log function is turned off, and only the log at startup is recorded
