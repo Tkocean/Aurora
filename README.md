@@ -35,3 +35,5 @@ More functions please explore by yourself! 🥰
 Help document: https://docs.adlyq.ml/
 
 console link: http://127.0.0.1:9090/ui/#/
+
+Use the tutorial：https://telegra.ph/Clash-For-Magisk使用教程-04-10
