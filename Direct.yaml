@@ -1,4 +1,5 @@
 payload:
+  - PROCESS-NAME,clash
   - PROCESS-NAME,com.icbc
   - PROCESS-NAME,com.tencent.tmgp.sgame
   - PROCESS-NAME,com.yinghuadongman.app
@@ -8,3 +9,5 @@ payload:
   - PROCESS-NAME,com.netease.x19
   - PROCESS-NAME,com.netease.moba
   - PROCESS-NAME,com.tencent.tmgp.sgamece
+  - PROCESS-NAME,com.sankuai.meituan
+  - PROCESS-NAME,com.taobao.taobao
