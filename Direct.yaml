@@ -11,4 +11,3 @@ payload:
   - PROCESS-NAME,com.tencent.tmgp.sgamece
   - PROCESS-NAME,com.sankuai.meituan
   - PROCESS-NAME,com.taobao.taobao
-  - PROCESS-NAME,com.paypal.android.p2pmobile
