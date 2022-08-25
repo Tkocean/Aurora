@@ -1,12 +1,7 @@
 payload:
   - PROCESS-NAME,clash
-  - PROCESS-NAME,com.icbc
   - PROCESS-NAME,com.tencent.tmgp.sgame
-  - PROCESS-NAME,com.yinghuadongman.app
-  - PROCESS-NAME,com.hicorenational.antifraud
-  - PROCESS-NAME,com.hy.weather.mz
   - PROCESS-NAME,com.netease.sky
   - PROCESS-NAME,com.netease.x19
   - PROCESS-NAME,com.netease.moba
   - PROCESS-NAME,com.tencent.tmgp.sgamece
-  - PROCESS-NAME,com.taobao.taobao
