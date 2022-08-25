@@ -29,11 +29,15 @@ Added the function of automatically selecting nodes in specified regions, curren
 
 The verbose log function is turned off, and only the log at startup is recorded
 
+Since geoip uses Country.mmdb, users are required to manually obtain geoip updates from the following URL
+
 More functions please explore by yourself! 🥰
 
 #
 Help document: https://docs.adlyq.ml/
 
 console link: http://127.0.0.1:9090/ui/#/
+
+Geoip URL：https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb
 
 Use the tutorial：https://telegra.ph/Clash-For-Magisk使用教程-04-10
