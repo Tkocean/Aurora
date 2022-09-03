@@ -15,3 +15,5 @@ ro.debuggable=0
 wifi.supplicant_scan_interval=200
 ro.surface_flinger.has_wide_color_display=true
 ro.control_privapp_permissions=log
+ro.com.google.ime.kb_pad_land_l=70
+ro.com.google.ime.kb_pad_land_r=70
