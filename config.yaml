@@ -1,0 +1,193 @@
+allow-lan: true
+geodata-mode: true
+unified-delay: true
+mode: rule
+log-level: error
+ipv6: false
+udp: true
+tcp-concurrent: false
+profile:
+  store-selected: true
+  store-fake-ip: false
+external-controller: 0.0.0.0:9090
+external-ui: Dashboard
+tun:
+  enable: true
+  device: Aurora
+  stack: system
+  dns-hijack:
+    - any:53
+  auto-route: true
+  auto-detect-interface: true
+dns:
+  enable: true
+  ipv6: false
+  default-nameserver:
+    - 0.0.0.0:2453
+  nameserver:
+    - 0.0.0.0:2453
+
+proxies:
+
+s: &s
+  type: http
+  interval: 7200
+  health-check:
+    enable: true
+    url: http://www.gstatic.com/generate_204
+    interval: 1200
+t: &t
+  type: url-test
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 80
+  use:
+    - R
+    - E
+    - C
+    - G
+    - M
+    - SPARE
+c: &c
+  type: http
+  behavior: classical
+  interval: 86400
+  
+proxy-providers:
+
+  R:
+    <<: *s
+    url: "https://dy.xiaozhupeiqix.com/link/Jd7RfxmEx8Wub7NZ?clash=1"
+    path: ./proxy_providers/R.yaml
+  E:
+    <<: *s
+    url: "https://service-37nmylhc-1313081435.gz.apigw.tencentcs.com/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    path: ./proxy_providers/E.yaml
+  C:
+    <<: *s
+    url: "https://mojie.nl/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
+    path: ./proxy_providers/C.yaml
+  G:
+    <<: *s
+    url: "https://xn--4gq62f52gdss.com/api/v1/client/subscribe?token=06aeb9b8d7edc1ddee2f795c27cd25da"
+    path: ./proxy_providers/G.yaml
+  M:
+    <<: *s
+    url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
+    path: ./proxy_providers/M.yaml
+  SPARE:
+    <<: *s
+    url: "https://openit.daycat.space/clash"
+    path: ./proxy_providers/SPARE.yaml
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - R
+      - E
+      - C
+      - G
+      - M
+      - US
+      - HK
+  - name: Global
+    type: select
+    proxies:
+      - PROXY
+      - DIRECT
+      - BALANCE
+      - FAILOVER
+  - name: US
+    filter: "US|美"
+    <<: *t
+  - name: HK
+    filter: "HK|港"
+    <<: *t
+  - name: BALANCE
+    type: load-balance
+    filter: "US|美"
+    strategy: consistent-hashing
+    url: http://www.gstatic.com/generate_204
+    interval: 1200
+    use:
+      - R
+      - E
+      - C
+      - G
+      - M
+      - SPARE
+  - name: FAILOVER
+    type: fallback
+    filter: "HK|港"
+    url: http://www.gstatic.com/generate_204
+    interval: 150
+    use:
+      - M
+      - G
+      - C
+      - E
+      - R
+      - SPARE
+  - name: R
+    type: select
+    use:
+      - R
+  - name: E
+    type: select
+    use:
+      - E
+  - name: C
+    type: select
+    use:
+      - C
+  - name: G
+    type: select
+    use:
+      - G
+  - name: M
+    type: select
+    use:
+      - M
+  - name: SPARE
+    type: select
+    use:
+      - SPARE
+
+rule-providers:
+  Local:
+    type: file
+    behavior: classical
+    path: ./rule_providers/Locale.yaml
+  Safari:
+    <<: *c
+    url: "https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml"
+    path: ./rule_providers/Safari.yaml
+  Safety:
+    <<: *c
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Hijacking/Hijacking.yaml"
+    path: ./rule_providers/Safety.yaml
+  Microsoft:
+    <<: *c
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
+    path: ./rule_providers/Microsoft.yaml
+  ChinaNet:
+    <<: *c
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_Classical.yaml"
+    path: ./rule_providers/ChinaNet.yaml
+rules:
+ - IN-TYPE,INNER,Global
+ - PROCESS-NAME,clash,REJECT
+ - RULE-SET,Local,DIRECT
+ - RULE-SET,Safety,REJECT
+ - RULE-SET,Safari,Global
+ - GEOSITE,Google,Global
+ - GEOSITE,PayPal,Global
+ - RULE-SET,Microsoft,Global
+ - GEOSITE,Tencent,DIRECT
+ - GEOSITE,NetEase,DIRECT
+ - GEOSITE,CN,DIRECT
+ - GEOIP,CN,DIRECT
+ - RULE-SET,ChinaNet,DIRECT
+ - MATCH,Global
+ - MATCH,REJECT
