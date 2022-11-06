@@ -180,10 +180,10 @@ rules:
  - PROCESS-NAME,clash,REJECT
  - RULE-SET,Safety,REJECT
  - RULE-SET,Safari,Global
- - RULE-SET,Local,DIRECT
  - GEOSITE,Google,Global
  - GEOSITE,PayPal,Global
  - RULE-SET,Microsoft,Global
+ - RULE-SET,Local,DIRECT
  - GEOSITE,Tencent,DIRECT
  - GEOSITE,NetEase,DIRECT
  - GEOSITE,CN,DIRECT
