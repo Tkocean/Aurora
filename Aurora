@@ -61,7 +61,7 @@ proxy-providers:
     path: ./proxy_providers/R.yaml
   E:
     <<: *s
-    url: "https://service-37nmylhc-1313081435.gz.apigw.tencentcs.com/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
     path: ./proxy_providers/E.yaml
   C:
     <<: *s
