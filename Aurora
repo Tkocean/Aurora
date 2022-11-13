@@ -29,6 +29,15 @@ dns:
 
 proxies:
 
+ - name: 'PERSONAL'
+   type: trojan
+   server: 121.14.203.216
+   port: 12001
+   password: 97968107-5ff5-40fb-906e-2b850a181375
+   udp: true
+   sni: aln-hk.qchwnd.moe
+   skip-cert-verify: true
+
 s: &s
   type: http
   interval: 7200
@@ -91,7 +100,8 @@ proxy-groups:
       - M
       - US
       - HK
-  - name: Global
+      - PERSONAL
+  - name: LINK
     type: select
     proxies:
       - PROXY
@@ -176,18 +186,18 @@ rule-providers:
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_Classical.yaml"
     path: ./rule_providers/ChinaNet.yaml
 rules:
- - IN-TYPE,INNER,Global
+ - IN-TYPE,INNER,LINK
  - PROCESS-NAME,clash,REJECT
  - RULE-SET,Safety,REJECT
- - RULE-SET,Safari,Global
- - GEOSITE,Google,Global
- - GEOSITE,PayPal,Global
- - RULE-SET,Microsoft,Global
+ - RULE-SET,Safari,LINK
+ - GEOSITE,Google,LINK
+ - GEOSITE,PayPal,LINK
+ - RULE-SET,Microsoft,LINK
  - RULE-SET,Local,DIRECT
  - GEOSITE,Tencent,DIRECT
  - GEOSITE,NetEase,DIRECT
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
  - RULE-SET,ChinaNet,DIRECT
- - MATCH,Global
+ - MATCH,LINK
  - MATCH,REJECT
