@@ -29,15 +29,6 @@ dns:
 
 proxies:
 
- - name: 'PERSONAL'
-   type: trojan
-   server: 121.14.203.216
-   port: 12001
-   password: 97968107-5ff5-40fb-906e-2b850a181375
-   udp: true
-   sni: aln-hk.qchwnd.moe
-   skip-cert-verify: true
-
 s: &s
   type: http
   interval: 7200
@@ -100,7 +91,6 @@ proxy-groups:
       - M
       - US
       - HK
-      - PERSONAL
   - name: LINK
     type: select
     proxies:
