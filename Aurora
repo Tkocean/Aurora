@@ -177,7 +177,6 @@ rule-providers:
     path: ./rule_providers/ChinaNet.yaml
 rules:
  - IN-TYPE,INNER,LINK
- - PROCESS-NAME,clash,REJECT
  - RULE-SET,Safety,REJECT
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
