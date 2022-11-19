@@ -39,7 +39,7 @@ s: &s
 t: &t
   type: url-test
   url: http://www.gstatic.com/generate_204
-  interval: 300
+  interval: 150
   tolerance: 80
   use:
     - R
@@ -122,6 +122,7 @@ proxy-groups:
     filter: "HK|港"
     url: http://www.gstatic.com/generate_204
     interval: 150
+    tolerance: 80
     use:
       - M
       - G
