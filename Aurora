@@ -184,11 +184,11 @@ rules:
  - GEOSITE,Google,LINK
  - GEOSITE,PayPal,LINK
  - RULE-SET,Microsoft,LINK
- - RULE-SET,Local,DIRECT
+ - RULE-SET,Local,DIRECT,no-resolve
  - GEOSITE,Tencent,DIRECT
  - GEOSITE,NetEase,DIRECT
  - GEOSITE,CN,DIRECT
- - GEOIP,CN,DIRECT
- - RULE-SET,ChinaNet,DIRECT
+ - GEOIP,CN,DIRECT,no-resolve
+ - RULE-SET,ChinaNet,DIRECT,no-resolve
  - MATCH,LINK
  - MATCH,REJECT
