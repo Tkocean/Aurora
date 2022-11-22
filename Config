@@ -16,7 +16,7 @@ Country_mmdb_url="https://ghproxy.com/https://raw.githubusercontent.com/Loyalsol
 GeoSite_url="https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/download/geosite.dat"
 Kernel_url="https://raw.githubusercontent.com/Tkocean/individual/Aurora/Kernel"
 Config_url="https://raw.githubusercontent.com/Tkocean/individual/Aurora/Config"
-
+#测试
 ipv6="false"
 pref_id="5000"
 mark_id="2021"
