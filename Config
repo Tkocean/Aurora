@@ -15,7 +15,7 @@ ChinaNet_url="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/mas
 Country_mmdb_url="https://ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb"
 GeoSite_url="https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/download/geosite.dat"
 Kernel_url="true"
-Config_url="true"
+Config_url="https://raw.githubusercontent.com/Tkocean/individual/Aurora/Config"
 
 ipv6="false"
 pref_id="5000"
