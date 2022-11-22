@@ -1,0 +1,77 @@
+auto_updateKernel="true"
+auto_updateGeoIP="true"
+auto_updateGeoSite="true"
+auto_updateSafety="true"
+auto_updateConfig="true"
+auto_updateCountry_mmdb="true"
+auto_updateSPARE="true"
+auto_updateChinaNet="true"
+auto_updateAurora="true"
+Aurora_url="https://raw.githubusercontent.com/Tkocean/individual/Aurora/Aurora"
+SPARE_url="https://openit.daycat.space/clash"
+Safety_url="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Hijacking/Hijacking.yaml"
+GeoIP_dat_url="https://ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geoip.dat"
+ChinaNet_url="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_Classical.yaml"
+Country_mmdb_url="https://ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb"
+GeoSite_url="https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/download/geosite.dat"
+Kernel_url="true"
+Config_url="true"
+
+ipv6="false"
+pref_id="5000"
+mark_id="2021"
+table_id="2021"
+mode="blacklist"
+static_dns="8.8.8.8"
+Clash_bin_name="clash"
+Clash_data_dir="/data/clash"
+Clash_run_path="/data/clash/run"
+busybox_path="/data/adb/magisk/busybox"
+Safety="/data/clash/rule_providers/Safety.yaml"
+SPARE="/data/clash/proxy_providers/SPARE.yaml"
+ChinaNet="/data/clash/rule_providers/ChinaNet.yaml"
+Country_mmdb="/data/clash/Country.mmdb"
+Kernel="/data/clash/Kernel/clash"
+Config="/data/clash/clash.config"
+Aurora="/data/clash/config.yaml"
+logs="/data/clash/run/run.logs"
+Update="/data/clash/run/Update.log"
+template_file="/data/clash/config.yaml"
+appuid_file="/data/clash/run/appuid.list"
+Clash_bin_path="/data/clash/Kernel/clash"
+Clash_config_file="/data/clash/config.yaml"
+temporary_config_file="/data/clash/config.yaml"
+Clash_GeoSite_file="/data/clash/GeoSite.dat"
+geodata_mode=$(grep "geodata-mode" ${template_file} | awk -F ': ' '{print $2}')
+if "${geodata_mode}"; then
+    Clash_GeoIP_file="/data/clash/GeoIP.dat"
+    GeoIP_url=${GeoIP_dat_url}
+else
+    Clash_GeoIP_file="/data/clash/Country.mmdb"
+    GeoIP_url=${Country_mmdb_url}
+fi
+
+filter_local="false"
+Clash_permissions="6755"
+Clash_user_group="root:net_admin"
+iptables_wait="iptables -w 100"
+ip6tables_wait="ip6tables -w 100"
+Clash_user=$(echo ${Clash_user_group} | awk -F ':' '{print $1}')
+Clash_group=$(echo ${Clash_user_group} | awk -F ':' '{print $2}')
+Clash_dns_port=$(grep "listen" ${template_file} | awk -F ':' '{print $3}')
+Clash_enhanced_mode=$(grep "enhanced-mode" ${template_file} | awk -F ': ' '{print $2}')
+Clash_tproxy_port=$(grep "tproxy-port" ${template_file} | awk -F ': ' '{print $2}')
+Clash_auto_route=$(grep "auto-route" ${template_file} | awk -F ': ' '{print $2}')
+Clash_tun_status=$(awk -F ': ' '/^tun: *$/{getline; print $2}' ${template_file})
+tun_device=$(awk -F ': ' '/ +device: /{print $2}' ${template_file})
+if [ "${Clash_tun_status}" == "" ]; then
+    Clash_tun_status="false"
+fi
+if [ "${Clash_auto_route}" == "" ]; then
+    Clash_auto_route="false"
+fi
+if [ "${tun_device}" == "" ]; then
+    tun_device="Aurora"
+fi
+reserved_ip=(0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.168.0.0/16 198.51.100.0/24 203.0.113.0/24 224.0.0.0/4 255.255.255.255/32 240.0.0.0/4)
+reserved_ip6=(::/128 ::1/128 ::ffff:0:0/96 100::/64 64:ff9b::/96 2001::/32 2001:10::/28 2001:20::/28 2001:db8::/32 2002::/16 fc00::/7 fe80::/10 ff00::/8)
