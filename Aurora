@@ -183,6 +183,7 @@ rules:
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
  - GEOSITE,PayPal,LINK
+ - GEOSITE,Steam,LINK
  - RULE-SET,Microsoft,LINK
  - RULE-SET,Local,DIRECT,no-resolve
  - GEOSITE,Tencent,DIRECT
