@@ -1,0 +1,11 @@
+payload:
+  - DOMAIN-KEYWORD,announce
+  - DOMAIN-KEYWORD,torrent
+  - DOMAIN-KEYWORD,tracker
+  - DOMAIN-SUFFIX,push.apple.com
+  - DOMAIN-SUFFIX,smtp
+  - DOMAIN-SUFFIX,local
+  - DST-PORT,22
+  - DST-PORT,123
+  - IP-CIDR,223.5.5.5/32
+  - IP-CIDR,120.53.53.53/32
