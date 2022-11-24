@@ -5,7 +5,6 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-interface-name: wlan2
 enable-process: true
 tcp-concurrent: false
 profile:
