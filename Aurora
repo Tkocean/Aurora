@@ -5,6 +5,8 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
+hosts:
+ '+.clash.meta': 127.0.0.1
 enable-process: true
 tcp-concurrent: false
 profile:
@@ -23,6 +25,7 @@ tun:
 dns:
   enable: true
   ipv6: false
+  use-hosts: true
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
