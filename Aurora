@@ -173,15 +173,12 @@ rule-providers:
     <<: *c
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
     path: ./rule_providers/Microsoft.yaml
-  ChinaNet:
-    <<: *c
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaIPs/ChinaIPs_Classical.yaml"
-    path: ./rule_providers/ChinaNet.yaml
 rules:
  - IN-TYPE,INNER,LINK
  - RULE-SET,Safety,REJECT
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
+ - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
  - GEOSITE,Steam,LINK
  - GEOIP,Telegram,LINK
@@ -191,6 +188,5 @@ rules:
  - GEOSITE,NetEase,DIRECT
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
- - RULE-SET,ChinaNet,DIRECT
  - MATCH,LINK
  - MATCH,REJECT
