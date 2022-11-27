@@ -102,6 +102,7 @@ proxy-groups:
       - DIRECT
       - BALANCE
       - FAILOVER
+      - PERSONAL
   - name: US
     filter: "US|美"
     <<: *t
