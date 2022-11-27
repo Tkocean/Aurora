@@ -1,4 +1,4 @@
-allow-lan: true
+ allow-lan: true
 geodata-mode: true
 unified-delay: true
 mode: rule
@@ -99,6 +99,7 @@ proxy-groups:
       - M
       - US
       - HK
+      - ELSE
   - name: LINK
     type: select
     proxies:
@@ -125,6 +126,7 @@ proxy-groups:
       - C
       - G
       - M
+      - ELSE
       - SPARE
   - name: FAILOVER
     type: fallback
@@ -138,8 +140,9 @@ proxy-groups:
       - C
       - E
       - R
+      - ELSE
       - SPARE
- - name: PERSONAL
+  - name: PERSONAL
     type: url-test
     filter: "HK|港"
     interval: 150
@@ -167,6 +170,10 @@ proxy-groups:
     type: select
     use:
       - M
+  - name: ELSE
+    type: select
+    use:
+      - ELSE
   - name: SPARE
     type: select
     use:
