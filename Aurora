@@ -65,7 +65,7 @@ proxy-providers:
     path: ./proxy_providers/R.yaml
   E:
     <<: *s
-    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
+    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
     path: ./proxy_providers/E.yaml
   C:
     <<: *s
@@ -79,6 +79,10 @@ proxy-providers:
     <<: *s
     url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
     path: ./proxy_providers/M.yaml
+  ELSE:
+    <<: *s
+    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
+    path: ./proxy_providers/ELSE.yaml
   SPARE:
     <<: *s
     url: "https://openit.daycat.space/clash"
@@ -141,7 +145,7 @@ proxy-groups:
     interval: 150
     tolerance: 80
     use:
-      - E
+      - ELSE
     url: http://www.gstatic.com/generate_204
   - name: R
     type: select
