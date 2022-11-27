@@ -1,4 +1,4 @@
- allow-lan: true
+allow-lan: true
 geodata-mode: true
 unified-delay: true
 mode: rule
