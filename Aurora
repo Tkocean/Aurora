@@ -5,8 +5,6 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-hosts:
- '+.clash.meta': 127.0.0.1
 enable-process: true
 tcp-concurrent: false
 profile:
@@ -25,7 +23,6 @@ tun:
 dns:
   enable: true
   ipv6: false
-  use-hosts: true
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
@@ -198,7 +195,7 @@ rule-providers:
     path: ./rule_providers/Microsoft.yaml
 rules:
  - IN-TYPE,INNER,LINK
- - RULE-SET,Safety,REJECT
+ - RULE-SET,Safety,LINK
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
