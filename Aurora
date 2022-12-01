@@ -191,6 +191,7 @@ rule-providers:
     path: ./rule_providers/Microsoft.yaml
 rules:
  - IN-TYPE,INNER,LINK
+ - PROCESS-NAME,clash,REJECT
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
