@@ -1,4 +1,4 @@
-updata_load="true"
+updata_load="false"
 rebootmosdns="false"
 auto_updateKernel="true"
 auto_updateGeoIP="true"
