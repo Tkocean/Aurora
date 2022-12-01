@@ -1,3 +1,4 @@
+updata_load="false"
 auto_updateKernel="true"
 auto_updateGeoIP="true"
 auto_updateGeoSite="true"
@@ -14,7 +15,6 @@ GeoSite_url="https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/downl
 Kernel_url="https://github.com/Tkocean/individual/releases/download/ViEW3485329622/clash"
 
 ipv6="false" 
-mark_id="2021"
 table_id="2021"
 mode="blacklist"
 static_dns="8.8.8.8"
