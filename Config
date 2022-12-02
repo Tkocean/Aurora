@@ -1,5 +1,6 @@
 updata_load="false"
 rebootmosdns="false"
+#以上开关影响模块运行逻辑，建议保持默认
 auto_updateKernel="true"
 auto_updateGeoIP="true"
 auto_updateGeoSite="true"
