@@ -1,0 +1,130 @@
+proxies:
+allow-lan: true
+geodata-mode: true
+unified-delay: true
+log-level: silent
+udp: true
+
+proxy-providers:  
+  R:
+    type: http
+    url: "https://dy.xiaozhupeiqix.com/link/Jd7RfxmEx8Wub7NZ?clash=1"
+    path: ./profiles/R.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  E:
+    type: http
+    url: "https://mojie.work/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
+    path: ./profiles/E.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  C:
+    type: http
+    url: "https://xn--4gq62f52gdss.com/api/v1/client/subscribe?token=06aeb9b8d7edc1ddee2f795c27cd25da"
+    path: ./profiles/C.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  K:
+    type: http
+    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
+    path: ./profiles/K.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+  M:
+    type: http
+    url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
+    path: ./profiles/M.yaml
+    interval: 7200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+
+proxy-groups:
+  - name: 代理
+    type: select
+    proxies:
+      - R
+      - E
+      - C
+      - K
+      - M
+      - HK
+      - LE
+      - FAILOVER
+  - name: LE
+    filter: "US|美"
+    type: load-balance
+    use:
+      - R
+      - E
+      - C
+      - K
+      - M
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+  - name: FAILOVER
+    type: fallback
+    filter: "HK|港"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    use:
+      - M
+      - K
+      - C
+      - E
+      - R
+  - name: HK
+    filter: "HK|港"
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 100
+    use:
+      - R
+      - E
+      - C
+      - K
+      - M
+  - name: R
+    type: select
+    use:
+      - R
+  - name: E
+    type: select
+    use:
+      - E
+  - name: C
+    type: select
+    use:
+      - C
+  - name: K
+    type: select
+    use:
+      - K
+  - name: M
+    type: select
+    use:
+      - M
+
+rules:
+  - GEOSITE,category-ads-all,REJECT
+  - GEOSITE,Google,代理
+  - GEOIP,Google,代理
+  - GEOSITE,Tencent,DIRECT
+  - GEOSITE,NetEase,DIRECT
+  - GEOSITE,CN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,代理
