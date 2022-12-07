@@ -140,13 +140,13 @@ proxy-groups:
       - ELSE
       - SPARE
   - name: PERSONAL
-    type: url-test
+    type: fallback
     filter: "HK|港"
-    interval: 150
+    url: http://www.gstatic.com/generate_204
+    interval: 120
     tolerance: 80
     use:
       - ELSE
-    url: http://www.gstatic.com/generate_204
   - name: R
     type: select
     use:
