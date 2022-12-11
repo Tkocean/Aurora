@@ -137,7 +137,6 @@ proxy-groups:
       - C
       - E
       - R
-      - ELSE
       - SPARE
   - name: PERSONAL
     type: fallback
