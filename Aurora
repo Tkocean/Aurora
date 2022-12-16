@@ -59,31 +59,31 @@ proxy-providers:
   R:
     <<: *s
     url: "https://dy.xiaozhupeiqix.com/link/Jd7RfxmEx8Wub7NZ?clash=1"
-    path: ./proxy_providers/R.yaml
+    path: ./Providers/R.yaml
   E:
     <<: *s
     url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
-    path: ./proxy_providers/E.yaml
+    path: ./Providers/E.yaml
   C:
     <<: *s
     url: "https://mojie.nl/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
-    path: ./proxy_providers/C.yaml
+    path: ./Providers/C.yaml
   G:
     <<: *s
     url: "https://xn--4gq62f52gdss.com/api/v1/client/subscribe?token=06aeb9b8d7edc1ddee2f795c27cd25da"
-    path: ./proxy_providers/G.yaml
+    path: ./Providers/G.yaml
   M:
     <<: *s
     url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
-    path: ./proxy_providers/M.yaml
+    path: ./Providers/M.yaml
   ELSE:
     <<: *s
     url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
-    path: ./proxy_providers/ELSE.yaml
+    path: ./Providers/ELSE.yaml
   SPARE:
     <<: *s
     url: "https://openit.daycat.space/clash"
-    path: ./proxy_providers/SPARE.yaml
+    path: ./Providers/SPARE.yaml
 
 proxy-groups:
   - name: PROXY
@@ -179,15 +179,15 @@ rule-providers:
   Local:
     type: file
     behavior: classical
-    path: ./rule_providers/Locale.yaml
+    path: ./Providers/Locale.yaml
   Safari:
     <<: *c
     url: "https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml"
-    path: ./rule_providers/Safari.yaml
+    path: ./Providers/Safari.yaml
   Microsoft:
     <<: *c
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
-    path: ./rule_providers/Microsoft.yaml
+    path: ./Providers/Microsoft.yaml
 rules:
  - IN-TYPE,INNER,LINK
  - PROCESS-NAME,clash,REJECT
