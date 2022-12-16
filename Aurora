@@ -139,7 +139,7 @@ proxy-groups:
       - R
       - SPARE
   - name: PERSONAL
-    type: fallback
+    type: url-test
     filter: "HK|港"
     url: http://www.gstatic.com/generate_204
     interval: 120
