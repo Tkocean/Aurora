@@ -191,7 +191,7 @@ rule-providers:
 rules:
  - IN-TYPE,INNER,LINK
  - PROCESS-NAME,clash,REJECT
- - RULE-SET,Local,DIRECT,no-resolve
+ - RULE-SET,Local,DIRECT
  - RULE-SET,Safari,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
@@ -204,6 +204,6 @@ rules:
  - GEOSITE,APPLE-CN,DIRECT
  - GEOSITE,APPLE,LINK
  - GEOSITE,CN,DIRECT
- - GEOIP,CN,DIRECT,no-resolve
+ - GEOIP,CN,DIRECT
  - MATCH,LINK
  - MATCH,REJECT
