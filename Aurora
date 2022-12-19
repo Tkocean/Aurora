@@ -174,6 +174,7 @@ proxy-groups:
     type: select
     use:
       - SPARE
+
 rule-providers:
   Local:
     <<: *c
