@@ -6,7 +6,7 @@ log-level: error
 ipv6: false
 udp: true
 enable-process: true
-tcp-concurrent: false
+tcp-concurrent: true
 profile:
   store-selected: true
   store-fake-ip: false
@@ -86,6 +86,7 @@ proxy-providers:
     path: ./Providers/SPARE.yaml
 
 proxy-groups:
+
   - name: PROXY
     type: select
     proxies:
@@ -140,10 +141,14 @@ proxy-groups:
       - SPARE
   - name: PERSONAL
     type: url-test
-    filter: "HK|港"
+    filter: "US|美"
     url: http://www.gstatic.com/generate_204
     interval: 120
     tolerance: 80
+    use:
+      - ELSE
+  - name: ELSE
+    type: select
     use:
       - ELSE
   - name: R
@@ -166,16 +171,13 @@ proxy-groups:
     type: select
     use:
       - M
-  - name: ELSE
-    type: select
-    use:
-      - ELSE
   - name: SPARE
     type: select
     use:
       - SPARE
 
 rule-providers:
+
   Local:
     <<: *c
     url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Locale.yaml"
@@ -192,6 +194,7 @@ rule-providers:
     <<: *c
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
     path: ./Providers/Microsoft.yaml
+
 rules:
  - RULE-SET,Safety,LINK
  - PROCESS-NAME,clash,REJECT
