@@ -3,10 +3,10 @@ geodata-mode: true
 unified-delay: true
 mode: rule
 log-level: error
-ipv6: false
+ipv6: true
 udp: true
 enable-process: true
-tcp-concurrent: true
+tcp-concurrent: false
 profile:
   store-selected: true
   store-fake-ip: false
