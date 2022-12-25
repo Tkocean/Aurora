@@ -22,7 +22,7 @@ tun:
   auto-detect-interface: true
 dns:
   enable: true
-  ipv6: false
+  ipv6: true
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
