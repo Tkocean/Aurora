@@ -53,7 +53,7 @@ c: &c
   type: http
   behavior: classical
   interval: 86400
-  
+
 proxy-providers:
 
   R:
