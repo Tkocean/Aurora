@@ -17,7 +17,7 @@ tun:
   device: Aurora
   stack: system
   dns-hijack:
-    - any:53
+    - 0.0.0.0:53
   auto-route: true
   auto-detect-interface: true
 dns:
