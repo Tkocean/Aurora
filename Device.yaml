@@ -2,3 +2,4 @@ payload:
   - IN-TYPE,INNER
   - IP-CIDR,8.8.8.8/32
   - IP-CIDR,1.1.1.1/32
+  - IP-CIDR,208.67.222.222/32
