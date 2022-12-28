@@ -182,24 +182,24 @@ rule-providers:
     <<: *c
     url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Locale.yaml"
     path: ./Providers/Locale.yaml
+  Device:
+    <<: *c
+    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Device.yaml"
+    path: ./Providers/Device.yaml
   Safety:
     <<: *c
-    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Safety.yaml"
-    path: ./Providers/Safety.yaml
-  Safari:
-    <<: *c
     url: "https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml"
-    path: ./Providers/Safari.yaml
+    path: ./Providers/Safety.yaml
   Microsoft:
     <<: *c
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
     path: ./Providers/Microsoft.yaml
 
 rules:
- - RULE-SET,Safety,LINK
+ - RULE-SET,Device,LINK
  - PROCESS-NAME,clash,REJECT
  - RULE-SET,Local,DIRECT
- - RULE-SET,Safari,LINK
+ - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
