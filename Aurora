@@ -3,7 +3,7 @@ geodata-mode: true
 unified-delay: true
 mode: rule
 log-level: error
-ipv6: true
+ipv6: false
 udp: true
 enable-process: true
 tcp-concurrent: false
@@ -22,7 +22,7 @@ tun:
   auto-detect-interface: true
 dns:
   enable: true
-  ipv6: true
+  ipv6: false
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
