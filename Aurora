@@ -1,3 +1,4 @@
+mixed-port: 2461
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -76,7 +77,7 @@ proxy-providers:
     <<: *s
     url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
     path: ./Providers/M.yaml
-  ELSE:
+  PERSONAL:
     <<: *s
     url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
     path: ./Providers/ELSE.yaml
