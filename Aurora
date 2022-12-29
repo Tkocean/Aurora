@@ -97,7 +97,6 @@ proxy-groups:
       - M
       - US
       - HK
-      - ELSE
   - name: LINK
     type: select
     proxies:
@@ -124,8 +123,8 @@ proxy-groups:
       - C
       - G
       - M
-      - ELSE
       - SPARE
+      - PERSONAL
   - name: FAILOVER
     type: fallback
     filter: "HK|港"
@@ -140,17 +139,9 @@ proxy-groups:
       - R
       - SPARE
   - name: PERSONAL
-    type: url-test
-    filter: "US|美"
-    url: http://www.gstatic.com/generate_204
-    interval: 120
-    tolerance: 80
-    use:
-      - ELSE
-  - name: ELSE
     type: select
     use:
-      - ELSE
+      - PERSONAL
   - name: R
     type: select
     use:
@@ -182,14 +173,14 @@ rule-providers:
     <<: *c
     url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Locale.yaml"
     path: ./Providers/Locale.yaml
-  Device:
-    <<: *c
-    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Device.yaml"
-    path: ./Providers/Device.yaml
   Safety:
     <<: *c
     url: "https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml"
     path: ./Providers/Safety.yaml
+  Device:
+    <<: *c
+    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Device.yaml"
+    path: ./Providers/Device.yaml
   Microsoft:
     <<: *c
     url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
