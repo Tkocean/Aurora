@@ -191,7 +191,7 @@ rules:
  - RULE-SET,Device,LINK
  - PROCESS-NAME,clash,REJECT
  - RULE-SET,Local,DIRECT
- - RULE-SET,Safety,LINK
+# - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
