@@ -41,7 +41,6 @@ s: &s
   health-check:
     enable: true
     url: http://www.gstatic.com/generate_204
-    interval: 1200
 t: &t
   type: url-test
   url: http://www.gstatic.com/generate_204
@@ -79,7 +78,7 @@ proxy-providers:
     path: ./Providers/G.yaml
   M:
     <<: *s
-    url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
+    url: "https://zero.marisalnc.com/link/5iqfM1cRaPbOMT6u?clash=1"
     path: ./Providers/M.yaml
   PERSONAL:
     <<: *s
@@ -121,7 +120,7 @@ proxy-groups:
     filter: "🇺🇸|美"
     strategy: consistent-hashing
     url: http://www.gstatic.com/generate_204
-    interval: 1200
+    interval: 7200
     use:
       - R
       - E
@@ -135,7 +134,6 @@ proxy-groups:
     filter: "🇭🇰|港"
     url: http://www.gstatic.com/generate_204
     interval: 120
-    tolerance: 80
     use:
       - M
       - G
