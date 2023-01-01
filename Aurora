@@ -52,7 +52,7 @@ t: &t
     - C
     - G
     - M
-    - SPARE
+    - CURRENT
 c: &c
   type: http
   behavior: classical
@@ -84,10 +84,10 @@ proxy-providers:
     <<: *s
     url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
     path: ./Providers/ELSE.yaml
-  SPARE:
+  CURRENT:
     <<: *s
     url: "https://sub.pmsub.me/base64"
-    path: ./Providers/base64.yaml
+    path: ./Providers/base64.bin
 
 proxy-groups:
 
@@ -127,7 +127,7 @@ proxy-groups:
       - C
       - G
       - M
-      - SPARE
+      - CURRENT
       - PERSONAL
   - name: FAILOVER
     type: fallback
@@ -140,7 +140,7 @@ proxy-groups:
       - C
       - E
       - R
-      - SPARE
+      - CURRENT
   - name: PERSONAL
     type: select
     use:
@@ -165,10 +165,10 @@ proxy-groups:
     type: select
     use:
       - M
-  - name: SPARE
+  - name: CURRENT
     type: select
     use:
-      - SPARE
+      - CURRENT
 
 rule-providers:
 
