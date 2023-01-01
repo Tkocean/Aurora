@@ -13,6 +13,10 @@ profile:
   store-fake-ip: false
 external-controller: 0.0.0.0:9090
 external-ui: Dashboard
+geox-url:
+  mmdb: "https://ghproxy.com/https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
+  geoip: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geoip.dat"
+  geosite: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.dat"
 tun:
   enable: true
   device: Aurora
@@ -188,10 +192,9 @@ rule-providers:
     path: ./Providers/Microsoft.yaml
 
 rules:
- - RULE-SET,Device,LINK
- - PROCESS-NAME,clash,REJECT
  - RULE-SET,Local,DIRECT
-# - RULE-SET,Safety,LINK
+ - RULE-SET,Device,LINK
+ - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
