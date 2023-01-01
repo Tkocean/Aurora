@@ -87,8 +87,8 @@ proxy-providers:
     path: ./Providers/ELSE.yaml
   SPARE:
     <<: *s
-    url: "https://openit.daycat.space/clash"
-    path: ./Providers/SPARE.yaml
+    url: "https://sub.pmsub.me/base64"
+    path: ./Providers/base64.yaml
 
 proxy-groups:
 
@@ -111,14 +111,14 @@ proxy-groups:
       - FAILOVER
       - PERSONAL
   - name: US
-    filter: "US|美"
+    filter: "🇺🇸|美"
     <<: *t
   - name: HK
-    filter: "HK|港"
+    filter: "🇭🇰|港"
     <<: *t
   - name: BALANCE
     type: load-balance
-    filter: "US|美"
+    filter: "🇺🇸|美"
     strategy: consistent-hashing
     url: http://www.gstatic.com/generate_204
     interval: 1200
@@ -132,7 +132,7 @@ proxy-groups:
       - PERSONAL
   - name: FAILOVER
     type: fallback
-    filter: "HK|港"
+    filter: "🇭🇰|港"
     url: http://www.gstatic.com/generate_204
     interval: 120
     tolerance: 80
