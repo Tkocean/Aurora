@@ -14,7 +14,6 @@ profile:
 external-controller: 0.0.0.0:9090
 external-ui: Dashboard
 geox-url:
-  mmdb: "https://ghproxy.com/https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
   geoip: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geoip.dat"
   geosite: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.dat"
 tun:
