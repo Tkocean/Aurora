@@ -53,7 +53,6 @@ t: &t
     - C
     - G
     - M
-    - CURRENT
 c: &c
   type: http
   behavior: classical
@@ -145,6 +144,7 @@ proxy-groups:
   - name: PERSONAL
     type: select
     use:
+      - CURRENT
       - PERSONAL
   - name: R
     type: select
@@ -193,7 +193,7 @@ rule-providers:
 rules:
  - RULE-SET,Local,DIRECT
  - RULE-SET,Device,LINK
-# - RULE-SET,Safety,LINK
+ - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
