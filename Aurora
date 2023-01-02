@@ -54,9 +54,8 @@ t: &t
     - G
     - M
 c: &c
-  type: http
+  type: file
   behavior: classical
-  interval: 86400
 
 proxy-providers:
 
@@ -173,32 +172,21 @@ proxy-groups:
 
 rule-providers:
 
-  Local:
-    <<: *c
-    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Locale.yaml"
-    path: ./Providers/Locale.yaml
-  Safety:
-    <<: *c
-    url: "https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml"
-    path: ./Providers/Safety.yaml
   Device:
     <<: *c
-    url: "https://raw.githubusercontent.com/Tkocean/individual/Aurora/Device.yaml"
     path: ./Providers/Device.yaml
-  Microsoft:
+  Safety:
     <<: *c
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml"
-    path: ./Providers/Microsoft.yaml
+    path: ./Providers/Safety.yaml
 
 rules:
- - RULE-SET,Local,DIRECT
- - RULE-SET,Device,LINK
+ - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
+ - RULE-SET,Device,DIRECT,no-resolve
  - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
  - GEOSITE,Steam,LINK
- - RULE-SET,Microsoft,LINK
  - GEOSITE,Microsoft,LINK
  - GEOSITE,Tencent,DIRECT
  - GEOSITE,NetEase,DIRECT
