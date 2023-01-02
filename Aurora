@@ -1,4 +1,3 @@
-mixed-port: 2461
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -181,6 +180,7 @@ rule-providers:
 rules:
  - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
  - RULE-SET,Device,DIRECT,no-resolve
+ - GEOSITE,APPLE@CN,DIRECT
  - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
@@ -189,9 +189,7 @@ rules:
  - GEOSITE,Microsoft,LINK
  - GEOSITE,Tencent,DIRECT
  - GEOSITE,NetEase,DIRECT
- - GEOSITE,APPLE-CN,DIRECT
- - GEOSITE,APPLE,LINK
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
+ - GEOSITE,Greatfire,LINK
  - MATCH,LINK
- - MATCH,REJECT
