@@ -193,7 +193,7 @@ rule-providers:
 rules:
  - RULE-SET,Local,DIRECT
  - RULE-SET,Device,LINK
- - RULE-SET,Safety,LINK
+# - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
