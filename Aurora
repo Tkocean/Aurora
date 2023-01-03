@@ -5,7 +5,7 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-enable-process: true
+enable-process: false
 tcp-concurrent: false
 profile:
   store-selected: true
