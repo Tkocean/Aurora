@@ -66,7 +66,7 @@ proxy-providers:
     path: ./Providers/H.yaml
   Y:
     <<: *s
-    url: "https://mojie.nl/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
+    url: "https://ypso.cc/api/v1/client/subscribe?token=7fa024296f812698aea4abc2bf346c84"
     path: ./Providers/Y.yaml
   ZERO:
     <<: *s
