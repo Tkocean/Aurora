@@ -62,7 +62,7 @@ proxy-providers:
     path: ./Providers/C.yaml
   H:
     <<: *s
-    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
+    url: "https://xn--4gq62f52gdss.com/api/v1/client/subscribe?token=06aeb9b8d7edc1ddee2f795c27cd25da"
     path: ./Providers/H.yaml
   Y:
     <<: *s
