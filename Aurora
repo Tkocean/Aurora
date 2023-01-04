@@ -49,8 +49,7 @@ t: &t
     - C
     - H
     - Y
-    - O
-    - L
+    - ZERO
 c: &c
   type: file
   behavior: classical
@@ -63,20 +62,16 @@ proxy-providers:
     path: ./Providers/C.yaml
   H:
     <<: *s
-    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
     path: ./Providers/H.yaml
   Y:
     <<: *s
     url: "https://mojie.nl/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
     path: ./Providers/Y.yaml
-  O:
-    <<: *s
-    url: "https://no626.com/api/v1/client/subscribe?token=30b1bce0c89488a14871c038c205e2af"
-    path: ./Providers/O.yaml
-  L:
+  ZERO:
     <<: *s
     url: "https://zero.marisalnc.com/link/5iqfM1cRaPbOMT6u?clash=1"
-    path: ./Providers/L.yaml
+    path: ./Providers/zero.bin
   CURRENT:
     <<: *s
     url: "https://sub.pmsub.me/base64"
@@ -91,11 +86,10 @@ proxy-groups:
   - name: PROXY
     type: select
     proxies:
+      - ZERO
       - C
       - H
       - Y
-      - O
-      - L
       - US
       - HK
   - name: LINK
@@ -103,50 +97,35 @@ proxy-groups:
     proxies:
       - PROXY
       - DIRECT
-      - CETION
-      - BALANCE
-      - FAILOVER
+      - DURABLE
+      - CURRENT
+      - SPEED-TEST
   - name: US
     filter: "🇺🇸|美"
     <<: *t
   - name: HK
     filter: "🇭🇰|港"
     <<: *t
-  - name: CETION
+  - name: SPEED-TEST
     type: url-test
     filter: "🇭🇰|港"
     url: http://www.gstatic.com/generate_204
-    interval: 7200
+    interval: 3600
     tolerance: 80
     use:
       - DURABLE
       - CURRENT
-  - name: BALANCE
-    type: load-balance
-    filter: "🇺🇸|美"
-    strategy: consistent-hashing
-    url: http://www.gstatic.com/generate_204
-    interval: 7200
+  - name: ZERO
+    type: select
     use:
-      - C
-      - H
-      - Y
-      - O
-      - L
-      - DURABLE
-      - CURRENT
-  - name: FAILOVER
-    type: fallback
-    filter: "🇭🇰|港"
-    url: http://www.gstatic.com/generate_204
-    interval: 120
+      - ZERO
+  - name: DURABLE
+    type: select
     use:
       - DURABLE
-      - L
-      - O
-      - Y
-      - H
-      - C
+  - name: CURRENT
+    type: select
+    use:
       - CURRENT
   - name: C
     type: select
@@ -160,22 +139,6 @@ proxy-groups:
     type: select
     use:
       - Y
-  - name: O
-    type: select
-    use:
-      - O
-  - name: L
-    type: select
-    use:
-      - L
-  - name: DURABLE
-    type: select
-    use:
-      - DURABLE
-  - name: CURRENT
-    type: select
-    use:
-      - CURRENT
 
 rule-providers:
 
