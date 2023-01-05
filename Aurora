@@ -1,3 +1,4 @@
+tproxy-port: 7890
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -16,7 +17,7 @@ geox-url:
   geoip: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geoip.dat"
   geosite: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.dat"
 tun:
-  enable: true
+  enable: false
   device: Aurora
   stack: system
   dns-hijack:
@@ -26,6 +27,7 @@ tun:
 dns:
   enable: true
   ipv6: false
+  listen: 0.0.0.0:1053
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
@@ -66,7 +68,7 @@ proxy-providers:
     path: ./Providers/H.yaml
   Y:
     <<: *s
-    url: "https://mojie.nl/api/v1/client/subscribe?token=7cf20903de7cb890dde59d6bc23b29d1"
+    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
     path: ./Providers/Y.yaml
   ZERO:
     <<: *s
@@ -108,7 +110,7 @@ proxy-groups:
     <<: *t
   - name: SPEED-TEST
     type: url-test
-    filter: "🇭🇰|港"
+    filter: "🇺🇸|美"
     url: http://www.gstatic.com/generate_204
     interval: 3600
     tolerance: 80
