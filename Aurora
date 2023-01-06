@@ -6,7 +6,7 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-enable-process: false
+enable-process: true
 tcp-concurrent: false
 profile:
   store-selected: true
@@ -53,7 +53,6 @@ t: &t
     - Y
     - ZERO
     - DURABLE
-    - CURRENT
 c: &c
   type: file
   behavior: classical
@@ -133,6 +132,12 @@ proxy-groups:
     type: select
     use:
       - Y
+  - name: UNKNOWN
+    type: select
+    proxies:
+      - LINK
+      - DIRECT
+      - REJECT
 
 rule-providers:
 
@@ -147,7 +152,7 @@ rules:
  - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
  - RULE-SET,Device,DIRECT,no-resolve
  - GEOSITE,APPLE@CN,DIRECT
- - RULE-SET,Safety,LINK
+ - RULE-SET,Safety,UNKNOWN
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
@@ -158,4 +163,4 @@ rules:
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
  - GEOSITE,Greatfire,LINK
- - MATCH,LINK
+ - MATCH,UNKNOWN
