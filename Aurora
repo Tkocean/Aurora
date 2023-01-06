@@ -1,4 +1,4 @@
-tproxy-port: 7890
+tproxy-port: 2461
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -52,6 +52,8 @@ t: &t
     - H
     - Y
     - ZERO
+    - DURABLE
+    - CURRENT
 c: &c
   type: file
   behavior: classical
@@ -101,22 +103,12 @@ proxy-groups:
       - DIRECT
       - DURABLE
       - CURRENT
-      - SPEED-TEST
   - name: US
     filter: "🇺🇸|美"
     <<: *t
   - name: HK
     filter: "🇭🇰|港"
     <<: *t
-  - name: SPEED-TEST
-    type: url-test
-    filter: "🇺🇸|美"
-    url: http://www.gstatic.com/generate_204
-    interval: 3600
-    tolerance: 80
-    use:
-      - DURABLE
-      - CURRENT
   - name: ZERO
     type: select
     use:
