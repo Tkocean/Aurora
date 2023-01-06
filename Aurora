@@ -6,7 +6,23 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-enable-process: true
+sniffer:
+ enable: false
+ sniffing:
+   - tls
+   - http
+ skip-sni:
+   - 'Mijia Cloud'
+   - 'dlg.io.mi.com'
+   - '+.apple.com'
+   - '*.baidu.com'
+ force-domain:
+   - 'google.com'
+ port-whitelist:
+   - 80
+   - 443
+   - 8000-9000
+enable-process: false
 tcp-concurrent: false
 profile:
   store-selected: true
