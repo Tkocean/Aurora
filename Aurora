@@ -1,4 +1,4 @@
-mixed-port: 7890
+mixed-port: 2468
 tproxy-port: 2461
 allow-lan: true
 geodata-mode: true
@@ -175,8 +175,6 @@ rules:
  - GEOSITE,PayPal,LINK
  - GEOSITE,Steam,LINK
  - GEOSITE,Microsoft,LINK
- - GEOSITE,Tencent,DIRECT
- - GEOSITE,NetEase,DIRECT
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
  - GEOSITE,Greatfire,LINK
