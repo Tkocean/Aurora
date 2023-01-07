@@ -12,7 +12,6 @@ sniffer:
    - tls
    - http
  skip-sni:
-   - 'Mijia Cloud'
    - 'dlg.io.mi.com'
    - '+.apple.com'
    - '*.baidu.com'
@@ -67,8 +66,8 @@ t: &t
     - C
     - H
     - Y
-    - ZERO
     - DURABLE
+    - EXCELLENT
 c: &c
   type: file
   behavior: classical
@@ -85,19 +84,19 @@ proxy-providers:
     path: ./Providers/H.yaml
   Y:
     <<: *s
-    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    url: "https://guolicheng.cfd/api/v1/client/subscribe?token=0bd7c8efff80ce772387bc60415fea95"
     path: ./Providers/Y.yaml
-  ZERO:
+  EXCELLENT:
     <<: *s
-    url: "https://zero.marisalnc.com/link/5iqfM1cRaPbOMT6u?clash=1"
-    path: ./Providers/zero.bin
+    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    path: ./Providers/excellent.bin
   CURRENT:
     <<: *s
     url: "https://sub.pmsub.me/base64"
     path: ./Providers/base64.bin
   DURABLE:
     <<: *s
-    url: "https://api.sublink.dev/sub?target=clash&url=https%3A%2F%2Fpastebin.com%2Fraw%2FxWWAYfeq&insert=false&config=https%3A%2F%2Fsubweb.s3.fr-par.scw.cloud%2FRemoteConfig%2Fspecial%2Fphaors.ini&include=%F0%9F%87%AD%F0%9F%87%B0%7C%E6%B8%AF%7C%F0%9F%87%BA%F0%9F%87%B8%7C%E7%BE%8E%7C%F0%9F%87%B8%F0%9F%87%AC%7C%E6%96%B0%E5%8A%A0%E5%9D%A1&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=true&udp=true&new_name=true"
+    url: "https://zero.marisalnc.com/link/5iqfM1cRaPbOMT6u?clash=1"
     path: ./Providers/durable.bin
 
 proxy-groups:
@@ -105,7 +104,6 @@ proxy-groups:
   - name: PROXY
     type: select
     proxies:
-      - ZERO
       - C
       - H
       - Y
@@ -118,16 +116,17 @@ proxy-groups:
       - DIRECT
       - DURABLE
       - CURRENT
+      - EXCELLENT
   - name: US
     filter: "🇺🇸|美"
     <<: *t
   - name: HK
     filter: "🇭🇰|港"
     <<: *t
-  - name: ZERO
+  - name: EXCELLENT
     type: select
     use:
-      - ZERO
+      - EXCELLENT
   - name: DURABLE
     type: select
     use:
