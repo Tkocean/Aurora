@@ -84,7 +84,7 @@ proxy-providers:
     path: ./Providers/H.yaml
   Y:
     <<: *s
-    url: "https://guolicheng.cfd/api/v1/client/subscribe?token=0bd7c8efff80ce772387bc60415fea95"
+    url: "https://bigme.pro/link/fVHGPit2u7Kurw3e?clash=1"
     path: ./Providers/Y.yaml
   EXCELLENT:
     <<: *s
