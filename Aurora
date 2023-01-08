@@ -52,15 +52,15 @@ proxies:
 
 s: &s
   type: http
-  interval: 7200
+  interval: 86400
   health-check:
     enable: true
     url: http://www.gstatic.com/generate_204
-    interval: 3600
+    interval: 600
 t: &t
   type: url-test
   url: http://www.gstatic.com/generate_204
-  interval: 120
+  interval: 300
   tolerance: 38
   use:
     - C
