@@ -117,6 +117,26 @@ proxy-groups:
       - DURABLE
       - CURRENT
       - EXCELLENT
+      - 🇭🇰 Hong Kong
+      - 🇺🇸 United States
+  - name: 🇭🇰 Hong Kong
+    type: select
+    use:
+      - C
+      - H
+      - Y
+      - DURABLE
+      - EXCELLENT
+    filter: "🇭🇰|港"
+  - name: 🇺🇸 United States
+    type: select
+    use:
+      - C
+      - H
+      - Y
+      - DURABLE
+      - EXCELLENT
+    filter: "🇺🇸|美"
   - name: US
     filter: "🇺🇸|美"
     <<: *t
