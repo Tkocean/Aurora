@@ -167,12 +167,6 @@ proxy-groups:
     type: select
     use:
       - Y
-  - name: UNKNOWN
-    type: select
-    proxies:
-      - LINK
-      - DIRECT
-      - REJECT
 
 rule-providers:
 
@@ -187,7 +181,7 @@ rules:
  - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
  - RULE-SET,Device,DIRECT,no-resolve
  - GEOSITE,APPLE@CN,DIRECT
- - RULE-SET,Safety,UNKNOWN
+ - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
@@ -196,4 +190,4 @@ rules:
  - GEOSITE,Greatfire,LINK
  - GEOSITE,CN,DIRECT
  - GEOIP,CN,DIRECT
- - MATCH,UNKNOWN
+ - MATCH,LINK
