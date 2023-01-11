@@ -178,16 +178,13 @@ rule-providers:
     path: ./Providers/Safety.yaml
 
 rules:
- - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
- - RULE-SET,Device,DIRECT,no-resolve
- - GEOSITE,APPLE@CN,DIRECT
  - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
- - GEOIP,Google,LINK
  - GEOSITE,PayPal,LINK
  - GEOSITE,Steam,LINK
  - GEOSITE,Microsoft,LINK
  - GEOSITE,Greatfire,LINK
  - GEOSITE,CN,DIRECT
+ - GEOIP,Google,LINK
  - GEOIP,CN,DIRECT
  - MATCH,LINK
