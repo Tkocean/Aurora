@@ -1,4 +1,4 @@
-tproxy-port: 2461
+#tproxy-port: 2461
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -7,7 +7,7 @@ log-level: error
 ipv6: false
 udp: true
 sniffer:
- enable: false
+ enable: true
  sniffing:
    - tls
    - http
@@ -16,6 +16,7 @@ sniffer:
    - '+.apple.com'
    - '*.baidu.com'
  force-domain:
+   - '+'
    - 'google.com'
  port-whitelist:
    - 80
@@ -42,7 +43,7 @@ tun:
 dns:
   enable: true
   ipv6: false
-  listen: 0.0.0.0:1053
+#  listen: 0.0.0.0:1053
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
