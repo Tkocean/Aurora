@@ -169,17 +169,7 @@ proxy-groups:
     use:
       - Y
 
-rule-providers:
-
-  Device:
-    <<: *c
-    path: ./Providers/Device.yaml
-  Safety:
-    <<: *c
-    path: ./Providers/Safety.yaml
-
 rules:
- - RULE-SET,Safety,LINK
  - GEOSITE,Google,LINK
  - GEOSITE,PayPal,LINK
  - GEOSITE,Steam,LINK
