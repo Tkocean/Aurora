@@ -1,4 +1,3 @@
-#tproxy-port: 2461
 allow-lan: true
 geodata-mode: true
 unified-delay: true
@@ -7,7 +6,7 @@ log-level: error
 ipv6: false
 udp: true
 sniffer:
- enable: true
+ enable: false
  sniffing:
    - tls
    - http
@@ -33,7 +32,7 @@ geox-url:
   geoip: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geoip.dat"
   geosite: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.dat"
 tun:
-  enable: false
+  enable: true
   device: Aurora
   stack: system
   dns-hijack:
@@ -43,7 +42,6 @@ tun:
 dns:
   enable: true
   ipv6: false
-#  listen: 0.0.0.0:1053
   default-nameserver:
     - 127.0.0.1:2453
   nameserver:
