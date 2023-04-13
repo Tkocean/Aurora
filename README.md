@@ -31,8 +31,6 @@ https://github.com/Tkocean/individual/tree/Aurora
 
 # 路由
 端口：http://192.168.43.1:9090
-密码：暂无
 
 # 旁路由
 端口：http://192.168.1.100:9090
-密码：暂无
