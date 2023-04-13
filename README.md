@@ -25,12 +25,10 @@ https://github.com/Tkocean/individual/tree/Aurora
 
 本机：http://127.0.0.1:9090/ui/?theme=light
 
-路由：http://192.168.43.1:9090/ui/?theme=light#/
-
-旁路由：http://192.168.1.100:9090/ui/?theme=light#/
-
-# 路由
+- 路由
+地址：http://192.168.43.1:9090/ui/?theme=light#/
 端口：http://192.168.43.1:9090
 
-# 旁路由
+- 旁路由
+地址：http://192.168.1.100:9090/ui/?theme=light#/
 端口：http://192.168.1.100:9090
