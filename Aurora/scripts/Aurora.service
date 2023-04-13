@@ -1,0 +1,358 @@
+#!/system/bin/sh
+export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
+source /data/adb/Aurora/Providers/Aurora.ini
+
+function notification(){
+
+local title="${2}"
+local text="${1}"
+
+ test -z "${title}" && title='Aurora'
+ test -z "${text}" && text='command line'
+
+su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
+
+}
+
+start() {
+
+  if [ -f "${system_path}/${bin_name}" ] ; then
+    killall -15 ${bin_name}
+    mkdir -p ${run_path}
+    ln -sf /data/adb/modules/Aurora ${data_dir}
+    chown ${user_group} ${system_path}/${bin_name}
+    chmod ${permissions} ${system_path}/${bin_name}
+  else
+    notification "NOT Found “${bin_name}” Kernel"
+  fi
+
+  if [ "${tun_status}" = "true" ] ; then
+    mkdir -p /dev/net
+    [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
+  fi
+
+  if [ "${bin_name}" = "clash" ] ; then
+    cp ${config_path}/${bin_name} ${run_path}/
+    mv ${run_path}/${bin_name} ${template_file}
+    if [ -f ${template_file} ] && [ -f ${GeoIP_file} ] ; then
+      if $(${bin_path} -d ${data_dir} -t -f ${template_file} > /dev/null) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid ${user_group} ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
+        touch ${run_path}/${bin_name}
+        start_dns_server >> /dev/null 2>&1
+        notification "DNS-Path：${dns_status}"
+      else
+        nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
+        notification "${bin_name}配置有误"
+        exit 1
+      fi
+    else
+      notification "NOT Found “${bin_name}” run file"
+      exit 1
+    fi
+  else
+    cp ${config_path}/${bin_name} ${data_dir}/Providers
+    mv ${data_dir}/Providers/${bin_name} ${boxtemplate_file}
+    if [ -f ${boxtemplate_file} ] && [ -f ${GeoIP_file} ] ; then
+      if $(${bin_path} check -D ${data_dir}/Providers -c box.json > ${run_path}/Check.log 2>&1) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid ${user_group} ${system_path}/sing-box run -D ${data_dir}/Providers -c box.json 2>&1 &
+        touch ${run_path}/${bin_name}
+        rm ${run_path}/Check.log
+      else
+        notification "${bin_name}配置有误"
+        exit 1
+      fi
+    else
+      notification "NOT Found “${bin_name}” run file"
+      exit 1
+    fi
+  fi
+
+}
+
+start_dns_server() {
+
+  if [ "${dns_status}" = "mosdns" ] ; then
+
+    cp ${config_path}/${dns_device} ${data_dir}/Providers/
+    mv ${data_dir}/Providers/${dns_device} ${data_dir}/Providers/config.yaml
+
+    if [ -f "${system_path}/mosdns" ] ; then
+      chown 0:1051 ${system_path}/mosdns
+      chmod 110 ${system_path}/mosdns
+    else
+      notification "NOT Found “${dns_status}” Kernel"
+      exit 1
+    fi
+
+    if [ -f "${run_path}/${bin_name}" ] ; then
+      ulimit -SHn 1000000
+      nohup ${system_path}/mosdns start -d ${data_dir}/Providers > ${run_path}/dns.log 2>&1 &
+      echo "${dns_device}" > ${run_path}/${bin_name}
+    else
+      start >> /dev/null 2>&1
+    fi
+
+  fi
+
+}
+
+upkernel() {
+
+  chown 0:1000 ${system_path}/upx
+  chmod 110 ${system_path}/upx
+
+  if [ "${bin_name}" = "clash" ] ; then
+    wget -q $(curl -s https://api.github.com/repos/MetaCubeX/Clash.Meta/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O /data/adb/Aurora/scripts/clash.gz && gzip -d /data/adb/Aurora/scripts/clash.gz && chmod 0755 /data/adb/Aurora/scripts/clash && /data/adb/Aurora/scripts/clash -v
+  fi
+
+  nohup ${system_path}/upx --best /data/adb/Aurora/scripts/clash
+
+  if [ -f "/data/adb/Aurora/scripts/clash" ] ; then
+    rm ${bin_path}
+    mv /data/adb/Aurora/scripts/clash ${bin_path}
+    cp ${bin_path} ${system_path}/clash
+    notification "“Kernel” update success"
+  else
+    notification '内核更新失败，未知错误'
+  fi
+
+}
+
+script() {
+
+  if [ "${script_run}" = "true" ] ; then
+
+    function lmlog() {
+	  local logfile=${1}
+	  local maxsize=$((1024 * 50))
+	  filesize=$(ls -l ${logfile} | awk '{ print $5 }')
+	  if test ${filesize} -gt ${maxsize}; then
+		  echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
+		  notification '日志文件已清理'
+	  fi
+    }
+
+    lmlog "/data/adb/Aurora/run/kernel.log"
+    lmlog "/data/adb/Aurora/run/dns.log"
+    lmlog "${Update}"
+
+    is_empty_dir(){
+	  return `ls -A $1 | wc -w`
+    }
+
+    folder="/data/media/0/"
+
+    for file in `ls $folder`
+    do
+
+    if is_empty_dir $folder"/"$file
+    then
+	  rm -rf $folder"/"$file
+    else
+	  rm -rf $folder.*
+    fi
+    done
+
+    sync
+    echo 3 > /proc/sys/vm/drop_caches
+    echo 1 > /proc/sys/vm/compact_memory
+
+    if [ "${script_out}" = "true" ] ; then
+      nofcon '自检完成，即将重启设备'
+      reboot
+    fi
+
+  fi
+
+}
+
+stop_dns_server() {
+
+  if [ "${dns_status}" = "mosdns" ] ; then
+    killall -15 mosdns
+    rm ${data_dir}/Providers/config.yaml
+  fi
+
+}
+
+bakeup() {
+
+  mkdir -p /data/cache/Aurora
+
+  cp /data/adb/modules/Aurora/config/* /data/cache/Aurora
+  cp /data/adb/Aurora/*.dat /data/cache/Aurora
+  cp /data/adb/Aurora/scripts/* /data/cache/Aurora
+  cp -r /data/adb/Aurora/Dashboard /data/cache/Aurora
+  cp /data/adb/Aurora/Providers/Aurora.ini /data/cache/Aurora
+
+
+  notification "Kernel: “${bin_name}” backup success"
+  echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" Kernel: “${bin_name}” backup success" >>${Update}
+
+}
+
+updata_server() {
+
+  updateFile() {
+
+    file="$1"
+    file_bk="${file}.bk"
+    update_url="$2"
+
+    mv -f ${file} ${file_bk}
+    echo "curl -L -A 'clash' ${update_url} -o ${file} "
+    wget --no-check-certificate -U clash -O ${file} ${update_url}  2>&1
+
+    sleep 1
+
+    if [ -f "${file}" ]; then
+        rm -rf ${file_bk}
+        notification " success：${file}"
+        echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" success：${file}" >>${Update}
+    else
+        mv ${file_bk} ${file}
+        notification " error：${file}"
+        echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" error：${file}" >>${Update}
+        return 1
+    fi
+
+  }
+
+  flag=false
+
+  update_pre() {
+
+    if [ ${updateSafety} == "true" ]; then
+        updateFile ${data_dir}/Providers/Safety.yaml https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateAurora} == "true" ]; then
+        updateFile ${Aurora} ${Aurora_url}
+      if [ -f "${Aurora}" ] ; then
+        unzip -d /data/adb/Aurora/run/ ${Aurora}
+        rm -rf /data/adb/Aurora/Dashboard
+        mv /data/adb/Aurora/run/Yacd-meta-gh-pages /data/adb/Aurora/Dashboard
+        rm ${Aurora}
+        chmod 0755 /data/adb/Aurora/Dashboard/*
+        chmod 0755 /data/adb/Aurora/Dashboard/*/*
+      fi
+    fi
+
+    if [ ${updateHosts} == "true" ]; then
+        updateFile ${Hosts} ${Hosts_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateGeoSite} == "true" ]; then
+        updateFile ${GeoSite_file} ${GeoSite_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateGeoIP} == "true" ]; then
+        updateFile ${GeoIP_file} ${GeoIP_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateKernel} == "true" ]; then
+        /data/adb/Aurora/scripts/Aurora.service -u
+    fi
+
+    /data/adb/Aurora/scripts/Aurora.service -b
+    chown ${user_group} ${bin_path}
+    chmod ${permissions} ${bin_path}
+    rm ${data_dir}/Aurora/updata
+
+  }
+
+  if [ ${filter_local} == "true" ]; then
+    if [ ${updata_load} == "true" ]; then
+      update_pre
+    fi
+    if [ ${updata_load} == "false" ]; then
+      rm ${data_dir}/Aurora/updata
+    fi
+  else
+    if [ ${updata_load} == "false" ]; then
+      update_pre
+    fi
+    if [ ${updata_load} == "true" ]; then
+      rm ${data_dir}/Aurora/updata
+    fi
+  fi
+
+}
+
+rebin() {
+
+  if [ ${updata_load} == "true" ]; then
+    touch /data/adb/modules/Aurora/disable
+    sleep 3
+    rm /data/adb/modules/Aurora/disable
+  fi
+
+  if [ ${updata_load} == "false" ]; then
+    /data/adb/Aurora/scripts/Aurora.iptables -k
+    sleep 5
+    /data/adb/Aurora/scripts/Aurora.iptables -s
+  fi
+
+}
+
+stop() {
+
+  rm ${template_file}
+  rm ${run_path}/*.log
+  killall -15 ${bin_name}
+  rm ${boxtemplate_file}
+  rm ${run_path}/${bin_name}
+  stop_dns_server >> /dev/null 2>&1
+
+}
+
+while getopts ":skurpbt" signal ; do
+  case ${signal} in
+    s)
+      if [ "${decide_dns}" = "true" ] ; then
+        start_dns_server >> /dev/null 2>&1
+      else
+        start >> /dev/null 2>&1
+      fi
+      ;;
+    k)
+      if [ "${decide_dns}" = "true" ] ; then
+        stop_dns_server >> /dev/null 2>&1
+      else
+        stop >> /dev/null 2>&1
+      fi
+      ;;
+    u)
+      upkernel >> /dev/null 2>&1
+      ;;
+    r)
+      rebin >> /dev/null 2>&1
+      ;;
+    p)
+      updata_server >> /dev/null 2>&1
+      ;;
+    b)
+      bakeup >> /dev/null 2>&1
+      ;;
+    t)
+      script >> /dev/null 2>&1
+      ;;
+    ?)
+      echo error
+      ;;
+  esac
+done
