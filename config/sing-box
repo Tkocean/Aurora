@@ -78,11 +78,7 @@
     },
     {
       "tag": "🇺🇸",
-      "type": "shadowsocks",
-      "server": "us01.bigmeyear.org",
-      "server_port": 30238,
-      "method": "aes-128-gcm",
-      "password": "cb681cdc-4557-3c6c-bef0-ccc1765cd7b5"
+      "type": "shadowsocks"
     }
   ],
   "route": {
