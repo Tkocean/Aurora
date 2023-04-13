@@ -2,7 +2,7 @@
 - arm64 x Magisk
 
 ## 依赖文件：
-https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar.bz2
+- https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar.bz2
 
 ## 实验性功能
 
@@ -15,11 +15,11 @@ https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar
 - UPX支持
 
 ## 热点机固定IP可用此XP模块
-https://github.com/XhyEax/SoftApHelper
+- https://github.com/XhyEax/SoftApHelper
 
 
 ## 仓库：
-https://github.com/Tkocean/individual/tree/Aurora
+- https://github.com/Tkocean/individual/tree/Aurora
 
 ## 可根据需要访问对应地址打开操控面板
 
