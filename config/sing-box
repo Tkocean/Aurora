@@ -1,0 +1,144 @@
+{
+  "log": {
+    "disabled": true,
+    "level": "info",
+    "output": "/data/adb/Aurora/run/kernel.log",
+    "timestamp": false
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "google",
+        "address": "tcp://8.8.8.8",
+        "detour": "🇺🇸"
+      },
+      {
+        "tag": "alidns",
+        "address": "https://223.5.5.5/dns-query",
+        "detour": "direct"
+      }
+    ],
+    "rules": [
+      {
+        "geosite": [
+          "cn",
+          "apple@cn",
+          "category-games@cn"
+        ],
+        "server": "alidns",
+        "disable_cache": false
+      },
+      {
+        "geosite": [
+          "google",
+          "microsoft",
+          "greatfire"
+        ],
+        "server": "google",
+        "disable_cache": false
+      }
+    ],
+    "strategy": "prefer_ipv4",
+    "final": "google",
+    "disable_cache": false,
+    "disable_expire": false
+  },
+  "inbounds": [
+    {
+      "type": "tproxy",
+      "tag": "tproxy-in",
+      "listen": "::",
+      "listen_port": 2461,
+      "sniff": true,
+      "sniff_override_destination": true,
+      "domain_strategy": "prefer_ipv4"
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "tag": "Safety",
+      "type": "selector",
+      "outbounds": [
+        "block",
+        "direct",
+        "🇺🇸"
+      ]
+    },
+    {
+      "tag": "🇺🇸",
+      "type": "shadowsocks",
+      "server": "us01.bigmeyear.org",
+      "server_port": 30238,
+      "method": "aes-128-gcm",
+      "password": "cb681cdc-4557-3c6c-bef0-ccc1765cd7b5"
+    }
+  ],
+  "route": {
+    "geoip": {
+      "path": "./GeoIP.db",
+      "download_url": "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geoip.db",
+      "download_detour": "direct"
+    },
+    "geosite": {
+      "path": "./GeoSite.db",
+      "download_url": "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.db",
+      "download_detour": "direct"
+    },
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "geosite": "category-ads-all",
+        "outbound": "Safety"
+      },
+      {
+        "geosite": [
+          "apple@cn",
+          "category-games@cn",
+          "cn"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "geosite": [
+          "google",
+          "microsoft",
+          "greatfire"
+        ],
+        "outbound": "🇺🇸"
+      },
+      {
+        "geoip": [
+          "cn"
+        ],
+        "outbound": "direct"
+      }
+    ],
+    "auto_detect_interface": false,
+    "find_process": true,
+    "final": "🇺🇸"
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "/data/adb/Aurora/Dashboard",
+      "default_mode": "rule",
+      "cache_file": "/data/adb/Aurora/run/cache.db",
+      "store_selected": true
+    }
+  }
+}

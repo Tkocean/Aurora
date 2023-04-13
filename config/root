@@ -1,0 +1,3 @@
+30 4 * * * touch /data/adb/Aurora/Aurora/updata
+10 13 * * * /data/adb/Aurora/scripts/Aurora.service -b
+*/5 * * * *  /data/adb/Aurora/scripts/Aurora.service -t
