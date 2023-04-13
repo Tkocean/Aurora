@@ -17,21 +17,22 @@ https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar
 ## 热点机固定IP可用此XP模块
 https://github.com/XhyEax/SoftApHelper
 
-##仓库：
+
+## 仓库：
 https://github.com/Tkocean/individual/tree/Aurora
 
-##可根据需要访问对应地址打开操控面板
+## 可根据需要访问对应地址打开操控面板
 
-#本机：http://127.0.0.1:9090/ui/?theme=light
+本机：http://127.0.0.1:9090/ui/?theme=light
 
-#路由：http://192.168.43.1:9090/ui/?theme=light#/
+路由：http://192.168.43.1:9090/ui/?theme=light#/
 
-#旁路由：http://192.168.1.100:9090/ui/?theme=light#/
+旁路由：http://192.168.1.100:9090/ui/?theme=light#/
 
-##路由
+## 路由
 端口：http://192.168.43.1:9090
 密码：暂无
 
-##旁路由
+## 旁路由
 端口：http://192.168.1.100:9090
 密码：暂无
