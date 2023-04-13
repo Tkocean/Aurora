@@ -1,8 +1,0 @@
-# - performance powersave balance fast
-com.tencent.jkchess fast
-com.tencent.tmgp.sgame fast
-com.feng.monkeybook powersave
-eu.kanade.tachiyomi powersave
-
-- powersave
-* balance
