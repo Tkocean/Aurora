@@ -24,18 +24,17 @@ https://github.com/Tkocean/individual/tree/Aurora
 ## 可根据需要访问对应地址打开操控面板
 
 - 本机：
-- 
-地址：http://127.0.0.1:9090/ui/?theme=light
+
+  地址：http://127.0.0.1:9090/ui/?theme=light
 
 - 路由
 
-地址：http://192.168.43.1:9090/ui/?theme=light#/
+  地址：http://192.168.43.1:9090/ui/?theme=light#/
 
-端口：http://192.168.43.1:9090
-
+  端口：http://192.168.43.1:9090
 
 - 旁路由
 
-地址：http://192.168.1.100:9090/ui/?theme=light#/
+  地址：http://192.168.1.100:9090/ui/?theme=light#/
 
-端口：http://192.168.1.100:9090
+  端口：http://192.168.1.100:9090
