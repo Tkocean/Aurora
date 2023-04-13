@@ -1,6 +1,0 @@
-payload:
-  - GEOIP,Private
-  - DST-PORT,22
-  - IP-CIDR,223.5.5.5/32
-  - IP-CIDR,120.53.53.53/32
-  - GEOSITE,APPLE@CN
