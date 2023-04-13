@@ -69,19 +69,11 @@ plugins:
     args:
       qtype: [65]
 
-  - tag: proxy_domain
-    type: query_matcher
-    args:
-      domain:
-      - provider:geosite:google
-      - provider:geosite:geolocation-!cn
-
   - tag: direct_domain
     type: query_matcher
     args:
       domain:
       - provider:geosite:apple@cn
-      - provider:geosite:tencent
       - provider:geosite:cn
 
   - tag: direct_ip
@@ -95,8 +87,6 @@ plugins:
     args:
       domain:
       - provider:geosite:category-ads-all
-      - provider:geosite:win-update
-      - provider:geosite:win-spy
 
   - tag: calculate
     type: sequence
@@ -117,19 +107,14 @@ plugins:
           - direct
           - _return
           else_exec:
-          - if: proxy_domain
-            exec:
+          - primary:
             - proxy
             - _return
-            else_exec:
-            - primary:
-              - proxy
-              - _return
-              secondary:
-              - direct
-              - _return
-              stat_length: 10
-              threshold: 5
+            secondary:
+            - direct
+            - _return
+            stat_length: 10
+            threshold: 5
       - ttl
 
   - tag: entrance
