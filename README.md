@@ -1,7 +1,7 @@
-# 运行环境：
+## 运行环境：
 # arm64 x Magisk
 
-# 依赖文件：
+## 依赖文件：
 https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar.bz2
 
 ## 实验性功能
@@ -29,10 +29,10 @@ https://github.com/Tkocean/individual/tree/Aurora
 
 旁路由：http://192.168.1.100:9090/ui/?theme=light#/
 
-## 路由
+# 路由
 端口：http://192.168.43.1:9090
 密码：暂无
 
-## 旁路由
+# 旁路由
 端口：http://192.168.1.100:9090
 密码：暂无
