@@ -9,7 +9,7 @@ log-level: error
 ipv6: false
 udp: true
 sniffer:
-  enable: true
+  enable: false
   force-dns-mapping: true
   parse-pure-ip: true
   override-destination: false
@@ -23,21 +23,18 @@ sniffer:
     - "google.com"
   skip-domain:
     - "+.apple.com"
-    - "Mijia Cloud"
     - "+.mi.com"
     - "+.jd.com"
     - "+.baidu.com"
-enable-process: false
-tcp-concurrent: false
 profile:
   store-selected: true
   store-fake-ip: false
+tcp-concurrent: false
 external-controller: 0.0.0.0:9090
 external-ui: Dashboard
 geox-url:
-  mmdb: "https://ghproxy.com/https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
-  geoip: "https://ghproxy.com/https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip-only-cn-private.dat"
-  geosite: "https://ghproxy.com/https://raw.githubusercontent.com/CHIZI-0618/v2ray-rules-dat/release/geosite.dat"
+  geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.dat"
 dns:
   enable: true
   ipv6: false
@@ -46,9 +43,6 @@ dns:
   listen: 0.0.0.0:1053
   nameserver:
     - 127.0.0.1:2453
-  proxy-server-nameserver:
-    - tls://223.5.5.5:853
-    - tls://1.12.12.12:853
 tun:
   enable: false
   device: Aurora
@@ -74,7 +68,7 @@ s: &s
   health-check:
     enable: true
     url: https://cp.cloudflare.com/generate_204
-    interval: 600
+    interval: 86400
 
 proxy-providers:
 
@@ -107,11 +101,6 @@ proxy-groups:
       - DIRECT
       - 🇭🇰 Hong Kong
       - 🇺🇸 United States
-  - name: SHUNT
-    type: select
-    proxies:
-      - PASS
-      - LINK
   - name: 🇭🇰 Hong Kong
     type: select
     use:
@@ -131,19 +120,12 @@ proxy-groups:
       - BUCKSHE
     filter: "🇺🇸|美|US"
 
-rule-providers:
-
-  Safety:
-    type: file
-    behavior: classical
-    path: ./Providers/Safety.yaml
-
 rules:
- - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
+ - AND,((NETWORK,UDP),(OR,((DST-PORT,3478),(GEOIP,Private)))),REJECT
  - GEOIP,Private,DIRECT,no-resolve
- - GEOSITE,APPLE@CN,DIRECT
- - RULE-SET,Safety,SHUNT
+ - GEOSITE,Apple,DIRECT
  - GEOSITE,CN,DIRECT
+ - GEOIP,Apple,DIRECT
  - GEOIP,CN,DIRECT
  - MATCH,LINK
  - MATCH,REJECT

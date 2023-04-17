@@ -21,10 +21,12 @@ plugins:
       - addr: "tls://1.12.12.12:853"
         enable_pipeline: true
         enable_http3: false
+        max_conns: 4
         trusted: true
       - addr: "tls://223.5.5.5:853"
         enable_pipeline: true
         enable_http3: false
+        max_conns: 4
         trusted: true
   - tag: proxy
     type: fast_forward
@@ -33,11 +35,18 @@ plugins:
       - addr: "tls://8.8.8.8:853"
         enable_pipeline: true
         enable_http3: false
+        max_conns: 4
         trusted: true
       - addr: "tls://1.1.1.1:853"
         enable_pipeline: true
         enable_http3: false
+        max_conns: 4
         trusted: true
+
+  - tag: prevent_type65
+    type: query_matcher
+    args:
+      qtype: [65]
 
   - tag: cache
     type: cache
@@ -57,54 +66,58 @@ plugins:
     type: query_matcher
     args:
       domain:
-      - provider:geosite:apple@cn
+      - provider:geosite:apple
       - provider:geosite:cn
 
   - tag: direct_ip
     type: response_matcher
     args:
       ip:
+      - provider:geoip:apple
       - provider:geoip:cn
-      - provider:geoip:private
 
-  - tag: shielded_65_domain
-    type: query_matcher
+  - tag: prevent_private
+    type: response_matcher
     args:
-      domain:
-        - provider:geosite:category-ads-all
-      qtype: [65]
+      ip:
+      - provider:geoip:private
 
   - tag: entrance
     type: sequence
     args:
       exec:
-      - if: shielded_65_domain
+      - if: prevent_private
         exec:
         - _new_nxdomain_response
         - _return
         else_exec:
-        - _misc_optm
-        - _prefer_ipv4
-        - cache
-        - _pad_query
-        - if: direct_domain
+        - if: prevent_type65
           exec:
-          - direct
+          - _new_nxdomain_response
           - _return
           else_exec:
-          - if: direct_ip
+          - _misc_optm
+          - _prefer_ipv4
+          - cache
+          - _pad_query
+          - if: direct_domain
             exec:
             - direct
             - _return
             else_exec:
-            - primary:
-              - proxy
-              - _return
-              secondary:
+            - if: direct_ip
+              exec:
               - direct
               - _return
-              stat_length: 10
-              threshold: 5
+              else_exec:
+              - primary:
+                - proxy
+                - _return
+                secondary:
+                - direct
+                - _return
+                stat_length: 10
+                threshold: 5
       - ttl
 
 servers:
