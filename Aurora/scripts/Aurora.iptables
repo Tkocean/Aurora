@@ -3,15 +3,14 @@ export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
 source /data/adb/Aurora/Providers/Aurora.ini
 
 function notification(){
-
+ 
 local title="${2}"
 local text="${1}"
-
+ 
  test -z "${title}" && title='Aurora'
- test -z "${text}" && text='command line'
-
+ 
 su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
-
+ 
 }
 
 start_redirect() {
@@ -115,6 +114,7 @@ iPV6Network() {
     ${ip6tables} -I OUTPUT -p tcp --dport 53 -j REJECT
     ${ip6tables} -I OUTPUT -p udp --dport 53 -j REJECT
   else
+    notification "IPv6Tables: ${ipv6}"
     sysctl -w net.ipv6.conf.all.accept_ra=1
     sysctl -w net.ipv6.conf.wlan0.accept_ra=1
     sysctl -w net.ipv6.conf.all.disable_ipv6=0
@@ -528,6 +528,5 @@ while getopts ":sk" signal ; do
             notification 'IPTables规则已清空'
             ;;
         ?)
-    ;;
     esac
 done

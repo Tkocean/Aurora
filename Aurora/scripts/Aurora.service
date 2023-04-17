@@ -8,7 +8,6 @@ local title="${2}"
 local text="${1}"
 
  test -z "${title}" && title='Aurora'
- test -z "${text}" && text='command line'
 
 su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
 
@@ -40,7 +39,6 @@ start() {
         nohup setuidgid ${user_group} ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
         touch ${run_path}/${bin_name}
         start_dns_server >> /dev/null 2>&1
-        notification "DNS-Path：${dns_status}"
       else
         nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
         notification "${bin_name}配置有误"
@@ -107,7 +105,7 @@ upkernel() {
     wget -q $(curl -s https://api.github.com/repos/MetaCubeX/Clash.Meta/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O /data/adb/Aurora/scripts/clash.gz && gzip -d /data/adb/Aurora/scripts/clash.gz && chmod 0755 /data/adb/Aurora/scripts/clash && /data/adb/Aurora/scripts/clash -v
   fi
 
-  nohup ${system_path}/upx --best /data/adb/Aurora/scripts/clash
+  nohup ${system_path}/upx --best /data/adb/Aurora/scripts/clash >> /dev/null 2>&1
 
   if [ -f "/data/adb/Aurora/scripts/clash" ] ; then
     rm ${bin_path}
@@ -116,6 +114,7 @@ upkernel() {
     notification "“Kernel” update success"
   else
     notification '内核更新失败，未知错误'
+    exit 1
   fi
 
 }
@@ -130,7 +129,7 @@ script() {
 	  filesize=$(ls -l ${logfile} | awk '{ print $5 }')
 	  if test ${filesize} -gt ${maxsize}; then
 		  echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
-		  notification '日志文件已清理'
+		  notification '文件已清理'
 	  fi
     }
 
@@ -179,14 +178,15 @@ stop_dns_server() {
 
 bakeup() {
 
+  rm -rf /data/cache/Aurora
   mkdir -p /data/cache/Aurora
 
   cp /data/adb/modules/Aurora/config/* /data/cache/Aurora
   cp /data/adb/Aurora/*.dat /data/cache/Aurora
   cp /data/adb/Aurora/scripts/* /data/cache/Aurora
   cp -r /data/adb/Aurora/Dashboard /data/cache/Aurora
+  cp -r /data/adb/Aurora/Aurora/config /data/cache/Aurora
   cp /data/adb/Aurora/Providers/Aurora.ini /data/cache/Aurora
-
 
   notification "Kernel: “${bin_name}” backup success"
   echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" Kernel: “${bin_name}” backup success" >>${Update}
@@ -316,7 +316,7 @@ stop() {
   killall -15 ${bin_name}
   rm ${boxtemplate_file}
   rm ${run_path}/${bin_name}
-  stop_dns_server >> /dev/null 2>&1
+  stop_dns_server
 
 }
 
