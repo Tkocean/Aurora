@@ -1,7 +1,7 @@
 id=Aurora
 name=Aurora
 version=IPTables-S6(23.04.21)
-versionCode=0405624
+versionCode=20230421
 author=Tkocean
 description=Build a local transit server on the device to realize a series of functions such as routing and terminal.
 updateJson=https://raw.githubusercontent.com/Tkocean/individual/Aurora/Updata.json
