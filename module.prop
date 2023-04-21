@@ -4,4 +4,4 @@ version=IPTables-S6(23.04.21)
 versionCode=2230421
 author=Tkocean
 description=Build a local transit server on the device to realize a series of functions such as routing and terminal.
-updateJson=https://raw.githubusercontent.com/Tkocean/individual/Aurora/Updata.json
+updateJson=https://github.com/Tkocean/individual/blob/Aurora/Updata.json
