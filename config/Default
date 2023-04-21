@@ -86,12 +86,12 @@ plugins:
     type: sequence
     args:
       exec:
-      - if: prevent_private
+      - if: prevent_type65
         exec:
         - _new_nxdomain_response
         - _return
         else_exec:
-        - if: prevent_type65
+        - if: prevent_private
           exec:
           - _new_nxdomain_response
           - _return
