@@ -3,14 +3,14 @@ export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
 source /data/adb/Aurora/Providers/Aurora.ini
 
 function notification(){
- 
+
 local title="${2}"
 local text="${1}"
- 
+
  test -z "${title}" && title='Aurora'
- 
+
 su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
- 
+
 }
 
 start_redirect() {
@@ -105,16 +105,20 @@ forward() {
 
 iPV6Network() {
 
-  if [ "${ipv6}" = "false" ] ; then
-    sysctl -w net.ipv6.conf.all.accept_ra=0
-    sysctl -w net.ipv6.conf.wlan0.accept_ra=0
-    sysctl -w net.ipv6.conf.all.disable_ipv6=1
-    sysctl -w net.ipv6.conf.default.disable_ipv6=1
-    sysctl -w net.ipv6.conf.wlan0.disable_ipv6=1
+  local netipv6="${1}"
+  if [ "${netipv6}" = "false" ] ; then
+    if [ "${apn_ipv6}" = "true" ] ; then
+      notification "iPV6Network: ${netipv6}"
+      sysctl -w net.ipv6.conf.all.accept_ra=0
+      sysctl -w net.ipv6.conf.wlan0.accept_ra=0
+      sysctl -w net.ipv6.conf.all.disable_ipv6=1
+      sysctl -w net.ipv6.conf.default.disable_ipv6=1
+      sysctl -w net.ipv6.conf.wlan0.disable_ipv6=1
+    fi
     ${ip6tables} -I OUTPUT -p tcp --dport 53 -j REJECT
     ${ip6tables} -I OUTPUT -p udp --dport 53 -j REJECT
   else
-    notification "IPv6Tables: ${ipv6}"
+    notification "iPV6Network: ${netipv6}"
     sysctl -w net.ipv6.conf.all.accept_ra=1
     sysctl -w net.ipv6.conf.wlan0.accept_ra=1
     sysctl -w net.ipv6.conf.all.disable_ipv6=0
@@ -497,36 +501,43 @@ del_tun() {
 
 }
 
-while getopts ":sk" signal ; do
+while getopts ":skd" signal ; do
     case ${signal} in
         s)
             if [ "${mixed_local}" = "true" ] ; then
-                start_redirect >> /dev/null 2>&1
-                forward -I >> /dev/null 2>&1
+              start_redirect >> /dev/null 2>&1
+              forward -I >> /dev/null 2>&1
             else
               if [ "${tun_status}" = "true" ] ; then
-                  tunst >> /dev/null 2>&1
+                tunst >> /dev/null 2>&1
               elif [ "${tun_status}" = "false" ] ; then
-                  start_tproxy >> /dev/null 2>&1
+                start_tproxy >> /dev/null 2>&1
               fi
             fi
-            iPV6Network >> /dev/null 2>&1
+            iPV6Network ${ipv6} >> /dev/null 2>&1
             notification 'IPTables规则已应用'
             ;;
         k)
             if [ "${mixed_local}" = "true" ] ; then
-                stop_redirect >> /dev/null 2>&1
-                forward -D >> /dev/null 2>&1
+              stop_redirect >> /dev/null 2>&1
+              forward -D >> /dev/null 2>&1
             else
               if [ "${tun_status}" = "true" ] ; then
-                  del_tun >> /dev/null 2>&1
+                del_tun >> /dev/null 2>&1
               elif [ "${tun_status}" = "false" ] ; then
-                  stop_tproxy >> /dev/null 2>&1
+                stop_tproxy >> /dev/null 2>&1
               fi
             fi
-            iPV6Network >> /dev/null 2>&1
+            iPV6Network true >> /dev/null 2>&1
             notification 'IPTables规则已清空'
             ;;
+        d)
+            local IP6Table="${2}"
+            iPV6Network ${IP6Table} >> /dev/null 2>&1
+            notification "IP6Table: ${IP6Table}"
+            ;;
         ?)
+            echo error
+            ;;
     esac
 done
