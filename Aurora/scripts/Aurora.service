@@ -23,6 +23,7 @@ start() {
     chmod ${permissions} ${system_path}/${bin_name}
   else
     notification "NOT Found “${bin_name}” Kernel"
+    exit 1
   fi
 
   if [ "${tun_status}" = "true" ] ; then
@@ -159,7 +160,7 @@ script() {
     echo 1 > /proc/sys/vm/compact_memory
 
     if [ "${script_out}" = "true" ] ; then
-      nofcon '自检完成，即将重启设备'
+      notification 'Self-test is success,restart system'
       reboot
     fi
 
@@ -181,7 +182,6 @@ bakeup() {
   rm -rf /data/cache/Aurora
   mkdir -p /data/cache/Aurora
 
-  cp /data/adb/modules/Aurora/config/* /data/cache/Aurora
   cp /data/adb/Aurora/*.dat /data/cache/Aurora
   cp /data/adb/Aurora/scripts/* /data/cache/Aurora
   cp -r /data/adb/Aurora/Dashboard /data/cache/Aurora
@@ -352,7 +352,7 @@ while getopts ":skurpbt" signal ; do
       script >> /dev/null 2>&1
       ;;
     ?)
-      echo error
+      notification 'There is no such command in the console'
       ;;
   esac
 done
