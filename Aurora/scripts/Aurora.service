@@ -11,6 +11,8 @@ local text="${1}"
 
 su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
 
+echo [$(date "+%H:%M:%S")]" - ${text}" >>${Services}
+
 }
 
 start() {
@@ -39,7 +41,7 @@ start() {
         ulimit -SHn 1000000
         nohup setuidgid ${user_group} ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
         touch ${run_path}/${bin_name}
-        start_dns_server >> /dev/null 2>&1
+        dns_server true >> /dev/null 2>&1
       else
         nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
         notification "${bin_name}配置有误"
@@ -70,29 +72,29 @@ start() {
 
 }
 
-start_dns_server() {
+dns_server() {
+
+  local dnsnet="${1}"
+  if [ -f "${system_path}/mosdns" ] ; then
+    chown 0:1051 ${system_path}/${dns_status}
+    chmod 110 ${system_path}/${dns_status}
+  else
+    notification "NOT Found “${dns_status}” Kernel"
+    exit 1
+  fi
 
   if [ "${dns_status}" = "mosdns" ] ; then
-
-    cp ${config_path}/${dns_device} ${data_dir}/Providers/
-    mv ${data_dir}/Providers/${dns_device} ${data_dir}/Providers/config.yaml
-
-    if [ -f "${system_path}/mosdns" ] ; then
-      chown 0:1051 ${system_path}/mosdns
-      chmod 110 ${system_path}/mosdns
-    else
-      notification "NOT Found “${dns_status}” Kernel"
-      exit 1
-    fi
-
-    if [ -f "${run_path}/${bin_name}" ] ; then
+    if [ "${dnsnet}" = "true" ] ; then
+      cp ${config_path}/${dns_device} ${data_dir}/Providers/
+      mv ${data_dir}/Providers/${dns_device} ${data_dir}/Providers/config.yaml
       ulimit -SHn 1000000
-      nohup ${system_path}/mosdns start -d ${data_dir}/Providers > ${run_path}/dns.log 2>&1 &
+      nohup ${system_path}/${dns_status} start -d ${data_dir}/Providers > ${run_path}/dns.log 2>&1 &
       echo "${dns_device}" > ${run_path}/${bin_name}
     else
-      start >> /dev/null 2>&1
+      killall -15 ${dns_status}
+      rm ${data_dir}/Providers/config.yaml
+      rm ${run_path}/dns.log
     fi
-
   fi
 
 }
@@ -129,14 +131,14 @@ script() {
 	  local maxsize=$((1024 * 50))
 	  filesize=$(ls -l ${logfile} | awk '{ print $5 }')
 	  if test ${filesize} -gt ${maxsize}; then
-		  echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
+		  echo [$(date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
 		  notification '文件已清理'
 	  fi
     }
 
     lmlog "/data/adb/Aurora/run/kernel.log"
     lmlog "/data/adb/Aurora/run/dns.log"
-    lmlog "${Update}"
+    lmlog "${Services}"
 
     is_empty_dir(){
 	  return `ls -A $1 | wc -w`
@@ -168,15 +170,6 @@ script() {
 
 }
 
-stop_dns_server() {
-
-  if [ "${dns_status}" = "mosdns" ] ; then
-    killall -15 mosdns
-    rm ${data_dir}/Providers/config.yaml
-  fi
-
-}
-
 bakeup() {
 
   rm -rf /data/cache/Aurora
@@ -189,7 +182,6 @@ bakeup() {
   cp /data/adb/Aurora/Providers/Aurora.ini /data/cache/Aurora
 
   notification "Kernel: “${bin_name}” backup success"
-  echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" Kernel: “${bin_name}” backup success" >>${Update}
 
 }
 
@@ -203,19 +195,17 @@ updata_server() {
 
     mv -f ${file} ${file_bk}
     echo "curl -L -A 'clash' ${update_url} -o ${file} "
-    wget --no-check-certificate -U clash -O ${file} ${update_url}  2>&1
+    wget --no-check-certificate -U clash -O ${file} ${update_url} 2>&1
 
     sleep 1
 
     if [ -f "${file}" ]; then
-        rm -rf ${file_bk}
-        notification " success：${file}"
-        echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" success：${file}" >>${Update}
+      rm -rf ${file_bk}
+      notification "success：${file}"
     else
-        mv ${file_bk} ${file}
-        notification " error：${file}"
-        echo [$(TZ=Asia/Shanghai date "+%H:%M:%S")]" error：${file}" >>${Update}
-        return 1
+      mv ${file_bk} ${file}
+      notification "error：${file}"
+      return 1
     fi
 
   }
@@ -227,12 +217,12 @@ updata_server() {
     if [ ${updateSafety} == "true" ]; then
         updateFile ${data_dir}/Providers/Safety.yaml https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
         if [ "$?" = "0" ]; then
-            flag=true
+          flag=true
         fi
     fi
 
     if [ ${updateAurora} == "true" ]; then
-        updateFile ${Aurora} ${Aurora_url}
+      updateFile ${Aurora} ${Aurora_url}
       if [ -f "${Aurora}" ] ; then
         unzip -d /data/adb/Aurora/run/ ${Aurora}
         rm -rf /data/adb/Aurora/Dashboard
@@ -266,9 +256,12 @@ updata_server() {
 
     if [ ${updateKernel} == "true" ]; then
         /data/adb/Aurora/scripts/Aurora.service -u
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
     fi
 
-    /data/adb/Aurora/scripts/Aurora.service -b
+    /data/adb/Aurora/scripts/Aurora.service -t
     chown ${user_group} ${bin_path}
     chmod ${permissions} ${bin_path}
     rm ${data_dir}/Aurora/updata
@@ -299,41 +292,41 @@ rebin() {
     touch /data/adb/modules/Aurora/disable
     sleep 3
     rm /data/adb/modules/Aurora/disable
-  fi
-
-  if [ ${updata_load} == "false" ]; then
+  else
     /data/adb/Aurora/scripts/Aurora.iptables -k
-    sleep 5
+    sleep 3
     /data/adb/Aurora/scripts/Aurora.iptables -s
   fi
-
-}
-
-stop() {
-
-  rm ${template_file}
-  rm ${run_path}/*.log
-  killall -15 ${bin_name}
-  rm ${boxtemplate_file}
-  rm ${run_path}/${bin_name}
-  stop_dns_server
 
 }
 
 while getopts ":skurpbt" signal ; do
   case ${signal} in
     s)
+      rm ${Services} >> /dev/null 2>&1
       if [ "${decide_dns}" = "true" ] ; then
-        start_dns_server >> /dev/null 2>&1
+        dns_server true >> /dev/null 2>&1
       else
         start >> /dev/null 2>&1
+      fi
+      if pid=$(pidof ${bin_name} 2>/dev/null); then
+        notification 'Kernel is running'
+      else
+        notification 'Kernel not started'
+        exit 1
       fi
       ;;
     k)
       if [ "${decide_dns}" = "true" ] ; then
-        stop_dns_server >> /dev/null 2>&1
+        dns_server false >> /dev/null 2>&1
       else
-        stop >> /dev/null 2>&1
+          killall -15 ${bin_name}
+          rm ${template_file}
+          rm ${run_path}/kernel.log
+          rm ${run_path}/Service.log
+          rm ${boxtemplate_file}
+          rm ${run_path}/${bin_name}
+          dns_server false >> /dev/null 2>&1
       fi
       ;;
     u)
@@ -352,7 +345,7 @@ while getopts ":skurpbt" signal ; do
       script >> /dev/null 2>&1
       ;;
     ?)
-      notification 'There is no such command in the console'
+      notification 'No such command in the console'
       ;;
   esac
 done

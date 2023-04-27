@@ -11,6 +11,8 @@ local text="${1}"
 
 su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
 
+echo [$(date "+%H:%M:%S")]" - ${text}" >>${Services}
+
 }
 
 start_redirect() {
