@@ -13,6 +13,10 @@
 - 节点伪加密
 - UPX支持
 
+##更新日志
+
+– 4.28 简化脚本代码，更新脚本运行逻辑
+
 ## 热点机固定IP可用此XP模块
 - https://github.com/XhyEax/SoftApHelper
 
