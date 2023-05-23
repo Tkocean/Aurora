@@ -1,4 +1,4 @@
-tproxy-port: 2461
+tproxy-port: 8868
 allow-lan: true
 bind-address: "*"
 geodata-mode: true
@@ -8,33 +8,6 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
-sniffer:
-  enable: false
-  force-dns-mapping: true
-  parse-pure-ip: true
-  override-destination: false
-  sniff:
-    TLS:
-      ports: [0-65535]
-    HTTP:
-      ports: [0-65535]
-  force-domain:
-    - "+.v2ex.com"
-    - "google.com"
-  skip-domain:
-    - "+.apple.com"
-    - "+.mi.com"
-    - "+.jd.com"
-    - "+.baidu.com"
-profile:
-  store-selected: true
-  store-fake-ip: false
-tcp-concurrent: false
-external-controller: 0.0.0.0:9090
-external-ui: Dashboard
-geox-url:
-  geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
-  geosite: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.dat"
 dns:
   enable: true
   ipv6: false
@@ -43,22 +16,15 @@ dns:
   listen: 0.0.0.0:1053
   nameserver:
     - 127.0.0.1:2453
-tun:
-  enable: false
-  device: Aurora
-  stack: system
-  dns-hijack:
-    - 0.0.0.0:53
-  auto-detect-interface: true
-  auto-route: true
-  mtu: 9000
-  strict_route: false
-  inet4_route_address:
-    - 0.0.0.0/1
-    - 128.0.0.0/1
-  inet6_route_address:
-    - "::/1"
-    - "8000::/1"
+profile:
+  store-selected: true
+  store-fake-ip: false
+tcp-concurrent: false
+external-controller: 0.0.0.0:9090
+external-ui: Dashboard
+geox-url:
+  geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.dat"
 
 proxies:
 
@@ -66,8 +32,8 @@ s: &s
   type: http
   interval: 86400
   health-check:
-    enable: true
-    url: https://cp.cloudflare.com/generate_204
+    enable: false
+    url: http://www.gstatic.com/generate_204
     interval: 86400
 
 proxy-providers:
@@ -121,7 +87,7 @@ proxy-groups:
     filter: "🇺🇸|美|US"
 
 rules:
- - AND,((NETWORK,UDP),(OR,((DST-PORT,3478),(GEOIP,Private)))),REJECT
+ - AND,((NETWORK,UDP),(DOMAIN-KEYWORD,stun)),REJECT
  - GEOIP,Private,DIRECT,no-resolve
  - GEOSITE,Apple,DIRECT
  - GEOSITE,CN,DIRECT

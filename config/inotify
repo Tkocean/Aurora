@@ -1,0 +1,32 @@
+#!/system/bin/sh
+export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
+source /data/adb/modules/Aurora/config/Aurora.ini
+
+events=$1
+monitor_dir=$2
+monitor_file=$3
+service_path="${system_path}/Aurora"
+signal_file="${run_path}/cmdRunning"
+
+
+
+if [ "${monitor_file}" = "disable" ] ; then
+  touch ${signal_file}
+  if [ "${events}" = "d" ] ; then
+    ${service_path} -s
+  elif [ "${events}" = "n" ] ; then
+    ${service_path} -k
+  fi
+  rm ${signal_file}
+fi
+
+
+if [ "${monitor_file}" = "updata" ] ; then
+  touch ${signal_file}
+  if [ "${events}" = "d" ] ; then
+    ${service_path} -r ${updata_path}
+  elif [ "${events}" = "n" ] ; then
+    ${service_path} -p
+  fi
+  rm ${signal_file}
+fi
