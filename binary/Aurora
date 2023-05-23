@@ -1,0 +1,710 @@
+#!/system/bin/sh
+export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
+source /data/adb/modules/Aurora/config/Aurora.ini
+
+function notification(){
+
+local title="${2}"
+local text="${1}"
+
+ test -z "${title}" && title='Aurora'
+
+su -lp 2000 -c "cmd notification post -S messaging --conversation '${title}' --message '${title}':'${text}' 'Tag' '$(echo $RANDOM)' " >/dev/null 2>&1
+
+echo [$(date "+%H:%M:%S")]" - ${text}" >>${Services}
+
+}
+
+start() {
+
+  if [ -f "${system_path}/${bin_name}" ] ; then
+    killall -15 ${bin_name}
+    mkdir -p ${run_path}
+    ln -sf ${modules_path}/Aurora ${data_dir}
+    chown 0:3005 ${system_path}/${bin_name}
+    chmod 6110 ${system_path}/${bin_name}
+  else
+    notification "NOT Found “${bin_name}” Kernel"
+    exit 1
+  fi
+
+  if [ "${tun_status}" = "true" ] ; then
+    mkdir -p /dev/net
+    [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
+  fi
+
+  if [ "${bin_name}" = "clash" ] ; then
+    cp ${config_path}/${bin_name} ${run_path}/
+    mv ${run_path}/${bin_name} ${template_file}
+    if [ -f ${template_file} ] && [ -f ${GeoIP_file} ] ; then
+      if $(${bin_path} -d ${data_dir} -t -f ${template_file} > /dev/null) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid 0:3005 ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
+        dns_server true > /dev/null 2>&1
+      else
+        nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
+        notification "${bin_name}配置有误"
+        exit 1
+      fi
+    else
+      notification "NOT Found “${bin_name}” run file"
+      exit 1
+    fi
+  else
+    cp ${config_path}/${bin_name} ${run_path}
+    mv ${run_path}/${bin_name} ${boxtemplate_file}
+    if [ -f ${boxtemplate_file} ] && [ -f ${GeoIP_file} ] ; then
+      if $(${bin_path} check -D ${run_path} -c box.json > ${run_path}/Check.log 2>&1) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid 0:3005 ${system_path}/sing-box run -D ${run_path} -c box.json 2>&1 &
+        rm ${run_path}/Check.log
+      else
+        notification "${bin_name}配置有误"
+        exit 1
+      fi
+    else
+      notification "NOT Found “${bin_name}” run file"
+      exit 1
+    fi
+  fi
+
+}
+
+dns_server() {
+
+  local dnsnet="${1}"
+  if [ -f "${system_path}/mosdns" ] ; then
+    chown 0:1051 ${system_path}/${dns_status}
+    chmod 110 ${system_path}/${dns_status}
+  else
+    notification "NOT Found “${dns_status}” Kernel"
+    exit 1
+  fi
+
+  if [ "${dns_status}" = "mosdns" ] ; then
+    if [ "${dnsnet}" = "true" ] ; then
+      cp ${config_path}/${dns_device} ${run_path}
+      mv ${run_path}/${dns_device} ${run_path}/config.yaml
+      ulimit -SHn 1000000
+      nohup setuidgid 0:1051 ${system_path}/${dns_status} start -d ${run_path} > ${run_path}/dns.log 2>&1 &
+    else
+      killall -15 ${dns_status}
+      rm ${run_path}/config.yaml
+      rm ${run_path}/dns.log
+    fi
+  else
+    notification "DNShijack: “${dns_status}”"
+    exit 0
+  fi
+
+}
+
+upkernel() {
+
+  if [ "${bin_name}" = "clash" ] ; then
+    wget -q $(curl -s https://api.github.com/repos/MetaCubeX/Clash.Meta/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O ${run_path}/clash.gz && gzip -d ${run_path}/clash.gz && chmod 0755 ${run_path}/clash && ${run_path}/clash -v
+  else
+    notification '只支持更新Meta核心'
+    exit 1
+  fi
+
+  if [ -f "${run_path}/clash" ] ; then
+    ${system_path}/Aurora -m clash
+    cp ${run_path}/clash ${system_path}/clash
+    rm ${run_path}/clash
+    notification "“Kernel” update success"
+  else
+    rm ${run_path}/clash.gz
+    notification '内核更新失败，未知错误'
+    exit 1
+  fi
+
+}
+
+script() {
+
+  if [ "${script_run}" = "true" ] ; then
+
+    function lmlog() {
+      local logfile=${1}
+      local maxsize=$((1024 * 20))
+      filesize=$(ls -l ${logfile} | awk '{ print $5 }')
+      if test ${filesize} -gt ${maxsize}; then
+        echo [$(date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
+        notification '日志占用超出限额，已重置'
+      fi
+    }
+
+    lmlog "${run_path}/kernel.log"
+    lmlog "${run_path}/dns.log"
+    lmlog "${Services}"
+
+    is_empty_dir(){
+      return `ls -A $1 | wc -w`
+    }
+
+    folder="/data/media/0/"
+
+    for file in `ls $folder`
+    do
+
+    if is_empty_dir $folder"/"$file
+    then
+      rm -rf $folder"/"$file
+    else
+      rm -rf $folder.*
+    fi
+    done
+
+    sync
+    echo 3 > /proc/sys/vm/drop_caches
+    echo 1 > /proc/sys/vm/compact_memory
+
+  fi
+
+}
+
+updata_server() {
+
+  updateFile() {
+
+    file="$1"
+    file_bk="${file}.bk"
+    update_url="$2"
+
+    mv -f ${file} ${file_bk}
+    echo "curl -L -A 'clash' ${update_url} -o ${file} "
+    wget --no-check-certificate -U clash -O ${file} ${update_url} 2>&1
+
+    sleep 1
+
+    if [ -f "${file}" ]; then
+      rm -rf ${file_bk}
+      notification "success：${file}"
+    else
+      mv ${file_bk} ${file}
+      notification "error：${file}"
+      return 1
+    fi
+
+  }
+
+  flag=false
+
+  update_pre() {
+
+    if [ ${updateSafety} == "true" ]; then
+        updateFile ${data_dir}/Providers/Safety.yaml https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
+        if [ "$?" = "0" ]; then
+          flag=true
+        fi
+    fi
+
+    if [ ${updateAurora} == "true" ]; then
+      updateFile ${Aurora} ${Aurora_url}
+      if [ -f "${Aurora}" ] ; then
+        unzip -d ${run_path}/ ${Aurora}
+        if [ -f "${run_path}/Yacd-meta-gh-pages/Twemoji_Mozilla.ttf" ] ; then
+          rm -rf ${data_dir}/Dashboard
+          mv ${run_path}/Yacd-meta-gh-pages ${data_dir}/Dashboard
+          rm ${Aurora}
+        else
+          rm ${Aurora}
+          rm -rf ${run_path}/Yacd-meta-gh-pages
+          notification 'YACD更新失败'
+          exit 1
+        fi
+        if [ "$?" = "0" ]; then
+          flag=true
+        fi
+      fi
+    fi
+
+    if [ ${updateHosts} == "true" ]; then
+        updateFile ${Hosts} ${Hosts_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateGeoSite} == "true" ]; then
+        updateFile ${GeoSite_file} ${GeoSite_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateGeoIP} == "true" ]; then
+        updateFile ${GeoIP_file} ${GeoIP_url}
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    if [ ${updateKernel} == "true" ]; then
+        ${system_path}/Aurora -u
+        if [ "$?" = "0" ]; then
+            flag=true
+        fi
+    fi
+
+    ${system_path}/Aurora -t
+    rm ${data_dir}/Aurora/updata
+
+  }
+
+  if [ ${updata_load} == "true" ]; then
+    update_pre
+  elif [ ${updata_load} == "false" ]; then
+    rm ${data_dir}/Aurora/updata
+  fi
+
+}
+
+start_redirect() {
+
+  ${iptables} -t nat -N AURORA_EXTERNAL
+  ${iptables} -t nat -F AURORA_EXTERNAL
+  ${iptables} -t nat -N AURORA_LOCAL
+  ${iptables} -t nat -F AURORA_LOCAL
+
+  if [ "${bin_name}" = "clash" ] ; then
+    ${iptables} -t nat -A AURORA_EXTERNAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+    ${iptables} -t nat -A AURORA_LOCAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+    ${iptables} -t nat -A AURORA_EXTERNAL -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+    ${iptables} -t nat -A AURORA_LOCAL -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+  fi
+
+  for subnet in ${intranet[*]} ; do
+    ${iptables} -t nat -A AURORA_EXTERNAL -d ${subnet} -j RETURN
+    ${iptables} -t nat -A AURORA_LOCAL -d ${subnet} -j RETURN
+  done
+
+  ${iptables} -t nat -A AURORA_EXTERNAL -p tcp -i lo -j REDIRECT --to-ports ${redir_port}
+
+  if [ "${ap_list}" != "" ] ; then
+    for ap in ${ap_list[*]} ; do
+      ${iptables} -t nat -A AURORA_EXTERNAL -p tcp -i ${ap} -j REDIRECT --to-ports ${redir_port}
+    done
+  fi
+  ${iptables} -t nat -I PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t nat -I AURORA_LOCAL -m owner --uid-owner 0 --gid-owner 3005 -j RETURN
+
+  ${iptables} -t nat -A AURORA_LOCAL -p tcp -j REDIRECT --to-ports ${redir_port}
+
+  ${iptables} -t nat -I OUTPUT -j AURORA_LOCAL
+  ${iptables} -A OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -A OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+  fi
+
+}
+
+stop_redirect() {
+
+  ${iptables} -t nat -D PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t nat -D OUTPUT -j AURORA_LOCAL
+  ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -D OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+  fi
+
+  ${iptables} -t nat -F AURORA_EXTERNAL
+  ${iptables} -t nat -X AURORA_EXTERNAL
+  ${iptables} -t nat -F AURORA_LOCAL
+  ${iptables} -t nat -X AURORA_LOCAL
+
+}
+
+forward() {
+
+  local tunel="${1}"
+  ${iptables} ${tunel} FORWARD -o ${tun_device} -j ACCEPT
+  ${iptables} ${tunel} FORWARD -i ${tun_device} -j ACCEPT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} ${tunel} FORWARD -o ${tun_device} -j ACCEPT
+    ${ip6tables} ${tunel} FORWARD -i ${tun_device} -j ACCEPT
+  fi
+
+}
+
+iPV6Network() {
+
+  local netipv6="${1}"
+  if [ "${netipv6}" = "false" ] ; then
+    if [ "${apn_ipv6}" = "true" ] ; then
+      notification "iPV6Network: ${netipv6}"
+      sysctl -w net.ipv6.conf.all.accept_ra=0
+      sysctl -w net.ipv6.conf.wlan0.accept_ra=0
+      sysctl -w net.ipv6.conf.all.disable_ipv6=1
+      sysctl -w net.ipv6.conf.default.disable_ipv6=1
+      sysctl -w net.ipv6.conf.wlan0.disable_ipv6=1
+    fi
+    ${ip6tables} -I OUTPUT -p tcp --dport 53 -j REJECT
+    ${ip6tables} -I OUTPUT -p udp --dport 53 -j REJECT
+  else
+    notification "iPV6Network: ${netipv6}"
+    sysctl -w net.ipv6.conf.all.accept_ra=1
+    sysctl -w net.ipv6.conf.wlan0.accept_ra=1
+    sysctl -w net.ipv6.conf.all.disable_ipv6=0
+    sysctl -w net.ipv6.conf.default.disable_ipv6=0
+    sysctl -w net.ipv6.conf.wlan0.disable_ipv6=0
+    ${ip6tables} -I OUTPUT -p tcp --dport 53 -j ACCEPT
+    ${ip6tables} -I OUTPUT -p udp --dport 53 -j ACCEPT
+  fi
+
+}
+
+start_tproxy() {
+
+  ip rule add fwmark ${id} table ${id} pref ${id}
+  ip route add local default dev lo table ${id}
+  if [ "${ipv6}" = "true" ] ; then
+    ip -6 rule add fwmark ${id} table ${id} pref ${id}
+    ip -6 route add local default dev lo table ${id}
+  fi
+
+  ${iptables} -t mangle -N AURORA_EXTERNAL
+  ${iptables} -t mangle -F AURORA_EXTERNAL
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -N AURORA_EXTERNAL
+    ${ip6tables} -t mangle -F AURORA_EXTERNAL
+  fi
+
+  ${iptables} -t mangle -I AURORA_EXTERNAL -i rmnet_data+ -j RETURN
+  ${iptables} -t mangle -I AURORA_EXTERNAL -i ccmni+ -j RETURN
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -I AURORA_EXTERNAL -i rmnet_data+ -j RETURN
+    ${ip6tables} -t mangle -I AURORA_EXTERNAL -i ccmni+ -j RETURN
+  fi
+
+  if [ "${bin_name}" = "clash" ] ; then
+    for subnet in ${intranet[*]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} -j RETURN
+    done
+    if [ "${ipv6}" = "true" ] ; then
+      for subnet6 in ${intranet6[*]} ; do
+        ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} -j RETURN
+      done
+    fi
+  else
+    for subnet in ${intranet[*]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} -p udp ! --dport 53 -j RETURN
+      ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} ! -p udp -j RETURN
+    done
+    if [ "${ipv6}" = "true" ] ; then
+      for subnet6 in ${intranet6[*]} ; do
+        ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} -p udp ! --dport 53 -j RETURN
+        ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} ! -p udp -j RETURN
+      done
+    fi
+  fi
+
+  ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+  ${iptables} -t mangle -A AURORA_EXTERNAL -p udp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -A AURORA_EXTERNAL -p tcp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+    ${ip6tables} -t mangle -A AURORA_EXTERNAL -p udp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+  fi
+
+  if [ "${ap_list}" != "" ] ; then
+    for ap in ${ap_list[*]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp -i ${ap} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+      ${iptables} -t mangle -A AURORA_EXTERNAL -p udp -i ${ap} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+    done
+  fi
+
+  if [ "${ipv6}" = "true" ] ; then
+    if [ "${ap_list}" != "" ] ; then
+      for ap6 in ${ap_list[*]} ; do
+        ${ip6tables} -t mangle -A AURORA_EXTERNAL -p tcp -i ${ap6} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+        ${ip6tables} -t mangle -A AURORA_EXTERNAL -p udp -i ${ap6} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${id}
+      done
+    fi
+  fi
+
+  ${iptables} -t mangle -I PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t mangle -N AURORA_LOCAL
+  ${iptables} -t mangle -F AURORA_LOCAL
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -I PREROUTING -j AURORA_EXTERNAL
+    ${ip6tables} -t mangle -N AURORA_LOCAL
+    ${ip6tables} -t mangle -F AURORA_LOCAL
+  fi
+
+  if [ "${bin_name}" = "clash" ] ; then
+    ${iptables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j RETURN
+    for subnet in ${intranet[*]} ; do
+      ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} -j RETURN
+    done
+    if [ "${ipv6}" = "true" ] ; then
+      ${ip6tables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j RETURN
+      for subnet6 in ${intranet6[*]} ; do
+        ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} -j RETURN
+      done
+    fi
+  else
+    for subnet in ${intranet[*]} ; do
+      ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} -p udp ! --dport 53 -j RETURN
+      ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} ! -p udp -j RETURN
+    done
+    if [ "${ipv6}" = "true" ] ; then
+      for subnet6 in ${intranet6[*]} ; do
+        ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} -p udp ! --dport 53 -j RETURN
+        ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} ! -p udp -j RETURN
+      done
+    fi
+  fi
+
+  ${iptables} -t mangle -I AURORA_LOCAL -m owner --uid-owner 0 --gid-owner 3005 -j RETURN
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -I AURORA_LOCAL -m owner --uid-owner 0 --gid-owner 3005 -j RETURN
+  fi
+
+  ${iptables} -t mangle -A AURORA_LOCAL -p tcp -j MARK --set-mark ${id}
+  ${iptables} -t mangle -A AURORA_LOCAL -p udp -j MARK --set-mark ${id}
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -A AURORA_LOCAL -p tcp -j MARK --set-mark ${id}
+    ${ip6tables} -t mangle -A AURORA_LOCAL -p udp -j MARK --set-mark ${id}
+  fi
+
+  ${iptables} -t mangle -I OUTPUT -j AURORA_LOCAL
+
+  ${iptables} -t mangle -N DIVERT
+  ${iptables} -t mangle -F DIVERT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -I OUTPUT -j AURORA_LOCAL
+
+    ${ip6tables} -t mangle -N DIVERT
+    ${ip6tables} -t mangle -F DIVERT
+  fi
+
+  ${iptables} -t mangle -A DIVERT -j MARK --set-mark ${id}
+  ${iptables} -t mangle -A DIVERT -j ACCEPT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -A DIVERT -j MARK --set-mark ${id}
+    ${ip6tables} -t mangle -A DIVERT -j ACCEPT
+  fi
+
+  ${iptables} -t mangle -I PREROUTING -p tcp -m socket -j DIVERT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -I PREROUTING -p tcp -m socket -j DIVERT
+  fi
+
+  ${iptables} -A OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -A OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  fi
+
+  if [ "${bin_name}" = "clash" ] ; then
+    ${iptables} -t nat -N CLASH_DNS_EXTERNAL
+    ${iptables} -t nat -F CLASH_DNS_EXTERNAL
+
+    ${iptables} -t nat -A CLASH_DNS_EXTERNAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+
+    ${iptables} -t nat -I PREROUTING -j CLASH_DNS_EXTERNAL
+
+    ${iptables} -t nat -N CLASH_DNS_LOCAL
+    ${iptables} -t nat -F CLASH_DNS_LOCAL
+    ${iptables} -t nat -A CLASH_DNS_LOCAL -m owner --uid-owner 0 --gid-owner 3005 -j RETURN
+    ${iptables} -t nat -A CLASH_DNS_LOCAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+
+    ${iptables} -t nat -I OUTPUT -j CLASH_DNS_LOCAL
+
+    ${iptables} -t nat -I OUTPUT -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+    ${iptables} -t nat -I PREROUTING -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+  fi
+
+}
+
+stop_tproxy() {
+
+  ip rule del fwmark ${id} table ${id}
+  ip route del local default dev lo table ${id}
+  if [ "${ipv6}" = "true" ] ; then
+    ip -6 rule del fwmark ${id} table ${id}
+    ip -6 route del local default dev lo table ${id}
+  fi
+
+  ${iptables} -t mangle -D PREROUTING -j AURORA_EXTERNAL
+  ${iptables} -t mangle -D PREROUTING -p tcp -m socket -j DIVERT
+
+  ${iptables} -t mangle -D OUTPUT -j AURORA_LOCAL
+
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -D PREROUTING -j AURORA_EXTERNAL
+    ${ip6tables} -t mangle -D PREROUTING -p tcp -m socket -j DIVERT
+
+    ${ip6tables} -t mangle -D OUTPUT -j AURORA_LOCAL
+  fi
+
+  ${iptables} -t mangle -F AURORA_EXTERNAL
+  ${iptables} -t mangle -X AURORA_EXTERNAL
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -F AURORA_EXTERNAL
+    ${ip6tables} -t mangle -X AURORA_EXTERNAL
+  fi
+
+  ${iptables} -t mangle -F AURORA_LOCAL
+  ${iptables} -t mangle -X AURORA_LOCAL
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -F AURORA_LOCAL
+    ${ip6tables} -t mangle -X AURORA_LOCAL
+  fi
+
+  ${iptables} -t mangle -F DIVERT
+  ${iptables} -t mangle -X DIVERT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -t mangle -F DIVERT
+    ${ip6tables} -t mangle -X DIVERT
+  fi
+
+  ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -D OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  fi
+
+  ${iptables} -t nat -D PREROUTING -j CLASH_DNS_EXTERNAL
+
+  ${iptables} -t nat -D OUTPUT -j CLASH_DNS_LOCAL
+
+  ${iptables} -t nat -F CLASH_DNS_EXTERNAL
+  ${iptables} -t nat -X CLASH_DNS_EXTERNAL
+
+  ${iptables} -t nat -F CLASH_DNS_LOCAL
+  ${iptables} -t nat -X CLASH_DNS_LOCAL
+
+  ${iptables} -t nat -D OUTPUT -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+  ${iptables} -t nat -D PREROUTING -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+
+}
+
+while getopts ":wnaedskurpbtm" signal ; do
+  case ${signal} in
+    a)
+      if [ "${mixed_local}" = "true" ] ; then
+        start_redirect > /dev/null 2>&1
+        forward I > /dev/null 2>&1
+      else
+        if [ "${tun_status}" = "true" ] ; then
+          forward I > /dev/null 2>&1
+        elif [ "${tun_status}" = "false" ] ; then
+          start_tproxy > /dev/null 2>&1
+        fi
+      fi
+      iPV6Network ${ipv6} > /dev/null 2>&1
+      notification 'IPTables规则已应用'
+      ;;
+    e)
+      if [ "${mixed_local}" = "true" ] ; then
+        stop_redirect > /dev/null 2>&1
+        forward D > /dev/null 2>&1
+      else
+        if [ "${tun_status}" = "true" ] ; then
+          forward D > /dev/null 2>&1
+        elif [ "${tun_status}" = "false" ] ; then
+          stop_tproxy > /dev/null 2>&1
+        fi
+      fi
+      iPV6Network true > /dev/null 2>&1
+      notification 'IPTables规则已清空'
+      ;;
+    d)
+      local IP6Table="${2}"
+      iPV6Network ${IP6Table} > /dev/null 2>&1
+      notification "IP6Table: ${IP6Table}"
+      ;;
+    s)
+      ${system_path}/Aurora -k
+      if [ "${decide_dns}" = "true" ] ; then
+        dns_server true > /dev/null 2>&1
+      else
+        start > /dev/null 2>&1
+      fi
+      if pid=$(pidof ${bin_name} 2>/dev/null); then
+        ${system_path}/Aurora -a && ${system_path}/Aurora -w
+        notification 'Kernel is running'
+      else
+        notification 'Kernel not started'
+        exit 1
+      fi
+      ;;
+    k)
+      if [ "${decide_dns}" = "true" ] ; then
+        dns_server false > /dev/null 2>&1
+      else
+        echo [$(date "+%Y-%m-%d --- %H:%M:%S")] >>${Services}
+        killall -15 ${bin_name}
+        rm ${template_file}
+        rm ${run_path}/kernel.log
+        rm ${boxtemplate_file}
+        dns_server false > /dev/null 2>&1
+        ${system_path}/Aurora -e
+      fi
+      ;;
+    u)
+      upkernel > /dev/null 2>&1
+      ${system_path}/Aurora -w
+      ;;
+    r)
+      local rebin="${2}"
+      if [ "${rebin}" == "bin" ]; then
+        ${system_path}/Aurora -k
+        sleep 2
+        ${system_path}/Aurora -s
+      elif [ "${rebin}" = "tpre" ] ; then
+        ${system_path}/Aurora -e
+        sleep 2
+        ${system_path}/Aurora -a
+      fi
+      ;;
+    p)
+      updata_server > /dev/null 2>&1
+      ${system_path}/Aurora -w
+      ;;
+    m)
+      local ocupx="${2}"
+      chown 0:0 ${system_path}/upx && chmod 700 ${system_path}/upx
+      chmod 300 ${run_path}/${ocupx}
+      nohup ${system_path}/upx --best ${run_path}/${ocupx} > /dev/null 2>&1
+      notification "OCUPX: “${ocupx}”"
+      ;;
+    b)
+      rm -rf ${bakeup_path}
+      mkdir -p ${bakeup_path}
+      cp ${data_dir}/*.dat ${bakeup_path}
+      cp -r ${data_dir}/Dashboard ${bakeup_path}
+      cp -r ${data_dir}/Aurora/config ${bakeup_path}
+      cp ${config_path}/Aurora.ini ${bakeup_path}
+      notification "Kernel: “${bin_name}” backup success"
+      ;;
+    t)
+      script > /dev/null 2>&1
+      ;;
+    w)
+      chown 0:0 ${config_path}/inotify && chown 0:0 ${config_path}/root
+      chmod 110 ${config_path}/inotify && chmod 440 ${config_path}/root
+      chown 0:0 ${system_path}/Aurora && chmod 6110 ${system_path}/Aurora
+      chown 1000:1000 ${config_path}/Aurora.ini && chmod 004 ${config_path}/Aurora.ini
+      chown 0:3005 ${data_dir}/*dat && chmod 600 ${data_dir}/*dat
+      chown 0:3005 ${data_dir}/Country.mmdb && chmod 600 ${data_dir}/Country.mmdb
+      chown 0:3005 ${data_dir}/Dashboard/* && chmod 500 ${data_dir}/Dashboard/*
+      chown 0:3005 ${data_dir}/Dashboard/*/* && chmod 500 ${data_dir}/Dashboard/*/*
+      chown 0:3005 ${data_dir}/cache.db && chmod 660 ${data_dir}/cache.db
+      chown 0:3005 ${data_dir}/Providers/* && chmod 600 ${data_dir}/Providers/*
+      chown 0:3005 ${run_path}/* && chmod 220 ${run_path}/*
+      ;;
+    n)
+      ${system_path}/Aurora -w
+      inotifyd ${config_path}/inotify ${modules_path}/Aurora/ > /dev/null &
+      crond -c ${modules_path}/Aurora/config > /dev/null 2>&1 &
+      ${system_path}/Aurora -s
+      ;;
+    ?)
+      notification 'No such command'
+      ;;
+  esac
+done
