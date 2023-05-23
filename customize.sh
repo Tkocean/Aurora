@@ -5,9 +5,7 @@ system_uid="1000"
 data_dir="/data/adb/Aurora"
 ca_path="/system/etc/security/cacerts"
 
-mv -f /data/adb/modules/Aurora/config /data/adb/modules/Aurora/config.old
-
-mkdir -p ${data_dir}
+mkdir -p ${data_dir}/Providers
 mkdir -p ${MODPATH}/system/bin
 mkdir -p ${MODPATH}${ca_path}
 
@@ -28,6 +26,5 @@ ui_print "- 开始设置环境权限."
 set_perm_recursive ${MODPATH} 0 0 0755 0644
 set_perm  ${MODPATH}${ca_path}/cacert.pem  0  0  0644
 set_perm_recursive ${data_dir} ${system_uid} ${system_gid} 0755 0644
-set_perm_recursive ${data_dir}/scripts ${system_uid} ${system_gid} 0755 0755
 set_perm_recursive ${MODPATH}/config ${system_uid} ${system_gid} 0755 0755
 set_perm_recursive ${MODPATH}/system/bin ${system_uid} ${system_gid} 0755 0755
