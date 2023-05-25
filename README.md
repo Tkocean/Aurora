@@ -30,19 +30,15 @@
 
 - 本机
 
-  地址：http://127.0.0.1:9090/ui/?theme=light
+  地址：http://localhost:9090/ui/?theme=light
 
 - 路由
 
-  地址：http://192.168.43.1:9090/ui/?theme=light#/
+  地址：http://${网关IP}:9090/ui/?theme=light#/
 
-  端口：http://192.168.43.1:9090
-
-- 旁路由
-
-  地址：http://192.168.1.100:9090/ui/?theme=light#/
-
-  端口：http://192.168.1.100:9090
+  端口：http://${网关IP}:9090
+  
+  密码：内核配置文件
 
 ## 使用教程
 
