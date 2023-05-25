@@ -131,7 +131,7 @@ script() {
       filesize=$(ls -l ${logfile} | awk '{ print $5 }')
       if test ${filesize} -gt ${maxsize}; then
         echo [$(date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
-        notification '日志占用超出限额，已重置'
+        notification "reload：${logfile}"
       fi
     }
 
