@@ -1,9 +1,6 @@
 ## 运行环境
 - arm64 x Magisk
 
-## 依赖文件
-- https://github.com/Tkocean/individual/releases/download/ViEW3485329622/arm64.tar.bz2
-
 ## 实验性功能
 
 - 混合模式
