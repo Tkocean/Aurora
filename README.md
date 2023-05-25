@@ -1,5 +1,5 @@
 ## 运行环境
-- arm64 x Magisk
+- arm64 x magisk busybox
 
 ## 实验性功能
 
