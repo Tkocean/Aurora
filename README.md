@@ -29,7 +29,7 @@
 
 - 本机
 
-  地址：http://localhost:9090/ui/?theme=light
+  地址：http://localhost:924/ui/?theme=light
 
 - 路由
 
