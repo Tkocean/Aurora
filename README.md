@@ -34,9 +34,9 @@
 
 - 路由
 
-  地址：http://${网关IP}:9090/ui/?theme=light#/
+  地址：http://${网关IP}:924/ui/?theme=light#/
 
-  端口：http://${网关IP}:9090
+  端口：http://${网关IP}:924
 
 ## 使用教程
 
