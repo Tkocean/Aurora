@@ -29,13 +29,13 @@
 
 - 本机
 
-  地址：http://localhost:924/ui/?theme=light
+  地址：http://localhost:619/ui/?theme=light
 
 - 路由
 
-  地址：http://${网关IP}:924/ui/?theme=light#/
+  地址：http://${网关IP}:619/ui/?theme=light#/
 
-  端口：http://${网关IP}:924
+  端口：http://${网关IP}:619
 
 ## 使用教程
 
