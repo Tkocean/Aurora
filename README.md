@@ -10,7 +10,7 @@
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic
 
-## xposed module, can be used for fixed gateway IP
+## Xposed module; can be used for fixed gateway IP
     https://github.com/XhyEax/SoftApHelper
 
 ## Dashboard
