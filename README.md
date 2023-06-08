@@ -37,7 +37,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-## Most of the source code for this project comes from:
+## Part of the code for this project comes from the following open source projects
     - Box4 for magisk
     - clash meta
     - singbox
