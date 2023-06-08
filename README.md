@@ -38,7 +38,7 @@
     limitations under the License.
 
 ## Part of the code for this project comes from the following open source projects
+Thanks to the developers of the following open source projects.
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
 - [mosdns](https://github.com/IrineSistiana/mosdns)
-- Thanks to the developers of the above projects.
