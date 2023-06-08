@@ -4,11 +4,11 @@
 [![](https://img.shields.io/badge/Magisk-v26.1-blue)](https://github.com/topjohnwu/Magisk/releases/tag/v26.1)
 
 ## UPDATA
-    - 4.20 Update iptables code
-    - 4.23 Change the operating logic of some functions and simplify the configuration file
-    - 4.28 Simplify the script code and update the script running logic
-    - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables
-    - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic
+    - 4.20 Update iptables code.
+    - 4.23 Change the operating logic of some functions and simplify the configuration file.
+    - 4.28 Simplify the script code and update the script running logic.
+    - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
+    - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
 
 ## Xposed module,can be used for fixed gateway IP
     https://github.com/XhyEax/SoftApHelper
@@ -41,4 +41,4 @@
     - Box4 for magisk https://github.com/CHIZI-0618/box4magisk
     - clash meta https://github.com/MetaCubeX/Clash.Meta
     - mosdns https://github.com/IrineSistiana/mosdns
-Thanks to the developers of the above projects
+Thanks to the developers of the above projects.
