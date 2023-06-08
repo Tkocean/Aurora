@@ -36,3 +36,8 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+## Most of the source code for this project comes from:
+    - Box4 for magisk
+    - clash meta
+    - singbox
