@@ -22,18 +22,10 @@
 ## 热点机固定IP可用此XP模块
     - https://github.com/XhyEax/SoftApHelper
 
-
-## 仓库
-    - https://github.com/Tkocean/individual/tree/Aurora
-
 ## 可根据需要访问对应地址打开操控面板
-
-- 本机
-
+    - 本机
     地址：http://localhost:619/ui/?theme=light
-
-- 路由
-
+    - 路由
     地址：http://${网关IP}:619/ui/?theme=light#/
     端口：http://${网关IP}:619
     密码：${见配置文件}
