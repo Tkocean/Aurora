@@ -41,4 +41,4 @@
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
 - [mosdns](https://github.com/IrineSistiana/mosdns)
-Thanks to the developers of the above projects.
+- Thanks to the developers of the above projects.
