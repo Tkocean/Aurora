@@ -38,6 +38,7 @@
     limitations under the License.
 
 ## Part of the code for this project comes from the following open source projects
-    - Box4 for magisk
-    - clash meta
-    - singbox
+    - Box4 for magisk https://github.com/CHIZI-0618/box4magisk
+    - clash meta https://github.com/MetaCubeX/Clash.Meta
+    - mosdns https://github.com/IrineSistiana/mosdns
+Thanks to the developers of the above projects
