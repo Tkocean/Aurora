@@ -127,7 +127,7 @@ script() {
 
     function lmlog() {
       local logfile=${1}
-      local maxsize=$((1024 * 20))
+      local maxsize=$((1024 * 88))
       filesize=$(ls -l ${logfile} | awk '{ print $5 }')
       if test ${filesize} -gt ${maxsize}; then
         echo [$(date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
@@ -220,8 +220,8 @@ updata_server() {
       fi
     fi
 
-    if [ ${updateHosts} == "true" ]; then
-        updateFile ${Hosts} ${Hosts_url}
+    if [ ${updateMmdb} == "true" ]; then
+        updateFile ${Mmdb} ${Mmdb_url}
         if [ "$?" = "0" ]; then
             flag=true
         fi
@@ -299,6 +299,15 @@ start_redirect() {
     ${ip6tables} -A OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
   fi
 
+  ${iptables} -A INPUT -p udp --dport 3478 -j DROP
+  ${iptables} -A OUTPUT -p udp --sport 3478 -j DROP
+  ${iptables} -A OUTPUT -p udp --dport 3478 -j DROP
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -A INPUT -p udp --dport 3478 -j DROP
+    ${ip6tables} -A OUTPUT -p udp --sport 3478 -j DROP
+    ${ip6tables} -A OUTPUT -p udp --dport 3478 -j DROP
+  fi
+
 }
 
 stop_redirect() {
@@ -309,6 +318,15 @@ stop_redirect() {
   ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
   if [ "${ipv6}" = "true" ] ; then
     ${ip6tables} -D OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+  fi
+
+  ${iptables} -D INPUT -p udp --dport 3478 -j DROP
+  ${iptables} -D OUTPUT -p udp --sport 3478 -j DROP
+  ${iptables} -D OUTPUT -p udp --dport 3478 -j DROP
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -D INPUT -p udp --dport 3478 -j DROP
+    ${ip6tables} -D OUTPUT -p udp --sport 3478 -j DROP
+    ${ip6tables} -D OUTPUT -p udp --dport 3478 -j DROP
   fi
 
   ${iptables} -t nat -F AURORA_EXTERNAL
@@ -326,6 +344,26 @@ forward() {
   if [ "${ipv6}" = "true" ] ; then
     ${ip6tables} ${tunel} FORWARD -o ${tun_device} -j ACCEPT
     ${ip6tables} ${tunel} FORWARD -i ${tun_device} -j ACCEPT
+  fi
+
+  if [ "${tunel}" = "I" ] ; then
+    ${iptables} -A INPUT -p udp --dport 3478 -j DROP
+    ${iptables} -A OUTPUT -p udp --sport 3478 -j DROP
+    ${iptables} -A OUTPUT -p udp --dport 3478 -j DROP
+    if [ "${ipv6}" = "true" ] ; then
+      ${ip6tables} -A INPUT -p udp --dport 3478 -j DROP
+      ${ip6tables} -A OUTPUT -p udp --sport 3478 -j DROP
+      ${ip6tables} -A OUTPUT -p udp --dport 3478 -j DROP
+    fi
+  elif [ "${tunel}" = "D" ] ; then
+    ${iptables} -D INPUT -p udp --dport 3478 -j DROP
+    ${iptables} -D OUTPUT -p udp --sport 3478 -j DROP
+    ${iptables} -D OUTPUT -p udp --dport 3478 -j DROP
+    if [ "${ipv6}" = "true" ] ; then
+      ${ip6tables} -D INPUT -p udp --dport 3478 -j DROP
+      ${ip6tables} -D OUTPUT -p udp --sport 3478 -j DROP
+      ${ip6tables} -D OUTPUT -p udp --dport 3478 -j DROP
+    fi
   fi
 
 }
@@ -518,6 +556,15 @@ start_tproxy() {
     ${iptables} -t nat -I PREROUTING -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
   fi
 
+  ${iptables} -A INPUT -p udp --dport 3478 -j DROP
+  ${iptables} -A OUTPUT -p udp --sport 3478 -j DROP
+  ${iptables} -A OUTPUT -p udp --dport 3478 -j DROP
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -A INPUT -p udp --dport 3478 -j DROP
+    ${ip6tables} -A OUTPUT -p udp --sport 3478 -j DROP
+    ${ip6tables} -A OUTPUT -p udp --dport 3478 -j DROP
+  fi
+
 }
 
 stop_tproxy() {
@@ -579,6 +626,15 @@ stop_tproxy() {
 
   ${iptables} -t nat -D OUTPUT -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
   ${iptables} -t nat -D PREROUTING -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
+
+  ${iptables} -D INPUT -p udp --dport 3478 -j DROP
+  ${iptables} -D OUTPUT -p udp --sport 3478 -j DROP
+  ${iptables} -D OUTPUT -p udp --dport 3478 -j DROP
+  if [ "${ipv6}" = "true" ] ; then
+    ${ip6tables} -D INPUT -p udp --dport 3478 -j DROP
+    ${ip6tables} -D OUTPUT -p udp --sport 3478 -j DROP
+    ${ip6tables} -D OUTPUT -p udp --dport 3478 -j DROP
+  fi
 
 }
 
