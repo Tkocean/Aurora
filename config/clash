@@ -1,4 +1,4 @@
-tproxy-port: 8868
+tproxy-port: 24
 allow-lan: true
 bind-address: "*"
 geodata-mode: true
@@ -20,9 +20,15 @@ profile:
   store-selected: true
   store-fake-ip: false
 tcp-concurrent: false
-external-controller: 0.0.0.0:9090
+global-client-fingerprint: safari
+external-controller: 0.0.0.0:619
 external-ui: Dashboard
+secret: "024619"
+tls:
+  certificate: /system/etc/security/cacerts/cacert.pem
+  private-key: /system/etc/security/cacerts/cacert.pem
 geox-url:
+  mmdb: "https://ghproxy.com/https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
   geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
   geosite: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.dat"
 
@@ -87,11 +93,9 @@ proxy-groups:
     filter: "🇺🇸|美|US"
 
 rules:
- - AND,((NETWORK,UDP),(DOMAIN-KEYWORD,stun)),REJECT
- - GEOIP,Private,DIRECT,no-resolve
- - GEOSITE,Apple,DIRECT
- - GEOSITE,CN,DIRECT
- - GEOIP,Apple,DIRECT
- - GEOIP,CN,DIRECT
- - MATCH,LINK
- - MATCH,REJECT
+
+  - GEOSITE,Apple,DIRECT
+  - GEOSITE,CN,DIRECT
+  - GEOIP,Apple,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,LINK
