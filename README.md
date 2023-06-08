@@ -24,12 +24,11 @@
 
 ## 可根据需要访问对应地址打开操控面板
     - 本机
-    地址：http://localhost:619/ui/?theme=light
+      地址：http://localhost:619/ui/?theme=light
     - 路由
-    地址：http://${网关IP}:619/ui/?theme=light#/
-    端口：http://${网关IP}:619
-    密码：${见配置文件}
+      地址：http://${网关IP}:619/ui/?theme=light#/
+      端口：http://${网关IP}:619
+      密码：${见配置文件}
 
 ## 使用教程
-
-- 请阅读配置文件
+    请阅读配置文件
