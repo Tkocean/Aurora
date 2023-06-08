@@ -3,15 +3,6 @@
 [![platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com)
 [![](https://img.shields.io/badge/Magisk-v26.1-blue)](https://github.com/topjohnwu/Magisk/releases/tag/v26.1)
 
-## 实验性功能
-
-- 混合模式
-- 文件备份
-- 自动更新
-- ipv6支持
-- 节点伪加密
-- UPX支持
-
 ## 主要更新日志
     - 以往更新日志因为过于久远已删除
     - 4.20 更新iptables代码
