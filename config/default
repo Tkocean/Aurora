@@ -1,6 +1,6 @@
 log:
   level: info
-  file: /data/adb/Aurora/Services/dns.log
+  file: ./dns.log
 
 data_providers:
 
@@ -47,7 +47,7 @@ plugins:
   - tag: cache
     type: cache
     args:
-      size: 65536
+      size: 196608
       lazy_cache_ttl: 172800
       lazy_cache_reply_ttl: 15
       compress_resp: false
@@ -59,46 +59,58 @@ plugins:
       minimal_ttl: 600
       maximum_ttl: 3600
 
+  - tag: prevent_domain
+    type: query_matcher
+    args:
+      qtype: [65]
+      domain:
+      - "provider:geosite:private"
+
   - tag: direct_domain
     type: query_matcher
     args:
       domain:
-      - provider:geosite:apple,cn
+      - "provider:geosite:apple,cn"
 
   - tag: direct_ip
     type: response_matcher
     args:
       ip:
-      - provider:geoip:apple,cn
+      - "provider:geoip:apple,cn"
 
   - tag: entrance
     type: sequence
     args:
       exec:
-      - _misc_optm
-      - _prefer_ipv4
-      - _edns0_filter_no_edns0
-      - _no_ecs
-      - cache
-      - _pad_query
-      - if: direct_domain
+      - if: prevent_domain
         exec:
-        - direct
+        - _new_nxdomain_response
         - _return
         else_exec:
-        - if: direct_ip
+        - _misc_optm
+        - _prefer_ipv4
+        - _edns0_filter_no_edns0
+        - _no_ecs
+        - cache
+        - _pad_query
+        - if: direct_domain
           exec:
           - direct
           - _return
           else_exec:
-          - primary:
-            - proxy
-            - _return
-            secondary:
+          - if: direct_ip
+            exec:
             - direct
             - _return
-            stat_length: 10
-            threshold: 5
+            else_exec:
+            - primary:
+              - proxy
+              - _return
+              secondary:
+              - direct
+              - _return
+              stat_length: 10
+              threshold: 5
       - ttl
 
 servers:
