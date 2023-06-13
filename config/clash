@@ -23,7 +23,7 @@ tcp-concurrent: false
 global-client-fingerprint: safari
 external-controller: 0.0.0.0:619
 external-ui: Dashboard
-secret: "024619"
+secret: "000000"
 tls:
   certificate: /system/etc/security/cacerts/cacert.pem
   private-key: /system/etc/security/cacerts/cacert.pem
