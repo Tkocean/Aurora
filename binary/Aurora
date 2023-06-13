@@ -41,6 +41,7 @@ start() {
         ulimit -SHn 1000000
         nohup setuidgid 0:3005 ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
         dns_server true > /dev/null 2>&1
+        nas_server true > /dev/null 2>&1
       else
         nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
         notification "${bin_name}配置有误"
@@ -51,12 +52,12 @@ start() {
       exit 1
     fi
   else
-    cp ${config_path}/${bin_name} ${run_path}
-    mv ${run_path}/${bin_name} ${boxtemplate_file}
+    cp ${config_path}/${bin_name} ${data_dir}/Providers
+    mv ${data_dir}/Providers/${bin_name} ${boxtemplate_file}
     if [ -f ${boxtemplate_file} ] && [ -f ${GeoIP_file} ] ; then
-      if $(${bin_path} check -D ${run_path} -c box.json > ${run_path}/Check.log 2>&1) ; then
+      if $(${bin_path} check -D ${data_dir}/Providers -c box.json > ${run_path}/Check.log 2>&1) ; then
         ulimit -SHn 1000000
-        nohup setuidgid 0:3005 ${system_path}/sing-box run -D ${run_path} -c box.json 2>&1 &
+        nohup setuidgid 0:3005 ${system_path}/sing-box run -D ${data_dir}/Providers -c box.json 2>&1 &
         rm ${run_path}/Check.log
       else
         notification "${bin_name}配置有误"
@@ -94,6 +95,34 @@ dns_server() {
     fi
   else
     notification "DNShijack: “${dns_status}”"
+    exit 0
+  fi
+
+}
+
+nas_server() {
+
+  local mount="${1}"
+  if [ -f "${system_path}/${nas_status}" ] ; then
+    mkdir -p ${data_dir}/Providers/Mount
+    chown 0:1000 ${system_path}/${nas_status}
+    chmod 110 ${system_path}/${nas_status}
+  else
+    notification "NOT Found “${nas_status}” Kernel"
+    exit 1
+  fi
+
+  if [ "${nas_status}" = "Alist" ] ; then
+    if [ "${mount}" = "true" ] ; then
+      cp ${config_path}/mount ${data_dir}/Providers/Mount && mv ${data_dir}/Providers/Mount/mount ${data_dir}/Providers/Mount/config.json && chown 0:1000 ${data_dir}/Providers/Mount/config.json && chmod 440 ${data_dir}/Providers/Mount/config.json
+      ulimit -SHn 1000000
+      nohup setuidgid 0:1000 ${system_path}/${nas_status} server --data ${data_dir}/Providers/Mount 2>&1 &
+    else
+      killall -15 ${nas_status}
+      rm ${run_path}/mount.log
+    fi
+  else
+    notification "NAShijack: “${nas_status}”"
     exit 0
   fi
 
@@ -137,6 +166,7 @@ script() {
 
     lmlog "${run_path}/kernel.log"
     lmlog "${run_path}/dns.log"
+    lmlog "${run_path}/mount.log"
     lmlog "${Services}"
 
     is_empty_dir(){
@@ -698,6 +728,7 @@ while getopts ":wnaedskurpbtm" signal ; do
         rm ${run_path}/kernel.log
         rm ${boxtemplate_file}
         dns_server false > /dev/null 2>&1
+        nas_server false > /dev/null 2>&1
         ${system_path}/Aurora -e
       fi
       ;;
