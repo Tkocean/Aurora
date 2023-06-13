@@ -11,7 +11,7 @@
     "host": "",
     "port": 0,
     "user": "admin",
-    "password": "024619",
+    "password": "000000",
     "name": "Tkocean",
     "db_file": "/data/adb/Aurora/Providers/Mount/Alist.db",
     "table_prefix": "x_",
