@@ -9,7 +9,7 @@
     - 4.28 Simplify the script code and update the script running logic.
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
-    - 6.10 Support Alist；Optimize the code and solve some problems.
+    - 6.10 NAS server powered by Alist；Optimize the code and solve some problems.
 
 ## Xposed module,can be used for fixed gateway IP
     https://github.com/XhyEax/SoftApHelper
@@ -23,7 +23,7 @@
       Port：http://${IP}:619
       Password：${YAML}
     
-## Alist
+## NAS
     - local
       Path：localhost:68
       
