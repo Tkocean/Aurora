@@ -9,6 +9,7 @@
     - 4.28 Simplify the script code and update the script running logic.
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
+    - 6.10 Support Alist；Refactor command execution logic
 
 ## Xposed module,can be used for fixed gateway IP
     https://github.com/XhyEax/SoftApHelper
@@ -21,6 +22,14 @@
       Path：http://${IP}:619/ui/?theme=light#/
       Port：http://${IP}:619
       Password：${YAML}
+    
+    - Alist
+      Path：localhost:68
+      
+    - Apply the provided xposed module
+      Path：${IP}:68
+      Port：${IP}:68
+      Password：${JSON}
 
 ## License
     Copyright 2022 Mohsents
@@ -39,6 +48,7 @@
 
 ## Part of the code for this project comes from the following open source projects
 Thanks to the developers of the following open source projects.
+- [Alist](https://github.com/alist-org/alist)
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
 - [mosdns](https://github.com/IrineSistiana/mosdns)
