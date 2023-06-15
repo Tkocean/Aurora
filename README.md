@@ -11,18 +11,6 @@
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
     - 6.10 NAS server powered by Alist；Optimize the code and solve some problems.
 
-## Xposed module,can be used for fixed gateway IP
-
-- [Xposed](https://github.com/XhyEax/SoftApHelper)
-
-## Dashboard
-
-- [local](http://localhost:619/ui/?theme=light)
-
-## NAS
-
-- [local](http://localhost:68)
-
 ## License
     Copyright 2022 Mohsents
     
@@ -37,6 +25,18 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+## Dashboard
+
+- [local](http://localhost:619/ui/?theme=light)
+
+## NAS
+
+- [local](http://localhost:68)
+
+## Xposed module,can be used for fixed gateway IP
+
+- [Xposed](https://github.com/XhyEax/SoftApHelper)
 
 ## Part of the code for this project comes from the following open source projects
 Thanks to the developers of the following open source projects.
