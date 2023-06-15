@@ -16,7 +16,8 @@
 
 ## Dashboard
 
-    Module can be used to fix IP ：[Module](https://github.com/XhyEax/SoftApHelper)
+    Module can be used to fix IP ：
+    - [Module](https://github.com/XhyEax/SoftApHelper)
     Path：http://${IP}:619/ui/?theme=light#/
     Port：http://${IP}:619
     Password：${YAML}
