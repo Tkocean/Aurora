@@ -25,13 +25,12 @@
     
 ## NAS
 
-- [local](http://localhost:68)
-      
     Apply the provided xposed module
     Path：${IP}:68
     Port：${IP}:68
     Password：${JSON}
 
+- [local](http://localhost:68)
 ## License
     Copyright 2022 Mohsents
     
