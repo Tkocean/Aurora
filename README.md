@@ -16,7 +16,7 @@
 
 ## Dashboard
 
-    Apply the provided xposed module
+    Module can be used to fix IP ：[Module](https://github.com/XhyEax/SoftApHelper)
     Path：http://${IP}:619/ui/?theme=light#/
     Port：http://${IP}:619
     Password：${YAML}
@@ -25,7 +25,7 @@
     
 ## NAS
 
-    Apply the provided xposed module
+    Module can be used to fix IP ：[Module](https://github.com/XhyEax/SoftApHelper)
     Path：${IP}:68
     Port：${IP}:68
     Password：${JSON}
