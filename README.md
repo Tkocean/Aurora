@@ -12,27 +12,17 @@
     - 6.10 NAS server powered by Alist；Optimize the code and solve some problems.
 
 ## Xposed module,can be used for fixed gateway IP
-    https://github.com/XhyEax/SoftApHelper
+
+- [Xposed](https://github.com/XhyEax/SoftApHelper)
 
 ## Dashboard
 
-Module can be used to fix IP ：
-- [Module](https://github.com/XhyEax/SoftApHelper)
-
-    Path：http://${IP}:619/ui/?theme=light#/
-    Port：http://${IP}:619
-    Password：${YAML}
-
 - [local](http://localhost:619/ui/?theme=light)
-    
+
 ## NAS
 
-    Module can be used to fix IP ：[Module](https://github.com/XhyEax/SoftApHelper)
-    Path：${IP}:68
-    Port：${IP}:68
-    Password：${JSON}
-
 - [local](http://localhost:68)
+
 ## License
     Copyright 2022 Mohsents
     
