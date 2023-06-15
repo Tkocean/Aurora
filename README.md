@@ -18,19 +18,19 @@
 
 - [local](http://localhost:619/ui/?theme=light)
       
-    - Apply the provided xposed module
-      Path：http://${IP}:619/ui/?theme=light#/
-      Port：http://${IP}:619
-      Password：${YAML}
+    Apply the provided xposed module
+    Path：http://${IP}:619/ui/?theme=light#/
+    Port：http://${IP}:619
+    Password：${YAML}
     
 ## NAS
 
 - [local](http://localhost:68)
       
-    - Apply the provided xposed module
-      Path：${IP}:68
-      Port：${IP}:68
-      Password：${JSON}
+    Apply the provided xposed module
+    Path：${IP}:68
+    Port：${IP}:68
+    Password：${JSON}
 
 ## License
     Copyright 2022 Mohsents
