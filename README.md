@@ -15,8 +15,7 @@
     https://github.com/XhyEax/SoftApHelper
 
 ## Dashboard
-    - local
-      PATH：http://localhost:619/ui/?theme=light
+    - [local](http://localhost:619/ui/?theme=light)
       
     - Apply the provided xposed module
       Path：http://${IP}:619/ui/?theme=light#/
@@ -24,8 +23,7 @@
       Password：${YAML}
     
 ## NAS
-    - local
-      Path：localhost:68
+    - [local](http://localhost:68)
       
     - Apply the provided xposed module
       Path：${IP}:68
