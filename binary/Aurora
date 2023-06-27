@@ -1,5 +1,5 @@
 #!/system/bin/sh
-export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
+export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH:/data/data/com.termux/files/usr/bin"
 source /data/adb/modules/Aurora/config/Aurora.ini
 
 function notification(){
@@ -17,12 +17,12 @@ echo [$(date "+%H:%M:%S")]" - ${text}" >>${Services}
 
 start() {
 
-  if [ -f "${system_path}/${bin_name}" ] ; then
+  if [ -f "${SYSTEM}/${bin_name}" ] ; then
     killall -15 ${bin_name}
-    mkdir -p ${run_path}
-    ln -sf ${modules_path}/Aurora ${data_dir}
-    chown 0:3005 ${system_path}/${bin_name}
-    chmod 6110 ${system_path}/${bin_name}
+    mkdir -p ${DATADIR}
+    ln -sf ${MODPATH} ${DATADIR}
+    chown 0:3005 ${SYSTEM}/${bin_name}
+    chmod 6110 ${SYSTEM}/${bin_name}
   else
     notification "NOT Found “${bin_name}” Kernel"
     exit 1
@@ -34,16 +34,16 @@ start() {
   fi
 
   if [ "${bin_name}" = "clash" ] ; then
-    cp ${config_path}/${bin_name} ${run_path}/
-    mv ${run_path}/${bin_name} ${template_file}
+    cp ${config_path}/${bin_name} ${DATADIR}/
+    mv ${DATADIR}/${bin_name} ${template_file}
     if [ -f ${template_file} ] && [ -f ${GeoIP_file} ] ; then
-      if $(${bin_path} -d ${data_dir} -t -f ${template_file} > /dev/null) ; then
+      if $(${bin_path} -d ${DATADIR} -t -f ${template_file} > /dev/null) ; then
         ulimit -SHn 1000000
-        nohup setuidgid 0:3005 ${system_path}/clash -d ${data_dir} -f ${template_file} > ${run_path}/kernel.log 2>&1 &
+        nohup setuidgid 0:3005 ${SYSTEM}/clash -d ${DATADIR} -f ${template_file} > ${DATADIR}/kernel.log 2>&1 &
         dns_server true > /dev/null 2>&1
         nas_server true > /dev/null 2>&1
       else
-        nohup ${bin_path} -d ${data_dir} -t -f ${template_file} > ${run_path}/kernel.log
+        nohup ${bin_path} -d ${DATADIR} -t -f ${template_file} > ${DATADIR}/kernel.log
         notification "${bin_name}配置有误"
         exit 1
       fi
@@ -52,13 +52,13 @@ start() {
       exit 1
     fi
   else
-    cp ${config_path}/${bin_name} ${data_dir}/Providers
-    mv ${data_dir}/Providers/${bin_name} ${boxtemplate_file}
+    cp ${config_path}/${bin_name} ${DATADIR}
+    mv ${DATADIR}/${bin_name} ${boxtemplate_file}
     if [ -f ${boxtemplate_file} ] && [ -f ${GeoIP_file} ] ; then
-      if $(${bin_path} check -D ${data_dir}/Providers -c box.json > ${run_path}/Check.log 2>&1) ; then
+      if $(${bin_path} check -D ${DATADIR} -c box.json > ${DATADIR}/Check.log 2>&1) ; then
         ulimit -SHn 1000000
-        nohup setuidgid 0:3005 ${system_path}/sing-box run -D ${data_dir}/Providers -c box.json 2>&1 &
-        rm ${run_path}/Check.log
+        nohup setuidgid 0:3005 ${SYSTEM}/sing-box run -D ${DATADIR} -c box.json 2>&1 &
+        rm ${DATADIR}/Check.log
       else
         notification "${bin_name}配置有误"
         exit 1
@@ -74,9 +74,9 @@ start() {
 dns_server() {
 
   local dnsnet="${1}"
-  if [ -f "${system_path}/mosdns" ] ; then
-    chown 0:1051 ${system_path}/${dns_status}
-    chmod 110 ${system_path}/${dns_status}
+  if [ -f "${SYSTEM}/mosdns" ] ; then
+    chown 0:1051 ${SYSTEM}/${dns_status}
+    chmod 110 ${SYSTEM}/${dns_status}
   else
     notification "NOT Found “${dns_status}” Kernel"
     exit 1
@@ -84,14 +84,14 @@ dns_server() {
 
   if [ "${dns_status}" = "mosdns" ] ; then
     if [ "${dnsnet}" = "true" ] ; then
-      cp ${config_path}/${dns_device} ${run_path}
-      mv ${run_path}/${dns_device} ${run_path}/config.yaml
+      cp ${config_path}/${dns_device} ${DATADIR}
+      mv ${DATADIR}/${dns_device} ${DATADIR}/config.yaml
       ulimit -SHn 1000000
-      nohup setuidgid 0:1051 ${system_path}/${dns_status} start -d ${run_path} > ${run_path}/dns.log 2>&1 &
+      nohup setuidgid 0:1051 ${SYSTEM}/${dns_status} start -d ${DATADIR} > ${DATADIR}/dns.log 2>&1 &
     else
       killall -15 ${dns_status}
-      rm ${run_path}/config.yaml
-      rm ${run_path}/dns.log
+      rm ${DATADIR}/config.yaml
+      rm ${DATADIR}/dns.log
     fi
   else
     notification "DNShijack: “${dns_status}”"
@@ -103,10 +103,10 @@ dns_server() {
 nas_server() {
 
   local mount="${1}"
-  if [ -f "${system_path}/${nas_status}" ] ; then
-    mkdir -p ${data_dir}/Providers/Mount
-    chown 0:1000 ${system_path}/${nas_status}
-    chmod 110 ${system_path}/${nas_status}
+  if [ -f "${SYSTEM}/${nas_status}" ] ; then
+    mkdir -p ${mount_path}
+    chown 0:1000 ${SYSTEM}/${nas_status}
+    chmod 7770 ${SYSTEM}/${nas_status}
   else
     notification "NOT Found “${nas_status}” Kernel"
     exit 1
@@ -114,12 +114,13 @@ nas_server() {
 
   if [ "${nas_status}" = "Alist" ] ; then
     if [ "${mount}" = "true" ] ; then
-      cp ${config_path}/mount ${data_dir}/Providers/Mount && mv ${data_dir}/Providers/Mount/mount ${data_dir}/Providers/Mount/config.json && chown 0:1000 ${data_dir}/Providers/Mount/config.json && chmod 440 ${data_dir}/Providers/Mount/config.json
+      cp ${config_path}/mount ${mount_path} && mv ${mount_path}/mount ${mount_path}/config.json && chown 0:1000 ${mount_path}/config.json && chmod 440 ${mount_path}/config.json
       ulimit -SHn 1000000
-      nohup setuidgid 0:1000 ${system_path}/${nas_status} server --data ${data_dir}/Providers/Mount 2>&1 &
+      nohup setuidgid 0:1000 ${SYSTEM}/${nas_status} server --data ${mount_path} > ${DATADIR}/mount.log 2>&1 &
     else
       killall -15 ${nas_status}
-      rm ${run_path}/mount.log
+      rm ${DATADIR}/mount.log
+      rm ${mount_path}/config.json
     fi
   else
     notification "NAShijack: “${nas_status}”"
@@ -131,21 +132,51 @@ nas_server() {
 upkernel() {
 
   if [ "${bin_name}" = "clash" ] ; then
-    wget -q $(curl -s https://api.github.com/repos/MetaCubeX/Clash.Meta/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O ${run_path}/clash.gz && gzip -d ${run_path}/clash.gz && chmod 0755 ${run_path}/clash && ${run_path}/clash -v
+    wget -q $(curl -s https://api.github.com/repos/MetaCubeX/Clash.Meta/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O ${DATADIR}/clash.gz && gzip -d ${DATADIR}/clash.gz && chmod 0755 ${DATADIR}/clash && ${DATADIR}/clash -v
   else
     notification '只支持更新Meta核心'
-    exit 1
   fi
 
-  if [ -f "${run_path}/clash" ] ; then
-    ${system_path}/Aurora -m clash
-    cp ${run_path}/clash ${system_path}/clash
-    rm ${run_path}/clash
+  if [ -f "${DATADIR}/clash" ] ; then
+    ${SYSTEM}/Aurora -m clash
+    cp ${DATADIR}/clash ${SYSTEM}/clash
+    rm ${DATADIR}/clash
     notification "“Kernel” update success"
   else
-    rm ${run_path}/clash.gz
-    notification '内核更新失败，未知错误'
-    exit 1
+    rm ${DATADIR}/clash.gz
+    notification "Update “${bin_name}” does not exist"
+  fi
+
+  if [ -f "${DATADIR}/${nas_status}" ] ; then
+    ${SYSTEM}/Aurora -m ${nas_status}
+    cp ${DATADIR}/${nas_status} ${SYSTEM}/${nas_status}
+    rm ${DATADIR}/${nas_status}
+    notification "“${nas_status}” update success"
+  else
+    notification "Update “${nas_status}” does not exist"
+  fi
+
+}
+
+updateFile() {
+
+  file="$1"
+  file_bk="${file}.bk"
+  update_url="$2"
+
+  mv -f ${file} ${file_bk}
+  echo "curl -L -A 'clash' ${update_url} -o ${file} "
+  wget --no-check-certificate -U clash -O ${file} ${update_url} 2>&1
+
+  sleep 1
+
+  if [ -f "${file}" ]; then
+    rm -rf ${file_bk}
+    notification "success：${file}"
+  else
+    mv ${file_bk} ${file}
+    notification "error：${file}"
+    return 1
   fi
 
 }
@@ -156,7 +187,7 @@ script() {
 
     function lmlog() {
       local logfile=${1}
-      local maxsize=$((1024 * 88))
+      local maxsize=$((1024 * 888))
       filesize=$(ls -l ${logfile} | awk '{ print $5 }')
       if test ${filesize} -gt ${maxsize}; then
         echo [$(date "+%H:%M:%S")]"	The log reached the specified size and has been reset" > ${logfile}
@@ -164,9 +195,9 @@ script() {
       fi
     }
 
-    lmlog "${run_path}/kernel.log"
-    lmlog "${run_path}/dns.log"
-    lmlog "${run_path}/mount.log"
+    lmlog "${DATADIR}/kernel.log"
+    lmlog "${DATADIR}/dns.log"
+    lmlog "${DATADIR}/mount.log"
     lmlog "${Services}"
 
     is_empty_dir(){
@@ -196,97 +227,53 @@ script() {
 
 updata_server() {
 
-  updateFile() {
-
-    file="$1"
-    file_bk="${file}.bk"
-    update_url="$2"
-
-    mv -f ${file} ${file_bk}
-    echo "curl -L -A 'clash' ${update_url} -o ${file} "
-    wget --no-check-certificate -U clash -O ${file} ${update_url} 2>&1
-
-    sleep 1
-
-    if [ -f "${file}" ]; then
-      rm -rf ${file_bk}
-      notification "success：${file}"
-    else
-      mv ${file_bk} ${file}
-      notification "error：${file}"
-      return 1
-    fi
-
-  }
-
-  flag=false
-
   update_pre() {
 
     if [ ${updateSafety} == "true" ]; then
-        updateFile ${data_dir}/Providers/Safety.yaml https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
-        if [ "$?" = "0" ]; then
-          flag=true
-        fi
+      updateFile ${DATADIR}/Safety.yaml https://raw.githubusercontent.com/lwd-temp/anti-ip-attribution/main/generated/rule-provider.yaml
     fi
 
     if [ ${updateAurora} == "true" ]; then
       updateFile ${Aurora} ${Aurora_url}
       if [ -f "${Aurora}" ] ; then
-        unzip -d ${run_path}/ ${Aurora}
-        if [ -f "${run_path}/Yacd-meta-gh-pages/Twemoji_Mozilla.ttf" ] ; then
-          rm -rf ${data_dir}/Dashboard
-          mv ${run_path}/Yacd-meta-gh-pages ${data_dir}/Dashboard
+        unzip -d ${DATADIR}/ ${Aurora}
+        if [ -f "${DATADIR}/Yacd-meta-gh-pages/Twemoji_Mozilla.ttf" ] ; then
+          rm -rf ${Dashboard}
+          mv ${DATADIR}/Yacd-meta-gh-pages ${Dashboard}
           rm ${Aurora}
         else
           rm ${Aurora}
-          rm -rf ${run_path}/Yacd-meta-gh-pages
+          rm -rf ${DATADIR}/Yacd-meta-gh-pages
           notification 'YACD更新失败'
-          exit 1
-        fi
-        if [ "$?" = "0" ]; then
-          flag=true
         fi
       fi
     fi
 
     if [ ${updateMmdb} == "true" ]; then
-        updateFile ${Mmdb} ${Mmdb_url}
-        if [ "$?" = "0" ]; then
-            flag=true
-        fi
+      updateFile ${Mmdb} ${Mmdb_url}
     fi
 
     if [ ${updateGeoSite} == "true" ]; then
-        updateFile ${GeoSite_file} ${GeoSite_url}
-        if [ "$?" = "0" ]; then
-            flag=true
-        fi
+      updateFile ${GeoSite_file} ${GeoSite_url}
     fi
 
     if [ ${updateGeoIP} == "true" ]; then
-        updateFile ${GeoIP_file} ${GeoIP_url}
-        if [ "$?" = "0" ]; then
-            flag=true
-        fi
+      updateFile ${GeoIP_file} ${GeoIP_url}
     fi
 
     if [ ${updateKernel} == "true" ]; then
-        ${system_path}/Aurora -u
-        if [ "$?" = "0" ]; then
-            flag=true
-        fi
+      ${SYSTEM}/Aurora -u
     fi
 
-    ${system_path}/Aurora -t
-    rm ${data_dir}/Aurora/updata
+    ${SYSTEM}/Aurora -t
+    rm ${MODPATH}/updata
 
   }
 
   if [ ${updata_load} == "true" ]; then
     update_pre
   elif [ ${updata_load} == "false" ]; then
-    rm ${data_dir}/Aurora/updata
+    rm ${MODPATH}/updata
   fi
 
 }
@@ -305,7 +292,7 @@ start_redirect() {
     ${iptables} -t nat -A AURORA_LOCAL -d ${fake_ip_range} -p icmp -j DNAT --to-destination 127.0.0.1
   fi
 
-  for subnet in ${intranet[*]} ; do
+  for subnet in ${intranet[@]} ; do
     ${iptables} -t nat -A AURORA_EXTERNAL -d ${subnet} -j RETURN
     ${iptables} -t nat -A AURORA_LOCAL -d ${subnet} -j RETURN
   done
@@ -449,21 +436,21 @@ start_tproxy() {
   fi
 
   if [ "${bin_name}" = "clash" ] ; then
-    for subnet in ${intranet[*]} ; do
+    for subnet in ${intranet[@]} ; do
       ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} -j RETURN
     done
     if [ "${ipv6}" = "true" ] ; then
-      for subnet6 in ${intranet6[*]} ; do
+      for subnet6 in ${intranet6[@]} ; do
         ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} -j RETURN
       done
     fi
   else
-    for subnet in ${intranet[*]} ; do
+    for subnet in ${intranet[@]} ; do
       ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} -p udp ! --dport 53 -j RETURN
       ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} ! -p udp -j RETURN
     done
     if [ "${ipv6}" = "true" ] ; then
-      for subnet6 in ${intranet6[*]} ; do
+      for subnet6 in ${intranet6[@]} ; do
         ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} -p udp ! --dport 53 -j RETURN
         ${ip6tables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} ! -p udp -j RETURN
       done
@@ -505,22 +492,22 @@ start_tproxy() {
 
   if [ "${bin_name}" = "clash" ] ; then
     ${iptables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j RETURN
-    for subnet in ${intranet[*]} ; do
+    for subnet in ${intranet[@]} ; do
       ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} -j RETURN
     done
     if [ "${ipv6}" = "true" ] ; then
       ${ip6tables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j RETURN
-      for subnet6 in ${intranet6[*]} ; do
+      for subnet6 in ${intranet6[@]} ; do
         ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} -j RETURN
       done
     fi
   else
-    for subnet in ${intranet[*]} ; do
+    for subnet in ${intranet[@]} ; do
       ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} -p udp ! --dport 53 -j RETURN
       ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} ! -p udp -j RETURN
     done
     if [ "${ipv6}" = "true" ] ; then
-      for subnet6 in ${intranet6[*]} ; do
+      for subnet6 in ${intranet6[@]} ; do
         ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} -p udp ! --dport 53 -j RETURN
         ${ip6tables} -t mangle -A AURORA_LOCAL -d ${subnet6} ! -p udp -j RETURN
       done
@@ -668,9 +655,11 @@ stop_tproxy() {
 
 }
 
-while getopts ":wnaedskurpbtm" signal ; do
+while getopts ":wnaedsikurpbtm" signal ; do
   case ${signal} in
     a)
+      intranet[${#intranet[@]}]=$(ip address | grep -w inet | grep -v 127 | awk '{print $2}')
+      intranet6[${#intranet6[@]}]=$(ip address | grep -w inet6 | grep -v ::1 | grep -v fe80 | awk '{print $2}')
       if [ "${mixed_local}" = "true" ] ; then
         start_redirect > /dev/null 2>&1
         forward I > /dev/null 2>&1
@@ -685,6 +674,8 @@ while getopts ":wnaedskurpbtm" signal ; do
       notification 'IPTables规则已应用'
       ;;
     e)
+      intranet[${#intranet[@]}]=$(ip address | grep -w inet | grep -v 127 | awk '{print $2}')
+      intranet6[${#intranet6[@]}]=$(ip address | grep -w inet6 | grep -v ::1 | grep -v fe80 | awk '{print $2}')
       if [ "${mixed_local}" = "true" ] ; then
         stop_redirect > /dev/null 2>&1
         forward D > /dev/null 2>&1
@@ -704,14 +695,14 @@ while getopts ":wnaedskurpbtm" signal ; do
       notification "IP6Table: ${IP6Table}"
       ;;
     s)
-      ${system_path}/Aurora -k
+      ${SYSTEM}/Aurora -k
       if [ "${decide_dns}" = "true" ] ; then
         dns_server true > /dev/null 2>&1
       else
         start > /dev/null 2>&1
       fi
       if pid=$(pidof ${bin_name} 2>/dev/null); then
-        ${system_path}/Aurora -a && ${system_path}/Aurora -w
+        ${SYSTEM}/Aurora -a && ${SYSTEM}/Aurora -w
         notification 'Kernel is running'
       else
         notification 'Kernel not started'
@@ -725,70 +716,75 @@ while getopts ":wnaedskurpbtm" signal ; do
         echo [$(date "+%Y-%m-%d --- %H:%M:%S")] >>${Services}
         killall -15 ${bin_name}
         rm ${template_file}
-        rm ${run_path}/kernel.log
+        rm ${DATADIR}/kernel.log
         rm ${boxtemplate_file}
         dns_server false > /dev/null 2>&1
         nas_server false > /dev/null 2>&1
-        ${system_path}/Aurora -e
+        ${SYSTEM}/Aurora -e
       fi
       ;;
     u)
+      ${SYSTEM}/Aurora -b
       upkernel > /dev/null 2>&1
-      ${system_path}/Aurora -w
+      updata_server > /dev/null 2>&1
+      rm ${MODPATH}/upkernel
       ;;
     r)
       local rebin="${2}"
       if [ "${rebin}" == "bin" ]; then
-        ${system_path}/Aurora -k
+        ${SYSTEM}/Aurora -k
         sleep 2
-        ${system_path}/Aurora -s
+        ${SYSTEM}/Aurora -s
       elif [ "${rebin}" = "tpre" ] ; then
-        ${system_path}/Aurora -e
+        ${SYSTEM}/Aurora -e
         sleep 2
-        ${system_path}/Aurora -a
+        ${SYSTEM}/Aurora -a
       fi
       ;;
     p)
       updata_server > /dev/null 2>&1
-      ${system_path}/Aurora -w
+      ${SYSTEM}/Aurora -w
       ;;
     m)
       local ocupx="${2}"
-      chown 0:0 ${system_path}/upx && chmod 700 ${system_path}/upx
-      chmod 300 ${run_path}/${ocupx}
-      nohup ${system_path}/upx --best ${run_path}/${ocupx} > /dev/null 2>&1
+      chown 0:0 ${SYSTEM}/upx && chmod 700 ${SYSTEM}/upx
+      chmod 300 ${DATADIR}/${ocupx}
+      nohup ${SYSTEM}/upx --best ${DATADIR}/${ocupx} > /dev/null 2>&1
       notification "OCUPX: “${ocupx}”"
       ;;
     b)
       rm -rf ${bakeup_path}
       mkdir -p ${bakeup_path}
-      cp ${data_dir}/*.dat ${bakeup_path}
-      cp -r ${data_dir}/Dashboard ${bakeup_path}
-      cp -r ${data_dir}/Aurora/config ${bakeup_path}
+      cp ${DATADIR}/*.dat ${bakeup_path}
+      cp ${SYSTEM}/${bin_name} ${bakeup_path}
+      cp ${SYSTEM}/Aurora ${bakeup_path}
+      cp -r ${Dashboard} ${bakeup_path}
+      cp -r ${mount_path} ${bakeup_path}
+      cp -r ${MODPATH}/config ${bakeup_path}
       cp ${config_path}/Aurora.ini ${bakeup_path}
       notification "Kernel: “${bin_name}” backup success"
       ;;
     t)
       script > /dev/null 2>&1
       ;;
+    i)
+      local NAS="${2}"
+      nas_server ${NAS} > /dev/null 2>&1
+      ;;
     w)
       chown 0:0 ${config_path}/inotify && chown 0:0 ${config_path}/root
       chmod 110 ${config_path}/inotify && chmod 440 ${config_path}/root
-      chown 0:0 ${system_path}/Aurora && chmod 6110 ${system_path}/Aurora
+      chown 0:0 ${SYSTEM}/Aurora && chmod 6110 ${SYSTEM}/Aurora
       chown 1000:1000 ${config_path}/Aurora.ini && chmod 004 ${config_path}/Aurora.ini
-      chown 0:3005 ${data_dir}/*dat && chmod 600 ${data_dir}/*dat
-      chown 0:3005 ${data_dir}/Country.mmdb && chmod 600 ${data_dir}/Country.mmdb
-      chown 0:3005 ${data_dir}/Dashboard/* && chmod 500 ${data_dir}/Dashboard/*
-      chown 0:3005 ${data_dir}/Dashboard/*/* && chmod 500 ${data_dir}/Dashboard/*/*
-      chown 0:3005 ${data_dir}/cache.db && chmod 660 ${data_dir}/cache.db
-      chown 0:3005 ${data_dir}/Providers/* && chmod 600 ${data_dir}/Providers/*
-      chown 0:3005 ${run_path}/* && chmod 220 ${run_path}/*
+      chown 0:3005 ${Dashboard}/* && chmod 500 ${Dashboard}/*
+      chown 0:3005 ${Dashboard}/*/* && chmod 500 ${Dashboard}/*/*
+      chown 0:3005 ${DATADIR}/* && chmod 600 ${DATADIR}/*
       ;;
     n)
-      ${system_path}/Aurora -w
-      inotifyd ${config_path}/inotify ${modules_path}/Aurora/ > /dev/null &
-      crond -c ${modules_path}/Aurora/config > /dev/null 2>&1 &
-      ${system_path}/Aurora -s
+      ${SYSTEM}/Aurora -w
+      inotifyd ${config_path}/inotify ${MODPATH}/ > /dev/null &
+      crond -c ${MODPATH}/config > /dev/null 2>&1 &
+      ${SYSTEM}/Aurora -s
       ;;
     ?)
       notification 'No such command'
