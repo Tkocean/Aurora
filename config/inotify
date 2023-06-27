@@ -1,14 +1,12 @@
 #!/system/bin/sh
-export PATH="$(magisk --path)/.magisk/busybox:$PATH:/system/bin"
+export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH:/data/data/com.termux/files/usr/bin"
 source /data/adb/modules/Aurora/config/Aurora.ini
 
 events=$1
 monitor_dir=$2
 monitor_file=$3
-service_path="${system_path}/Aurora"
-signal_file="${run_path}/cmdRunning"
-
-
+service_path=${SYSTEM}/Aurora
+signal_file=${DATADIR}/cmdRunning
 
 if [ "${monitor_file}" = "disable" ] ; then
   touch ${signal_file}
@@ -20,13 +18,32 @@ if [ "${monitor_file}" = "disable" ] ; then
   rm ${signal_file}
 fi
 
-
 if [ "${monitor_file}" = "updata" ] ; then
   touch ${signal_file}
   if [ "${events}" = "d" ] ; then
     ${service_path} -r ${updata_path}
   elif [ "${events}" = "n" ] ; then
     ${service_path} -p
+  fi
+  rm ${signal_file}
+fi
+
+if [ "${monitor_file}" = "remove" ] ; then
+  touch ${signal_file}
+  if [ "${events}" = "d" ] ; then
+    ${service_path} -a
+  elif [ "${events}" = "n" ] ; then
+    ${service_path} -e
+  fi
+  rm ${signal_file}
+fi
+
+if [ "${monitor_file}" = "upkernel" ] ; then
+  touch ${signal_file}
+  if [ "${events}" = "d" ] ; then
+    ${service_path} -r bin
+  elif [ "${events}" = "n" ] ; then
+    ${service_path} -u
   fi
   rm ${signal_file}
 fi

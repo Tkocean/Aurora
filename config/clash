@@ -22,13 +22,13 @@ profile:
 tcp-concurrent: false
 global-client-fingerprint: safari
 external-controller: 0.0.0.0:619
-external-ui: Dashboard
-secret: "000000"
+external-ui: /data/system/Dashboard
+secret: ""
 tls:
   certificate: /system/etc/security/cacerts/cacert.pem
   private-key: /system/etc/security/cacerts/cacert.pem
 geox-url:
-  mmdb: "https://ghproxy.com/https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
+  mmdb: "https://ghproxy.com/https://https://github.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
   geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
   geosite: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.dat"
 
@@ -39,31 +39,23 @@ s: &s
   interval: 86400
   health-check:
     enable: false
-    url: http://www.gstatic.com/generate_204
+    url: https://captive.apple.com
     interval: 86400
 
 proxy-providers:
 
-  HANDLE:
-    <<: *s
-    url: "订阅链接"
-    path: ./Providers/base64.bin
-  PASTBIN:
-    <<: *s
-    url: "订阅链接"
-    path: ./Providers/default.bin
   KRISTEN:
     <<: *s
     url: "订阅链接"
-    path: ./Providers/kristen.bin
+    path: ./base64.bin
   DEFAULT:
     <<: *s
     url: "订阅链接"
-    path: ./Providers/pertsua.bin
-  BUCKSHE:
+    path: ./default.bin
+  PASTBIN:
     <<: *s
     url: "订阅链接"
-    path: ./Providers/buckshe.bin
+    path: ./kristen.bin
 
 proxy-groups:
 
@@ -76,20 +68,16 @@ proxy-groups:
   - name: 🇭🇰 Hong Kong
     type: select
     use:
-      - HANDLE
       - KRISTEN
       - PASTBIN
       - DEFAULT
-      - BUCKSHE
     filter: "🇭🇰|港|HK"
   - name: 🇺🇸 United States
     type: select
     use:
-      - HANDLE
       - KRISTEN
       - PASTBIN
       - DEFAULT
-      - BUCKSHE
     filter: "🇺🇸|美|US"
 
 rules:
