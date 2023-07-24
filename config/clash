@@ -1,4 +1,5 @@
 tproxy-port: 24
+#redir-port: 61
 allow-lan: true
 bind-address: "*"
 geodata-mode: true
@@ -8,14 +9,45 @@ mode: rule
 log-level: error
 ipv6: false
 udp: true
+tun:
+  enable: false
+  device: Aurora
+  stack: system
+  dns-hijack:
+    - 0.0.0.0:53
+  mtu: 9000
+  auto-route: true
+  strict-route: false
+  auto-detect-interface: false
 dns:
   enable: true
   ipv6: false
   prefer-h3: false
   use-hosts: false
   listen: 0.0.0.0:1053
+  enhanced-mode: redir-host
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter:
+    - "*.lan"
+    - "+.stun.*.*"
+    - "+.stun.*.*.*"
+    - "+.stun.*.*.*.*"
+    - "+.stun.*.*.*.*.*"
+    - "*.msftncsi.com"
+    - "localhost.ptlogin2.qq.com"
+    - "*.n.n.srv.nintendo.net" 
+    - "+.stun.playstation.net"
+    - "xbox.*.*.microsoft.com"
+    - "*.*.xboxlive.com"
+    - "*.msftncsi.com"
+    - "*.msftconnecttest.com"
+    - "lens.l.google.com"
+    - "WORKGROUP"
   nameserver:
     - 127.0.0.1:2453
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://119.29.29.29/dns-query
 profile:
   store-selected: true
   store-fake-ip: false
@@ -23,7 +55,7 @@ tcp-concurrent: false
 global-client-fingerprint: safari
 external-controller: 0.0.0.0:619
 external-ui: /data/system/Dashboard
-secret: ""
+secret: "024619"
 tls:
   certificate: /system/etc/security/cacerts/cacert.pem
   private-key: /system/etc/security/cacerts/cacert.pem
@@ -46,15 +78,15 @@ proxy-providers:
 
   KRISTEN:
     <<: *s
-    url: "订阅链接"
+    url: "https://api.bigme.online/api/v1/client/subscribe?token=fVHGPit2u7Kurw3e"
     path: ./base64.bin
   DEFAULT:
     <<: *s
-    url: "订阅链接"
+    url: "https://mojie.best/api/v1/client/subscribe?token=58eda1f193e93ce4eaab37f572ea47c3"
     path: ./default.bin
   PASTBIN:
     <<: *s
-    url: "订阅链接"
+    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
     path: ./kristen.bin
 
 proxy-groups:
@@ -82,6 +114,8 @@ proxy-groups:
 
 rules:
 
+  - DOMAIN-KEYWORD,stun,REJECT,no-resolve
+  - GEOIP,Private,DIRECT,no-resolve
   - GEOSITE,Apple,DIRECT
   - GEOSITE,CN,DIRECT
   - GEOIP,Apple,DIRECT
