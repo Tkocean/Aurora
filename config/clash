@@ -55,7 +55,7 @@ tcp-concurrent: false
 global-client-fingerprint: safari
 external-controller: 0.0.0.0:619
 external-ui: /data/system/Dashboard
-secret: "024619"
+secret: "0"
 tls:
   certificate: /system/etc/security/cacerts/cacert.pem
   private-key: /system/etc/security/cacerts/cacert.pem
@@ -78,15 +78,15 @@ proxy-providers:
 
   KRISTEN:
     <<: *s
-    url: "https://api.bigme.online/api/v1/client/subscribe?token=fVHGPit2u7Kurw3e"
+    url: "订阅链接"
     path: ./base64.bin
   DEFAULT:
     <<: *s
-    url: "https://mojie.best/api/v1/client/subscribe?token=58eda1f193e93ce4eaab37f572ea47c3"
+    url: "订阅链接"
     path: ./default.bin
   PASTBIN:
     <<: *s
-    url: "https://qlcdc.trafficmanager.net/api/v1/client/subscribe?token=d66415a000df882cd3b45174e4667d86"
+    url: "订阅链接"
     path: ./kristen.bin
 
 proxy-groups:
