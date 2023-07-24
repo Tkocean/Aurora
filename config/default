@@ -1,7 +1,3 @@
-log:
-  level: info
-  file: ./dns.log
-
 data_providers:
 
   - tag: geosite
