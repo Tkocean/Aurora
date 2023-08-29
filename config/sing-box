@@ -1,0 +1,90 @@
+{
+  "log": {
+    "disabled": true,
+    "level": "fatal",
+    "output": "Kernel.log"
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "entire",
+        "address": "tls://1.1.1.1",
+        "detour": "USA"
+      },
+      {
+        "tag": "inland",
+        "address": "tls://223.5.5.5",
+        "detour": "direct"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "inland"
+      },
+      {
+        "geosite": [
+          "apple",
+          "cn"
+        ],
+        "server": "inland"
+      }
+    ],
+    "strategy": "ipv4_only",
+    "final": "entire"
+  },
+  "inbounds": [
+    {
+      "type": "tproxy",
+      "tag": "tproxy-in",
+      "listen": "::",
+      "listen_port": 24,
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "type": "shadowsocks",
+      "tag": "USA"
+    }
+  ],
+  "route": {
+    "geoip": {
+      "path": "GeoIP.db",
+      "download_url": "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.db",
+      "download_detour": "direct"
+    },
+    "geosite": {
+      "path": "GeoSite.db",
+      "download_url": "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.db",
+      "download_detour": "direct"
+    },
+    "rules": [
+      {
+        "port": 53,
+        "outbound": "dns-out"
+      },
+      {
+        "geosite": [
+          "apple",
+          "cn"
+        ],
+        "geoip": [
+          "private",
+          "apple",
+          "cn"
+        ],
+        "outbound": "direct"
+      }
+    ],
+    "final": "USA"
+  }
+}

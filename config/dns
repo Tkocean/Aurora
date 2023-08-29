@@ -1,31 +1,16 @@
 data_providers:
 
   - tag: geosite
-    file: /data/adb/Aurora/GeoSite.dat
+    file: ./GeoSite.dat
     auto_reload: true
 
   - tag: geoip
-    file: /data/adb/Aurora/GeoIP.dat
+    file: ./GeoIP.dat
     auto_reload: true
 
 plugins:
 
-  - tag: direct
-    type: fast_forward
-    args:
-      upstream:
-      - addr: "tls://1.12.12.12"
-        enable_pipeline: true
-        enable_http3: false
-        max_conns: 4
-        trusted: true
-      - addr: "tls://223.5.5.5"
-        enable_pipeline: true
-        enable_http3: false
-        max_conns: 4
-        trusted: true
-
-  - tag: proxy
+  - tag: entire
     type: fast_forward
     args:
       upstream:
@@ -40,13 +25,27 @@ plugins:
         max_conns: 4
         trusted: true
 
+  - tag: inland
+    type: fast_forward
+    args:
+      upstream:
+      - addr: "tls://1.12.12.12"
+        enable_pipeline: true
+        enable_http3: false
+        max_conns: 4
+        trusted: true
+      - addr: "tls://223.5.5.5"
+        enable_pipeline: true
+        enable_http3: false
+        max_conns: 4
+        trusted: true
+
   - tag: cache
     type: cache
     args:
       size: 196608
       lazy_cache_ttl: 172800
       lazy_cache_reply_ttl: 15
-      compress_resp: false
       cache_everything: true
 
   - tag: ttl
@@ -60,15 +59,15 @@ plugins:
     args:
       qtype: [65]
       domain:
-      - "provider:geosite:private"
+      - "provider:geosite:category-ads-all"
 
-  - tag: direct_domain
+  - tag: inland_domain
     type: query_matcher
     args:
       domain:
-      - "provider:geosite:apple,cn"
+      - "provider:geosite:apple@cn,cn"
 
-  - tag: direct_ip
+  - tag: inland_response
     type: response_matcher
     args:
       ip:
@@ -85,25 +84,24 @@ plugins:
         else_exec:
         - _misc_optm
         - _prefer_ipv4
-        - _edns0_filter_no_edns0
-        - _no_ecs
+        - _edns0_filter_ecs_only
         - cache
         - _pad_query
-        - if: direct_domain
+        - if: inland_domain
           exec:
-          - direct
+          - inland
           - _return
           else_exec:
-          - if: direct_ip
+          - if: inland_response
             exec:
-            - direct
+            - inland
             - _return
             else_exec:
             - primary:
-              - proxy
+              - entire
               - _return
               secondary:
-              - direct
+              - inland
               - _return
               stat_length: 10
               threshold: 5
@@ -113,4 +111,4 @@ servers:
   - exec: entrance
     listeners:
       - protocol: udp
-        addr: localhost:2453
+        addr: localhost:653

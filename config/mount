@@ -1,22 +1,29 @@
 {
   "force": false,
-  "address": "0.0.0.0",
-  "port": 68,
+  "site_url": "",
+  "cdn": "",
   "jwt_secret": "gs8032l9Z2D2xmmF",
   "token_expires_in": 48,
   "database": {
     "type": "sqlite3",
-    "user": "admin",
-    "password": "0",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
     "name": "Tkocean",
     "db_file": "/data/system/Mount/Alist.db",
     "table_prefix": "x_",
     "ssl_mode": ""
   },
   "scheme": {
-    "https": false,
-    "cert_file": "/system/etc/security/cacerts/cacert.pem",
-    "key_file": "/system/etc/security/cacerts/cacert.pem"
+    "address": "0.0.0.0",
+    "http_port": 68,
+    "https_port": -1,
+    "force_https": false,
+    "cert_file": "",
+    "key_file": "",
+    "unix_file": "",
+    "unix_file_perm": ""
   },
   "temp_dir": "/data/cache/temp",
   "bleve_dir": "/data/cache/temp/bleve",
@@ -28,7 +35,7 @@
     "max_age": 28,
     "compress": false
   },
+  "delayed_start": 0,
   "max_connections": 0,
   "tls_insecure_skip_verify": false
 }
-

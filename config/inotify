@@ -1,48 +1,63 @@
 #!/system/bin/sh
-export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH:/data/data/com.termux/files/usr/bin"
-source /data/adb/modules/Aurora/config/Aurora.ini
+SPATH=$(dirname "$(readlink -f "$0")")
+export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH"
+source ${SPATH}/Aurora.ini
+signal_file=${DATADIR}/$(uname -m)
 
-events=$1
-monitor_dir=$2
-monitor_file=$3
-signal_file=${DATADIR}/cmdRunning
-
-if [ "${monitor_file}" = "disable" ] ; then
-  touch ${signal_file}
-  if [ "${events}" = "d" ] ; then
-    ${SYSTEM}/Aurora -s
-  elif [ "${events}" = "n" ] ; then
-    ${SYSTEM}/Aurora -k
-  fi
-  rm ${signal_file}
-fi
-
-if [ "${monitor_file}" = "updata" ] ; then
-  touch ${signal_file}
-  if [ "${events}" = "d" ] ; then
-    ${SYSTEM}/Aurora -r ${updata_path}
-  elif [ "${events}" = "n" ] ; then
-    ${SYSTEM}/Aurora -p
-  fi
-  rm ${signal_file}
-fi
-
-if [ "${monitor_file}" = "remove" ] ; then
-  touch ${signal_file}
-  if [ "${events}" = "d" ] ; then
-    ${SYSTEM}/Aurora -a
-  elif [ "${events}" = "n" ] ; then
-    ${SYSTEM}/Aurora -e
-  fi
-  rm ${signal_file}
-fi
-
-if [ "${monitor_file}" = "upkernel" ] ; then
-  touch ${signal_file}
-  if [ "${events}" = "d" ] ; then
-    ${SYSTEM}/Aurora -r bin
-  elif [ "${events}" = "n" ] ; then
-    ${SYSTEM}/Aurora -u
-  fi
-  rm ${signal_file}
-fi
+case "$3" in
+  disable)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora enable
+    elif [ "$1" = "n" ] ; then
+      Aurora $3
+    fi
+    rm ${signal_file}
+    ;;
+  updata)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora set
+    elif [ "$1" = "n" ] ; then
+      Aurora $3
+    fi
+    rm ${signal_file}
+    ;;
+  remove)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora a
+    elif [ "$1" = "n" ] ; then
+      Aurora e
+    fi
+    rm ${signal_file}
+    ;;
+  upkernel)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora bin
+    elif [ "$1" = "n" ] ; then
+      Aurora $3
+    fi
+    rm ${signal_file}
+    ;;
+  backup)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora $3
+    elif [ "$1" = "n" ] ; then
+      sleep 2 && rm $2$3
+    fi
+    rm ${signal_file}
+    ;;
+  renet)
+    touch ${signal_file}
+    if [ "$1" = "d" ] ; then
+      Aurora net true
+    elif [ "$1" = "n" ] ; then
+      Aurora net false
+      sleep 2 && rm $2$3
+    fi
+    rm ${signal_file}
+    ;;
+esac
