@@ -46,3 +46,4 @@ Thanks to the developers of the following open source projects.
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
 - [mosdns](https://github.com/IrineSistiana/mosdns)
+- [sing-box](https://github.com/SagerNet/sing-box)
