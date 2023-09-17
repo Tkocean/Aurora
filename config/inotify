@@ -8,9 +8,9 @@ case "$3" in
   disable)
     touch ${signal_file}
     if [ "$1" = "d" ] ; then
-      Aurora enable
+      Aurora a
     elif [ "$1" = "n" ] ; then
-      Aurora $3
+      Aurora e
     fi
     rm ${signal_file}
     ;;
@@ -26,18 +26,9 @@ case "$3" in
   remove)
     touch ${signal_file}
     if [ "$1" = "d" ] ; then
-      Aurora a
+      Aurora s
     elif [ "$1" = "n" ] ; then
-      Aurora e
-    fi
-    rm ${signal_file}
-    ;;
-  upkernel)
-    touch ${signal_file}
-    if [ "$1" = "d" ] ; then
-      Aurora bin
-    elif [ "$1" = "n" ] ; then
-      Aurora $3
+      Aurora k
     fi
     rm ${signal_file}
     ;;

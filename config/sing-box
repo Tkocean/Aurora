@@ -9,11 +9,11 @@
       {
         "tag": "entire",
         "address": "tls://1.1.1.1",
-        "detour": "USA"
+        "detour": "exit"
       },
       {
         "tag": "inland",
-        "address": "tls://223.5.5.5",
+        "address": "tls://1.12.12.12",
         "detour": "direct"
       }
     ],
@@ -24,7 +24,6 @@
       },
       {
         "geosite": [
-          "apple",
           "cn"
         ],
         "server": "inland"
@@ -39,6 +38,7 @@
       "tag": "tproxy-in",
       "listen": "::",
       "listen_port": 24,
+      "tcp_multi_path": true,
       "sniff": true
     }
   ],
@@ -53,7 +53,11 @@
     },
     {
       "type": "shadowsocks",
-      "tag": "USA"
+      "tag": "exit",
+      "server": "",
+      "server_port": ,
+      "method": "",
+      "password": ""
     }
   ],
   "route": {
@@ -64,7 +68,7 @@
     },
     "geosite": {
       "path": "GeoSite.db",
-      "download_url": "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite-lite.db",
+      "download_url": "https://ghproxy.com/https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/download/geosite.db",
       "download_detour": "direct"
     },
     "rules": [
@@ -74,17 +78,15 @@
       },
       {
         "geosite": [
-          "apple",
           "cn"
         ],
         "geoip": [
           "private",
-          "apple",
           "cn"
         ],
         "outbound": "direct"
       }
     ],
-    "final": "USA"
+    "final": "exit"
   }
 }

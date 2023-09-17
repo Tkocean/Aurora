@@ -6,7 +6,7 @@ geodata-mode: true
 find-process-mode: off
 unified-delay: true
 mode: rule
-log-level: error
+log-level: silent
 ipv6: false
 udp: true
 tun:
@@ -34,17 +34,21 @@ dns:
   fake-ip-range: 28.0.0.1/8
   nameserver:
     - 127.0.0.1:653
+  nameserver-policy:
+    "geosite:category-ads-all":
+      - rcode://name_error
 profile:
   store-selected: true
   store-fake-ip: false
 tcp-concurrent: false
+keep-alive-interval: 15
 global-client-fingerprint: safari
 external-controller: 0.0.0.0:619
 external-ui: /data/system/Dashboard
-secret: 024619
+#secret:
 geox-url:
   mmdb: "https://ghproxy.com/https://https://github.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
-  geoip: "https://ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geoip: "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip-only-cn-private.dat"
   geosite: "https://ghproxy.com/https://github.com/CHIZI-0618/v2ray-rules-dat/releases/latest/download/geosite.dat"
 
 proxies:
@@ -78,16 +82,16 @@ proxy-groups:
     type: select
     proxies:
       - DIRECT
-      - 🇭🇰 Hong Kong
-      - 🇺🇸 United States
-  - name: 🇭🇰 Hong Kong
+      - Hong Kong
+      - United States
+  - name: Hong Kong
     type: select
     use:
       - KRISTEN
       - PASTBIN
       - DEFAULT
     filter: "🇭🇰|港|HK"
-  - name: 🇺🇸 United States
+  - name: United States
     type: select
     use:
       - KRISTEN
@@ -96,11 +100,10 @@ proxy-groups:
     filter: "🇺🇸|美|US"
 
 rules:
- - GEOIP,Private,DIRECT,no-resolve
- - GEOSITE,Google,Forward
- - GEOSITE,Apple@CN,DIRECT
+ - DOMAIN-SUFFIX,push.apple.com,DIRECT
+ - GEOSITE,Google,United States
+ - GEOSITE,Netflix,United States
  - GEOSITE,CN,DIRECT
- - GEOIP,Google,Forward
- - GEOIP,Apple,DIRECT
  - GEOIP,CN,DIRECT
+ - GEOIP,Private,DIRECT,no-resolve
  - MATCH,Forward

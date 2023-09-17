@@ -1,11 +1,11 @@
 data_providers:
 
   - tag: geosite
-    file: ./GeoSite.dat
+    file: GeoSite.dat
     auto_reload: true
 
   - tag: geoip
-    file: ./GeoIP.dat
+    file: GeoIP.dat
     auto_reload: true
 
 plugins:
@@ -14,7 +14,7 @@ plugins:
     type: fast_forward
     args:
       upstream:
-      - addr: "tls://8.8.8.8"
+      - addr: "tls://8.8.4.4"
         enable_pipeline: true
         enable_http3: false
         max_conns: 4
@@ -54,39 +54,38 @@ plugins:
       minimal_ttl: 600
       maximum_ttl: 3600
 
-  - tag: prevent_domain
+  - tag: entire_domain
     type: query_matcher
     args:
-      qtype: [65]
       domain:
-      - "provider:geosite:category-ads-all"
+      - "provider:geosite:google,netflix"
 
   - tag: inland_domain
     type: query_matcher
     args:
       domain:
-      - "provider:geosite:apple@cn,cn"
+      - "provider:geosite:cn"
 
   - tag: inland_response
     type: response_matcher
     args:
       ip:
-      - "provider:geoip:apple,cn"
+      - "provider:geoip:cn"
 
   - tag: entrance
     type: sequence
     args:
       exec:
-      - if: prevent_domain
+      - _misc_optm
+      - _prefer_ipv4
+      - _edns0_filter_ecs_only
+      - cache
+      - _pad_query
+      - if: entire_domain
         exec:
-        - _new_nxdomain_response
+        - entire
         - _return
         else_exec:
-        - _misc_optm
-        - _prefer_ipv4
-        - _edns0_filter_ecs_only
-        - cache
-        - _pad_query
         - if: inland_domain
           exec:
           - inland
