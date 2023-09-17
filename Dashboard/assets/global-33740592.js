@@ -1,0 +1,1 @@
+import{f as c}from"./vendor-db598b38.js";const i=t=>/^https?/.test(t)?t:`${window.location.protocol}//${t}`,p=()=>{const[t,n]=c({}),o=(a,s)=>{n({...t(),[a]:s})};return{map:t,set:o,setWithCallback:async(a,s)=>{o(a,!0);try{await s()}catch{}o(a,!1)}}};export{i as t,p as u};
