@@ -1,12 +1,7 @@
 #!/system/bin/sh
-cp -r /data/cache/backup /storage/emulated/0/Android/Aurora
-cp -r /data/system/Mount /storage/emulated/0/Android/Aurora
-
 rm -rf /data/adb/Aurora
-rm -rf /data/cache/backup/*
 rm -rf /data/system/Dashboard
 rm -rf /data/system/Mount
 rm -rf /data/cache/temp/*
+rm /data/adb/service.d/Aurora.sh
 rm -rf /data/system/package_cache/*
-
-echo "  Aurora uninstalled from your device." > /cache/magisk.log
