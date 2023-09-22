@@ -49,31 +49,21 @@ start_bin() {
     rm ${DATADIR}/${ARCH}.log > /dev/null 2>&1
     ln -sf ${config_path}/${bin_name} ${template}
     if [ "${bin_name}" = "clash" ] ; then
-      if [ -f ${template} ] ; then
-        if $(${bin_name} -d ${DATADIR} -t -f ${template} > /dev/null) ; then
-          ulimit -SHn 1000000
-          nohup setuidgid root:net_admin clash -d ${DATADIR} -f ${template} > /dev/null 2>&1 &
-        else
-          ${bin_name} -d ${DATADIR} -t -f ${template} > ${DATADIR}/${ARCH}.log &
-          log debug "“${bin_name}” incorrect configuration"
-          exit 1
-        fi
+      if [ -f ${template} ] && $(${bin_name} -d ${DATADIR} -t -f ${template} > /dev/null) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid root:net_admin clash -d ${DATADIR} -f ${template} > /dev/null 2>&1 &
       else
-        log debug "NOT Found “${bin_name}” run file"
+        ${bin_name} -d ${DATADIR} -t -f ${template} > ${DATADIR}/${ARCH}.log &
+        log debug "“${bin_name}” incorrect configuration"
         exit 1
       fi
     elif [ "${bin_name}" = "sing-box" ] ; then
-      if [ -f ${template} ] ; then
-        if $(${bin_name} check -D ${DATADIR} -c box.json > /dev/null) ; then
-          ulimit -SHn 1000000
-          nohup setuidgid root:net_admin sing-box run -D ${DATADIR} -c box.json > /dev/null 2>&1 &
-        else
-          ${bin_name} check -D ${DATADIR} -c box.json > ${DATADIR}/${ARCH}.log &
-          log debug "“${bin_name}” incorrect configuration"
-          exit 1
-        fi
+      if [ -f ${template} ] && $(${bin_name} check -D ${DATADIR} -c box.json > /dev/null) ; then
+        ulimit -SHn 1000000
+        nohup setuidgid root:net_admin sing-box run -D ${DATADIR} -c box.json > /dev/null 2>&1 &
       else
-        log debug "NOT Found “${bin_name}” run file"
+        ${bin_name} check -D ${DATADIR} -c box.json > ${DATADIR}/${ARCH}.log &
+        log debug "“${bin_name}” incorrect configuration"
         exit 1
       fi
     else
@@ -86,47 +76,39 @@ start_bin() {
 
 dns_server() {
 
-  if [ "${bin_dns}" = "mosdns" ] ; then
-    if [ -f "${SPATH}/mosdns" ] ; then
-      ln -sf ${config_path}/dns ${DATADIR}/config.yaml
-      if [ "$1" = "true" ] ; then
-        ulimit -SHn 1000000
-        nohup setuidgid root:dns mosdns start -d ${DATADIR} > /dev/null 2>&1 &
-      elif [ "$1" = "false" ] ; then
-        if pid=$(pidof mosdns 2>/dev/null); then
-          kill -15 ${pid}
-          rm ${DATADIR}/config.yaml > /dev/null 2>&1
-          rm ${DATADIR}/dns.log > /dev/null 2>&1
-        fi
-      fi
-    else
-      log debug "NOT Found “mosdns” Kernel"
-      exit 1
+  if [ "${bin_dns}" = "mosdns" ] && [ -f "${SPATH}/mosdns" ] ; then
+    ln -sf ${config_path}/dns ${DATADIR}/config.yaml
+    if [ "$1" = "true" ] ; then
+      ulimit -SHn 1000000
+      nohup setuidgid root:dns mosdns start -d ${DATADIR} > /dev/null 2>&1 &
+    elif [ "$1" = "false" ] && pid=$(pidof mosdns 2>/dev/null) ; then
+      kill -15 ${pid}
+      rm ${DATADIR}/config.yaml
+      rm ${DATADIR}/dns.log > /dev/null 2>&1
     fi
+  else
+    log debug "NOT Found “mosdns” Kernel"
+    exit 1
   fi
 
 }
 
 nas_server() {
 
-  if [ "${bin_nas}" = "Alist" ] ; then
-    if [ -f "${SPATH}/Alist" ] ; then
-      mkdir -p ${mount_path}
-      ln -sf ${config_path}/mount ${mount_path}/config.json
-      if [ "$1" = "true" ] ; then
-        ulimit -SHn 1000000
-        nohup setuidgid root:mount Alist server --data ${mount_path} > /dev/null 2>&1 &
-      elif [ "$1" = "false" ] ; then
-        if pid=$(pidof Alist 2>/dev/null); then
-          kill -15 ${pid}
-          rm ${DATADIR}/mount.log > /dev/null 2>&1
-          rm ${mount_path}/config.json > /dev/null 2>&1
-        fi
-      fi
-    else
-      log debug "NOT Found “Alist” Kernel"
-      exit 1
+  if [ "${bin_nas}" = "Alist" ] && [ -f "${SPATH}/Alist" ] ; then
+    mkdir -p ${mount_path}
+    ln -sf ${config_path}/mount ${mount_path}/config.json
+    if [ "$1" = "true" ] ; then
+      ulimit -SHn 1000000
+      nohup setuidgid root:mount Alist server --data ${mount_path} > /dev/null 2>&1 &
+    elif [ "$1" = "false" ] && pid=$(pidof Alist 2>/dev/null) ; then
+      kill -15 ${pid}
+      rm ${mount_path}/config.json
+      rm ${DATADIR}/mount.log > /dev/null 2>&1
     fi
+  else
+    log debug "NOT Found “Alist” Kernel"
+    exit 1
   fi
 
 }
@@ -152,7 +134,7 @@ script() {
 
   if [ "${script_run}" = "true" ] ; then
     function vmlog() {
-      if test $(ls -l $1 | awk '{ print $5 }') -gt $((1024 * 4)); then
+      if test $(ls -l $1 | awk '{ print $5 }') -gt $((1024 * 4)) ; then
         log reload "Mount path: '${SPATH}' ; ARCH: '${ARCH}'" $1
         log warn "reload: $1"
       fi
@@ -267,15 +249,13 @@ stop_redirect() {
 
 iPV6Network() {
 
-  if [ "$1" = "false" ] ; then
-    if [ "${apn_ipv6}" = "false" ] ; then
-      log info "iPV6Network: $1"
-      echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
-      echo 0 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
-      echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-      echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-      echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
-    fi
+  if [ "$1" = "false" ] && [ "${apn_ipv6}" = "false" ] ; then
+    log info "iPV6Network: $1"
+    echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
+    echo 0 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
+    echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+    echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+    echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
   elif [ "$1" = "true" ] ; then
     log info "iPV6Network: $1"
     echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
@@ -518,12 +498,12 @@ case "$1" in
   k)
     if bin_pid=$(pidof ${bin_name} 2>/dev/null) ; then
       Aurora e && kill -15 ${bin_pid}
-      rm ${template} > /dev/null 2>&1
+      rm ${template}
       rm ${DATADIR}/Kernel.log > /dev/null 2>&1
     fi
     ;;
   script)
-    $1
+    $1 > /dev/null 2>&1
     ;;
   tpre)
     Aurora e && Aurora a
@@ -535,7 +515,7 @@ case "$1" in
     nas_server $2
     ;;
   ipv6)
-    iPV6Network $2 > /dev/null 2>&1
+    iPV6Network $2
     log end "IP6Table: $2"
     ;;
   updata)
@@ -547,7 +527,7 @@ case "$1" in
     log info "OCUPX “$2” ${ARCH}"
     ;;
   test)
-    echo "ARCH: ${ARCH}" ; echo "SPATH: ${SPATH}" ; echo "BiN NAME: ${bin_name}" ; echo "iPTables Mode: ${iptables_status}" ; echo "DNS Port: ${dns_port}" ; echo "TProxy Port: ${tproxy_port}" ; echo "Redir Port: ${redir_port}" ; echo "Fake iP Range: ${fake_ip_range}" ; echo "HOSTNAME: $(getprop net.hostname)" ; echo "Kernel User: ${kernel_user}" ; echo "Kernel Group: ${kernel_group}" ; echo "CPU OCCUPY: $((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')" ; echo "intranet: ${intranet[@]}" ; echo "intranet6: ${intranet6[@]}" ; echo "${time}"
+    echo "ARCH: ${ARCH}" ; echo "SPATH: ${SPATH}" ; echo "BiN NAME: ${bin_name}" ; echo "iPTables Mode: ${iptables_status}" ; echo "DNS Port: ${dns_port}" ; echo "TProxy Port: ${tproxy_port}" ; echo "Redir Port: ${redir_port}" ; echo "Fake iP Range: ${fake_ip_range}" ; echo "HOSTNAME: $(getprop net.hostname)" ; echo "Kernel User: ${kernel_user}" ; echo "Kernel Group: ${kernel_group}" ; echo "CPU OCCUPY: $((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')" ; echo "intranet: ${intranet[@]}" ; echo "intranet6: ${intranet6[@]}" ; echo "variate: $PATH" ;echo "${time}"
     ;;
   net)
     if [ "$2" = "false" ]; then
@@ -584,7 +564,7 @@ case "$1" in
     Aurora s > /dev/null 2>&1
     ;;
   *)
-    log end "“$1” No such command, try enter “s” Start Kernel. | MODE: TProxy · Tun · Mixed · Core."
+    log end "“$1” No such command, try enter “s” Start Kernel. | MODE: TProxy · Tun · Mixed"
     exit 1
     ;;
 esac
