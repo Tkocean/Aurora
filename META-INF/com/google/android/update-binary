@@ -34,6 +34,7 @@ unzip -o "${ZIPFILE}" -x 'META-INF/*' -d $MODPATH >&2
 mv -f ${MODPATH}/binary/* ${MODPATH}/system/bin/
 
 mkdir ${data_dir}
+mkdir ${data_dir}/Kernel
 mv ${MODPATH}/Aurora.sh /data/adb/service.d
 mv ${MODPATH}/cacert.pem ${MODPATH}${ca_path}
 mv ${MODPATH}/wifi.cfg ${MODPATH}/system/vendor/firmware
@@ -41,15 +42,12 @@ mv -n ${MODPATH}/Dashboard /data/system/
 rm -rf ${MODPATH}/Dashboard
 rm -rf ${MODPATH}/binary
 set_perm_recursive ${MODPATH} 0 0 0755 0644
-set_perm  /data/adb/service.d/Aurora.sh 0  0  7750
-set_perm  ${MODPATH}/system/vendor/firmware/wifi.cfg  0  0  0644
+set_perm  /data/adb/service.d/Aurora.sh 0  0  7710
 set_perm  ${MODPATH}${ca_path}/cacert.pem  0  0  0644
 set_perm_recursive ${MODPATH}/config 1000 1000 0700 0700
-set_perm_recursive ${MODPATH}/system/bin/Aurora 0 0 7750 7750
+set_perm_recursive ${MODPATH}/system/bin/Aurora 0 0 7755 7755
 set_perm_recursive ${MODPATH}/system/bin/mosdns 0 1051 0750 0750
 set_perm_recursive ${MODPATH}/system/bin/upx 0 1000 0750 0750
-set_perm_recursive ${MODPATH}/system/bin/clash 0 3005 0750 0750
-set_perm_recursive ${MODPATH}/system/bin/Alist 0 1009 7754 7754
-set_perm_recursive ${MODPATH}/system/bin/sing-box 0 3005 0750 0750
+set_perm_recursive ${MODPATH}/system/bin/Alist 0 1009 7755 7755
 
 exit 0
