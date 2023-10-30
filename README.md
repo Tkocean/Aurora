@@ -13,6 +13,7 @@
     - 6.28 Data directory reconstruction; optimize iPtables execution logic; bypass public network iP to prevent loopback; Alist support, nas function is now available.
     - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
     - 9.17 Fixes and improvements.
+    - 10.30 Code optimization and refactoring; Fixes and improvements.
 
 ## License
     Copyright 2022 Mohsents
