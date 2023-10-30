@@ -1,54 +1,62 @@
 #!/system/bin/sh
-SPATH=$(dirname "$(readlink -f "$0")")
 export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH"
-source ${SPATH}/Aurora.ini
-signal_file=${DATADIR}/$(uname -m)
+source $(dirname "$(readlink -f "$0")")/Aurora.ini
+Signal=${DATADIR}/$(uname -m)
 
 case "$3" in
   disable)
-    touch ${signal_file}
+    touch $Signal
     if [ "$1" = "d" ] ; then
       Aurora a
     elif [ "$1" = "n" ] ; then
       Aurora e
     fi
-    rm ${signal_file}
+    rm -f $Signal
     ;;
   updata)
-    touch ${signal_file}
+    touch $Signal
     if [ "$1" = "d" ] ; then
       Aurora set
     elif [ "$1" = "n" ] ; then
       Aurora $3
     fi
-    rm ${signal_file}
+    rm -f $Signal
     ;;
   remove)
-    touch ${signal_file}
+    touch $Signal
     if [ "$1" = "d" ] ; then
       Aurora s
     elif [ "$1" = "n" ] ; then
       Aurora k
     fi
-    rm ${signal_file}
-    ;;
-  backup)
-    touch ${signal_file}
-    if [ "$1" = "d" ] ; then
-      Aurora $3
-    elif [ "$1" = "n" ] ; then
-      sleep 2 && rm $2$3
-    fi
-    rm ${signal_file}
+    rm -f $Signal
     ;;
   renet)
-    touch ${signal_file}
+    touch $Signal
     if [ "$1" = "d" ] ; then
       Aurora net true
     elif [ "$1" = "n" ] ; then
       Aurora net false
-      sleep 2 && rm $2$3
+      sleep 2 && rm -f $2$3
     fi
-    rm ${signal_file}
+    rm -f $Signal
+    ;;
+  backup)
+    touch $Signal
+    if [ "$1" = "d" ] ; then
+      Aurora $3
+    elif [ "$1" = "n" ] ; then
+      Aurora set && rm -f $2$3
+    fi
+    rm -f $Signal
+    ;;
+  test)
+    touch $Signal
+    if [ "$1" = "d" ] ; then
+      Aurora $3 >> $Services
+    elif [ "$1" = "n" ] ; then
+      Aurora set && rm -f $2$3
+    fi
+    rm -f $Signal
     ;;
 esac
