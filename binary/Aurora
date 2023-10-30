@@ -1,27 +1,16 @@
-#!/system/bin/sh
+4#!/system/bin/sh
 ARCH=$(uname -m)
 SPATH=$(dirname "$(readlink -f "$0")")
-export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH:${SPATH}"
+time=$(date +"[%Z %Y-%m-%d %H:%M:%S]")
 source /data/adb/modules/Aurora/config/Aurora.ini
-bin_pid=$(pidof ${bin_name} 2>/dev/null)
-kernel_user=$(stat -c %U /proc/${bin_pid})
-kernel_group=$(stat -c %G /proc/${bin_pid})
-time=$(date +"[%Y-%m-%d %H:%M:%S %Z]")
-dns_port=$(grep "listen" ${config_path}/clash | awk -F ':' '{print $3}')
-tun_device=$(grep "device" ${config_path}/clash | awk -F ': ' '{print $2}')
-redir_port=$(grep "redir-port" ${config_path}/clash | awk -F ': ' '{print $2}')
-tproxy_port=$(grep "tproxy-port" ${config_path}/clash | awk -F ': ' '{print $2}')
-fake_ip_range=$(grep "fake-ip-range" ${config_path}/clash | awk -F ': ' '{print $2}')
+export PATH="${KPATH}:$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH"
 battery_level="$(echo "$(dumpsys battery)" | egrep 'level: ' | sed -n 's/.*level: //g;$p')"
 intranet[${#intranet[@]}]=$(ip address | grep -w inet | grep -v 127 | awk '{print $2}')
 intranet6[${#intranet6[@]}]=$(ip address | grep -w inet6 | grep -v ::1 | grep -v fe80 | awk '{print $2}')
 
-function log(){
+log(){
 
-  case $1 in
-    reload)
-      echo "${time} - Aurora: $2" > $3
-      ;;
+  case "$1" in
     warn)
       echo "${time} - Aurora: $2" >> ${Services}
       ;;
@@ -29,13 +18,13 @@ function log(){
       echo -e "\033[1;36m${time} - Aurora: $2\033[0m"
       ;;
     info)
-      log end "$2" ; log tern "$2" ; log warn "$2"
+      log end "$2" ; log warn "$2" ; log tern "$2"
       ;;
     tern)
-      sed -i "s/version=.*/version=$(date +"%Z (%m-%d %H:%M:%S)")/g" ${MODPATH}/module.prop > /dev/null 2>&1 ; sed -i "s/description=.*/description=[ $2 ] Build a local transit server on the device to realize a series of functions such as routing and terminal./g" ${MODPATH}/module.prop > /dev/null 2>&1
+      sed -i "s/version=.*/version=${time}/g" ${MODPATH}/module.prop > /dev/null 2>&1 ; sed -i "s/description=.*/description=$2./g" ${MODPATH}/module.prop > /dev/null 2>&1
       ;;
     debug)
-      su -lp 2000 -c "cmd notification post -S messaging --conversation '${ARCH}' --message 'Aurora':'$2' 'Tag' '$(echo $RANDOM)' " > /dev/null 2>&1 ; log info "$2"
+      su -lp 2000 -c "cmd notification post -S messaging --conversation '${ARCH}' --message 'Aurora':'$2' 'Tag' '$(echo $RANDOM)'" > /dev/null 2>&1 ; log info "$2"
       ;;
   esac
 
@@ -43,32 +32,28 @@ function log(){
 
 start_bin() {
 
-  if [ -f "${SPATH}/${bin_name}" ] ; then
-    mkdir -p ${DATADIR}
+  if [ -f "${KPATH}/${bin_name}" ] ; then
+    ulimit -SHn 1000000
+    mkdir -p ${DATADIR} && Aurora set
     ln -sf ${MODPATH} ${DATADIR}
-    rm ${DATADIR}/${ARCH}.log > /dev/null 2>&1
     ln -sf ${config_path}/${bin_name} ${template}
     if [ "${bin_name}" = "clash" ] ; then
-      if [ -f ${template} ] && $(${bin_name} -d ${DATADIR} -t -f ${template} > /dev/null) ; then
-        ulimit -SHn 1000000
-        nohup setuidgid root:net_admin clash -d ${DATADIR} -f ${template} > /dev/null 2>&1 &
+      if [ -f ${template} ] && clash -t -d ${DATADIR} > ${DATADIR}/Check.log 2>&1 ; then
+        nohup setuidgid root:net_admin clash -d ${DATADIR} -f ${template} > ${DATADIR}/${ARCH}.log &
       else
-        ${bin_name} -d ${DATADIR} -t -f ${template} > ${DATADIR}/${ARCH}.log &
-        log debug "“${bin_name}” incorrect configuration"
-        exit 1
+        log debug "“${bin_name}” does not work properly"
+        return 1
       fi
     elif [ "${bin_name}" = "sing-box" ] ; then
-      if [ -f ${template} ] && $(${bin_name} check -D ${DATADIR} -c box.json > /dev/null) ; then
-        ulimit -SHn 1000000
-        nohup setuidgid root:net_admin sing-box run -D ${DATADIR} -c box.json > /dev/null 2>&1 &
+      if [ -f ${template} ] && sing-box check -D ${DATADIR} > ${DATADIR}/Check.log 2>&1 ; then
+        nohup setuidgid root:net_admin sing-box run -D ${DATADIR} -c box.json > ${DATADIR}/${ARCH}.log &
       else
-        ${bin_name} check -D ${DATADIR} -c box.json > ${DATADIR}/${ARCH}.log &
-        log debug "“${bin_name}” incorrect configuration"
-        exit 1
+        log debug "“${bin_name}” does not work properly"
+        return 1
       fi
     else
-      log debug "The “${bin_name}” currently not supported"
-      exit1
+      log debug "Unsupported kernel: “${bin_name}”"
+      return 1
     fi
   fi
 
@@ -82,13 +67,9 @@ dns_server() {
       ulimit -SHn 1000000
       nohup setuidgid root:dns mosdns start -d ${DATADIR} > /dev/null 2>&1 &
     elif [ "$1" = "false" ] && pid=$(pidof mosdns 2>/dev/null) ; then
-      kill -15 ${pid}
-      rm ${DATADIR}/config.yaml
-      rm ${DATADIR}/dns.log > /dev/null 2>&1
+      kill -15 ${pid} && rm -f ${DATADIR}/config.yaml
+      rm -f ${DATADIR}/dns.log > /dev/null 2>&1
     fi
-  else
-    log debug "NOT Found “mosdns” Kernel"
-    exit 1
   fi
 
 }
@@ -102,13 +83,9 @@ nas_server() {
       ulimit -SHn 1000000
       nohup setuidgid root:mount Alist server --data ${mount_path} > /dev/null 2>&1 &
     elif [ "$1" = "false" ] && pid=$(pidof Alist 2>/dev/null) ; then
-      kill -15 ${pid}
-      rm ${mount_path}/config.json
-      rm ${DATADIR}/mount.log > /dev/null 2>&1
+      kill -15 ${pid} && rm -f ${mount_path}/config.json
+      rm -f ${DATADIR}/mount.log > /dev/null 2>&1
     fi
-  else
-    log debug "NOT Found “Alist” Kernel"
-    exit 1
   fi
 
 }
@@ -116,43 +93,18 @@ nas_server() {
 updateFile() {
 
   mv -f $1 $1.bak
-  echo "curl -L -A '${bin_name}' $2 -o $1"
-  wget --no-check-certificate -U ${bin_name} -O $1 $2 2>&1
+  echo "curl -L -A 'clash' $2 -o $1"
+  wget --no-check-certificate -U clash -O $1 $2 2>&1
+
+  sleep 1
 
   if [ -f "$1" ]; then
-    rm -rf $1.bak
+    rm -f $1.bak
     log info "success: $1"
   else
     mv $1.bak $1
     log info "error: $1"
     return 1
-  fi
-
-}
-
-script() {
-
-  if [ "${script_run}" = "true" ] ; then
-    function vmlog() {
-      if test $(ls -l $1 | awk '{ print $5 }') -gt $((1024 * 4)) ; then
-        log reload "Mount path: '${SPATH}' ; ARCH: '${ARCH}'" $1
-        log warn "reload: $1"
-      fi
-    }
-
-    vmlog "${Services}" ; vmlog "${DATADIR}/dns.log" ; vmlog "${DATADIR}/kernel.log" ; vmlog "${DATADIR}/mount.log"
-
-    if [ "${charge_control}" = "true" ] ; then
-      if [ "${battery_level}" = "96" ] && [ "$(cat ${battery_path})" = "0" ] ; then
-        echo 1 > ${battery_path} && log warn "Trigger quantitative stop charging"
-      elif [ "${battery_level}" = "86" ] && [ "$(cat ${battery_path})" = "1" ] ; then
-        echo 0 > ${battery_path} && log warn "End quantitative stop charging"
-      fi
-    elif [ "${charge_control}" = "false" ] ; then
-      if [ "${battery_level}" != "100" ] && [ "$(cat ${battery_path})" = "1" ] ; then
-        echo 0 > ${battery_path} && log warn "End quantitative stop charging"
-      fi
-    fi
   fi
 
 }
@@ -163,17 +115,14 @@ updata_server() {
     updateFile ${Yacd} ${Yacd_url}
     if [ -f "${Yacd}" ] ; then
       unzip -d ${DATADIR}/ ${Yacd}
-      if [ -f "${DATADIR}/Yacd-meta-gh-pages/Twemoji_Mozilla.ttf" ] ; then
-        rm -rf ${Dashboard} && mv ${DATADIR}/Yacd-meta-gh-pages ${Dashboard} && rm ${Yacd}
-      else
-        rm ${Yacd} ; rm -rf ${DATADIR}/Yacd-meta-gh-pages
-        log debug "error: ${Yacd}"
+      if [ -f "${DATADIR}/metacubexd-gh-pages/sw.js" ] ; then
+        rm -rf ${Dashboard} && mv ${DATADIR}/metacubexd-gh-pages ${Dashboard} && rm -f ${Yacd}
       fi
     fi
   fi
 
   if [ ${updateClash} == "true" ]; then
-    wget -q $(curl -s https://api.github.com/repos/clashCubeX/Clash.clash/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O ${DATADIR}/clash.gz && gzip -d ${DATADIR}/clash.gz && chmod 0755 ${DATADIR}/clash && ${DATADIR}/clash -v
+    wget -q $(curl -s https://api.github.com/repos/clashCubeX/Clash.clash/releases/tags/Prerelease-Alpha | grep "download/Prerelease-Alpha/clash.meta-android-arm64-cgo-alpha" | cut -d : -f 2,3 | tr -d \") -O ${DATADIR}/clash.gz && gzip -d ${DATADIR}/clash.gz && chmod 0755 ${DATADIR}/clash && ${DATADIR}/clash -v && log info "success: ${DATADIR}/clash"
   fi
 
   if [ ${updateMmdb} == "true" ]; then
@@ -188,7 +137,7 @@ updata_server() {
     updateFile ${GeoIP_file} ${GeoIP_url}
   fi
 
-  rm ${MODPATH}/updata
+  rm -f ${MODPATH}/updata
 
 }
 
@@ -221,7 +170,6 @@ start_redirect() {
 
   ${iptables} -t nat -I PREROUTING -j AURORA_EXTERNAL
 
-
   ${iptables} -t nat -I AURORA_LOCAL -m owner --uid-owner ${kernel_group} --gid-owner ${kernel_group} -j RETURN
 
   ${iptables} -t nat -A AURORA_LOCAL -p tcp -j REDIRECT --to-ports ${redir_port}
@@ -247,32 +195,12 @@ stop_redirect() {
 
 }
 
-iPV6Network() {
-
-  if [ "$1" = "false" ] && [ "${apn_ipv6}" = "false" ] ; then
-    log info "iPV6Network: $1"
-    echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
-    echo 0 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
-    echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-    echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-    echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
-  elif [ "$1" = "true" ] ; then
-    log info "iPV6Network: $1"
-    echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
-    echo 1 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
-    echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-    echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-    echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
-  fi
-
-}
-
 forward() {
 
-  iptables -w 100 $1 FORWARD -o ${tun_device} -j ACCEPT
-  iptables -w 100 $1 FORWARD -i ${tun_device} -j ACCEPT
-  ip6tables -w 100 $1 FORWARD -o ${tun_device} -j ACCEPT
-  ip6tables -w 100 $1 FORWARD -i ${tun_device} -j ACCEPT
+ iptables -w 100 $1 FORWARD -o ${tun_device} -j ACCEPT
+ iptables -w 100 $1 FORWARD -i ${tun_device} -j ACCEPT
+ ip6tables -w 100 $1 FORWARD -o ${tun_device} -j ACCEPT
+ ip6tables -w 100 $1 FORWARD -i ${tun_device} -j ACCEPT
 
 }
 
@@ -327,7 +255,6 @@ start_tproxy() {
 
   ${iptables} -t mangle -I PREROUTING -j AURORA_EXTERNAL
 
-
   ${iptables} -t mangle -N AURORA_LOCAL
   ${iptables} -t mangle -F AURORA_LOCAL
 
@@ -364,7 +291,6 @@ start_tproxy() {
 
   ${iptables} -t mangle -I OUTPUT -j AURORA_LOCAL
 
-
   ${iptables} -t mangle -N DIVERT
   ${iptables} -t mangle -F DIVERT
 
@@ -379,7 +305,6 @@ start_tproxy() {
     ${iptables} -A OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${tproxy_port} -j REJECT
   fi
 
-
   if [ "${bin_name}" = "clash" ] && [ "${iptables}" = "iptables -w 100" ] ; then
     ${iptables} -t nat -N DNS_EXTERNAL
     ${iptables} -t nat -F DNS_EXTERNAL
@@ -387,7 +312,6 @@ start_tproxy() {
     ${iptables} -t nat -A DNS_EXTERNAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
 
     ${iptables} -t nat -I PREROUTING -j DNS_EXTERNAL
-
 
     ${iptables} -t nat -N DNS_LOCAL
     ${iptables} -t nat -F DNS_LOCAL
@@ -415,7 +339,7 @@ stop_tproxy() {
   fi
 
   ${iptables} -t mangle -D PREROUTING -j AURORA_EXTERNAL
-    
+
   ${iptables} -t mangle -D PREROUTING -p tcp -m socket -j DIVERT
 
   ${iptables} -t mangle -D OUTPUT -j AURORA_LOCAL
@@ -458,9 +382,9 @@ case "$1" in
     if [ "${iptables_status}" == "Tun" ]; then
       mkdir -p /dev/net
       [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
-      forward I > /dev/null 2>&1
+      ifconfig | grep -q ${tun_device} || return 1 && forward -I > /dev/null 2>&1
     elif [ "${iptables_status}" = "Mixed" ] ; then
-      forward I > /dev/null 2>&1
+      ifconfig | grep -q ${tun_device} || return 1 && forward -I > /dev/null 2>&1
       iptables="iptables -w 100" && start_redirect > /dev/null 2>&1
     elif [ "${iptables_status}" = "TProxy" ] ; then
       iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1
@@ -468,14 +392,14 @@ case "$1" in
         iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1
       fi
     fi
-    iPV6Network ${ipv6} > /dev/null 2>&1
-    log debug "iPTables rules loaded"
+    Aurora ipv6 ${ipv6} > /dev/null 2>&1
+    log info "iPTables rules loaded"
     ;;
   e)
     if [ "${iptables_status}" == "Tun" ]; then
-      forward D > /dev/null 2>&1
+      forward -D > /dev/null 2>&1
     elif [ "${iptables_status}" = "Mixed" ] ; then
-      forward I > /dev/null 2>&1
+      forward -D > /dev/null 2>&1
       iptables="iptables -w 100" && stop_redirect > /dev/null 2>&1
     elif [ "${iptables_status}" = "TProxy" ] ; then
       iptables="iptables -w 100" && stop_tproxy > /dev/null 2>&1
@@ -483,27 +407,54 @@ case "$1" in
         iptables="ip6tables -w 100" && stop_tproxy > /dev/null 2>&1
       fi
     fi
-    iPV6Network true > /dev/null 2>&1
-    log debug "iPTables rules cleared"
+    Aurora ipv6 true > /dev/null 2>&1
+    log info "iPTables rules cleared"
     ;;
   s)
-    Aurora k && start_bin > /dev/null 2>&1
-    if bin_pid=$(pidof ${bin_name} 2>/dev/null) ; then
-      Aurora a && Aurora set
+    if start_bin && Aurora a ; then
+      rm -f ${DATADIR}/Check.log
+      log debug "Kernel “${bin_name}” service is running"
     else
-      log debug "Kernel '(${bin_name})' not Started"
-      exit 1
+      log debug "Kernel “${bin_name}” not Started"
+      return 1
     fi
     ;;
   k)
-    if bin_pid=$(pidof ${bin_name} 2>/dev/null) ; then
-      Aurora e && kill -15 ${bin_pid}
-      rm ${template}
-      rm ${DATADIR}/Kernel.log > /dev/null 2>&1
+    Aurora e && kill -15 ${bin_pid} || killall -15 ${bin_name}
+    rm -f ${template} > /dev/null 2>&1
+    rm -f ${DATADIR}/${ARCH}.log > /dev/null 2>&1
+    log debug "stopping “${bin_name}” service"
+    ;;
+  ipv6)
+    if [ "$2" = "false" ] && [ "${apn_ipv6}" = "false" ] ; then
+      echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
+      echo 0 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
+      echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+      echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+      echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
+    elif [ "$2" = "true" ] && [ "${apn_ipv6}" = "true" ] ; then
+      echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
+      echo 1 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
+      echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+      echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+      echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
+      log info "iPV6Network: $2"
     fi
     ;;
   script)
-    $1 > /dev/null 2>&1
+    if [ "${script_run}" = "true" ] ; then
+      if [ "${charge_control}" = "true" ] ; then
+        if [ "${battery_level}" = "98" ] && [ "$(cat ${battery_path})" = "0" ] ; then
+          echo 1 > ${battery_path} && log warn "Trigger quantitative stop charging"
+        elif [ "${battery_level}" = "86" ] && [ "$(cat ${battery_path})" = "1" ] ; then
+          echo 0 > ${battery_path} && log warn "End quantitative stop charging"
+        fi
+      elif [ "${charge_control}" = "false" ] ; then
+        if [ "${battery_level}" != "100" ] && [ "$(cat ${battery_path})" = "1" ] ; then
+        echo 0 > ${battery_path} && log warn "End quantitative stop charging"
+        fi
+      fi
+    fi
     ;;
   tpre)
     Aurora e && Aurora a
@@ -514,10 +465,6 @@ case "$1" in
   nas)
     nas_server $2
     ;;
-  ipv6)
-    iPV6Network $2
-    log end "IP6Table: $2"
-    ;;
   updata)
     updata_server > /dev/null 2>&1
     ;;
@@ -527,7 +474,7 @@ case "$1" in
     log info "OCUPX “$2” ${ARCH}"
     ;;
   test)
-    echo "ARCH: ${ARCH}" ; echo "SPATH: ${SPATH}" ; echo "BiN NAME: ${bin_name}" ; echo "iPTables Mode: ${iptables_status}" ; echo "DNS Port: ${dns_port}" ; echo "TProxy Port: ${tproxy_port}" ; echo "Redir Port: ${redir_port}" ; echo "Fake iP Range: ${fake_ip_range}" ; echo "HOSTNAME: $(getprop net.hostname)" ; echo "Kernel User: ${kernel_user}" ; echo "Kernel Group: ${kernel_group}" ; echo "CPU OCCUPY: $((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')" ; echo "intranet: ${intranet[@]}" ; echo "intranet6: ${intranet6[@]}" ; echo "variate: $PATH" ;echo "${time}"
+    echo "${time}" ; echo "Battery level: ${battery_level}" ; echo "ARCH: ${ARCH}" ; echo "SPATH: ${SPATH}" ; echo "Bin Name: ${bin_name}" ; echo "Bin Pid: ${bin_pid}" ; echo "DNS Port: ${dns_port}" ; echo "TProxy Port: ${tproxy_port}" ; echo "Mixed Port: ${mixed_port}" ; echo "Fake iP Range: ${fake_ip_range}" ; echo "HOSTNAME: $(getprop net.hostname)" ; echo "Kernel User: ${kernel_user}" ; echo "Kernel Group: ${kernel_group}" ; echo "CPU OCCUPY: $((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')" ; echo "intranet: ${intranet[@]}" ; echo "intranet6: ${intranet6[@]}" ; echo "variate: $PATH"
     ;;
   net)
     if [ "$2" = "false" ]; then
@@ -537,17 +484,16 @@ case "$1" in
     fi
     ;;
   backup)
-      rm -rf ${bakeup_path}
-      mkdir -p ${bakeup_path}
-      cp ${DATADIR}/*.dat ${bakeup_path}
-      cp ${SPATH}/${bin_name} ${bakeup_path}
-      cp ${SPATH}/Aurora ${bakeup_path}/Aurora.sh
-      cp -r ${Dashboard} ${bakeup_path}
-      cp -r ${mount_path} ${bakeup_path}
-      cp -r ${MODPATH}/config ${bakeup_path}
-      cp ${config_path}/Aurora.ini ${bakeup_path}
+    rm -rf ${bakeup_path} && mkdir -p ${bakeup_path}
+    cp ${DATADIR}/*.dat ${bakeup_path}
+    cp ${KPATH}/${bin_name} ${bakeup_path}
+    cp ${SPATH}/Aurora ${bakeup_path}/Aurora.sh
+    cp -r ${Dashboard} ${bakeup_path}
+    cp -r ${mount_path} ${bakeup_path}
+    cp -r ${MODPATH}/config ${bakeup_path}
     ;;
   set)
+    chown 0:3005 ${KPATH}/* && chmod 7755 ${KPATH}/*
     chown 0:1000 ${config_path}/* && chmod 1770 ${config_path}/*
     chown 0:3005 ${Dashboard}/* && chmod 500 ${Dashboard}/*
     chown 0:3005 ${Dashboard}/*/* && chmod 500 ${Dashboard}/*/*
@@ -555,16 +501,16 @@ case "$1" in
     chmod 7110 ${config_path}/inotify && chmod 440 ${config_path}/root
     ;;
   start)
-    log reload "Mount path: '${SPATH}' ; ARCH: '${ARCH}'" ${Services}
+    echo "${time} - Aurora: Mount path: '${SPATH}' ; ARCH: '${ARCH}'" > ${Services}
     setprop net.hostname "Aurora" > /dev/null 2>&1 && Aurora set
     settings put global ntp_server time.asia.apple.com > /dev/null 2>&1
     nohup inotifyd ${config_path}/inotify ${MODPATH}/ > /dev/null 2>&1 &
     nohup crond -c ${MODPATH}/config > /dev/null 2>&1 &
     dns_server true > /dev/null 2>&1 ; nas_server true > /dev/null 2>&1
-    Aurora s > /dev/null 2>&1
+    Aurora s > /dev/null 2>&1 && Aurora script > /dev/null 2>&1
     ;;
   *)
-    log end "“$1” No such command, try enter “s” Start Kernel. | MODE: TProxy · Tun · Mixed"
-    exit 1
+    log end "'$1' Usage: s|net|dns|nas|upx|tpre|updata"
+    return 1
     ;;
 esac
