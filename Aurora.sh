@@ -1,12 +1,7 @@
-export PATH="$(magisk --path)/.magisk/busybox:/data/adb/ksu/bin:$PATH"
-
+#!/sbin/sh
 (
-  until [ $(getprop init.svc.bootanim) = "stopped" ]; do
-    sleep 3
-  done
-
-  echo "PowerManagerService.noSuspend" > /sys/power/wake_lock
-  Aurora start
+until [ $(getprop sys.boot_completed) -eq 1 ] ; do
+  sleep 3
+done
+Aurora start ; echo "PowerManagerService.noSuspend" > /sys/power/wake_lock
 )&
-
-exit 0
