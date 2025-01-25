@@ -1,0 +1,366 @@
+#!/bin/sh
+source /data/Aurora/Config/Aurora.ini
+export PATH="$KPATH:$(magisk --path 2>/dev/null)/.magisk/busybox:$PATH"
+SPATH=$(dirname `realpath $0`)
+time=$(date +"%Z %Y-%m-%d %H:%M:%S")
+kernel_user=$(stat -c %U /proc/${bin_pid})
+kernel_group=$(stat -c %G /proc/${bin_pid})
+trash_list=$(echo "$(cat $trash_list | grep -v '#')" | sort -u)
+screen=`dumpsys window policy | grep "mInputRestricted"|cut -d= -f2`
+whitelist=$(pm list packages -e -u | sed "s/package:/-/g")" ${Backstage}"
+intranet[${#intranet[@]}]=$(ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127.0.0.1")
+intranet6[${#intranet6[@]}]=$(ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1")
+
+log() {
+
+  case "$1" in
+    info)
+      log term "$2" ; log ech "$2"
+      ;;
+    ech)
+      echo "$time - Aurora: $2" >> $Services
+      ;;
+    term)
+      echo -e "\033[1;36m${time} - Aurora: $2\033[0m"
+      ;;
+  esac
+
+}
+
+start_bin() {
+
+  if [ -f "${KPATH}/${bin_name}" ] ; then
+    ulimit -SHn 100000
+    if [ "${bin_name}" = "mihomo" ] ; then
+      ln -sf ${Config}/${bin_name} ${template}
+      if mihomo -t -d ${DATADIR} -f ${template} > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} mihomo -d ${DATADIR} -f ${template} > ${DATADIR}/debug.log 2>&1 &
+      else
+        log info "“${bin_name}” is not configured properly"
+        return 1
+      fi
+    elif [ "${bin_name}" = "sing-box" ] ; then
+      if sing-box check -D ${DATADIR} -c ${Config}/sing-box > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} sing-box run -D ${DATADIR} -c ${Config}/sing-box > /dev/null 2>&1 &
+      else
+        log info "“${bin_name}” is not configured properly"
+        return 1
+      fi
+    else
+      log info "Unsupported Kernel: “${bin_name}”"
+      return 1
+    fi
+  else
+    log info "There is no “${bin_name}” in “${KPATH}”"
+    return 1
+  fi
+
+}
+
+start_redirect() {
+
+  ${iptables} -t nat -N AURORA_EXTERNAL
+  ${iptables} -t nat -F AURORA_EXTERNAL
+  ${iptables} -t nat -N AURORA_LOCAL
+  ${iptables} -t nat -F AURORA_LOCAL
+
+  if [ "${dns_hijack}" = "true" ] ; then
+    ${iptables} -t nat -A AURORA_EXTERNAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+    ${iptables} -t nat -A AURORA_LOCAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+    ${iptables} -t nat -A AURORA_EXTERNAL -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+    ${iptables} -t nat -A AURORA_LOCAL -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+  fi
+
+  for subnet in ${intranet[@]} ; do
+    ${iptables} -t nat -A AURORA_EXTERNAL -d ${subnet} -j RETURN
+    ${iptables} -t nat -A AURORA_LOCAL -d ${subnet} -j RETURN
+  done
+
+  ${iptables} -t nat -A AURORA_EXTERNAL -p tcp -i lo -j REDIRECT --to-ports ${redir_port}
+
+  if [ "${ap_list}" != "" ] ; then
+    for ap in ${ap_list[@]} ; do
+      ${iptables} -t nat -A AURORA_EXTERNAL -p tcp -i ${ap} -j REDIRECT --to-ports ${redir_port}
+    done
+  fi
+
+  ${iptables} -t nat -I PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t nat -I AURORA_LOCAL -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -j RETURN
+
+  ${iptables} -t nat -A AURORA_LOCAL -p tcp -j REDIRECT --to-ports ${redir_port}
+
+  ${iptables} -t nat -I OUTPUT -j AURORA_LOCAL
+
+  ${iptables} -A OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${redir_port} -j REJECT
+
+}
+
+stop_redirect() {
+
+  ${iptables} -t nat -D PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t nat -D OUTPUT -j AURORA_LOCAL
+
+  ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${redir_port} -j REJECT
+  ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${redir_port} -j REJECT
+
+
+  ${iptables} -t nat -F AURORA_EXTERNAL
+  ${iptables} -t nat -X AURORA_EXTERNAL
+  ${iptables} -t nat -F AURORA_LOCAL
+  ${iptables} -t nat -X AURORA_LOCAL
+
+}
+
+start_tproxy() {
+
+  if [ "${iptables}" = "ip6tables -w 100" ] ; then
+    ip -6 rule add fwmark ${mark_id} table ${table_id} pref ${table_id}
+    ip -6 route add local default dev lo table ${table_id}
+  else
+    ip rule add fwmark ${mark_id} table ${table_id} pref ${table_id}
+    ip route add local default dev lo table ${table_id}
+  fi
+
+  ${iptables} -t mangle -N AURORA_EXTERNAL
+  ${iptables} -t mangle -F AURORA_EXTERNAL
+
+  if [ "${dns_hijack}" = "true" ] ; then
+    ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp --dport 53 -j RETURN
+    ${iptables} -t mangle -A AURORA_EXTERNAL -p udp --dport 53 -j RETURN
+  else
+    ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp --dport 53 -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+    ${iptables} -t mangle -A AURORA_EXTERNAL -p udp --dport 53 -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+  fi
+
+  if [ "${iptables}" = "ip6tables -w 100" ] ; then
+    for subnet6 in ${intranet6[@]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet6} -j RETURN
+    done
+  else
+    for subnet in ${intranet[@]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -d ${subnet} -j RETURN
+    done
+  fi
+
+  ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+  ${iptables} -t mangle -A AURORA_EXTERNAL -p udp -i lo -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+
+  if [ "${ap_list}" != "" ] ; then
+    for ap in ${ap_list[@]} ; do
+      ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp -i ${ap} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+      ${iptables} -t mangle -A AURORA_EXTERNAL -p udp -i ${ap} -j TPROXY --on-port ${tproxy_port} --tproxy-mark ${mark_id}
+    done
+  fi
+
+  ${iptables} -t mangle -I PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t mangle -N AURORA_LOCAL
+  ${iptables} -t mangle -F AURORA_LOCAL
+
+  ${iptables} -t mangle -A AURORA_LOCAL -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -j RETURN
+
+  if [ "${dns_hijack}" = "true" ] ; then
+    ${iptables} -t mangle -A AURORA_LOCAL -p tcp --dport 53 -j RETURN
+    ${iptables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j RETURN
+  else
+    ${iptables} -t mangle -A AURORA_LOCAL -p tcp --dport 53 -j MARK --set-xmark ${mark_id}
+    ${iptables} -t mangle -A AURORA_LOCAL -p udp --dport 53 -j MARK --set-xmark ${mark_id}
+  fi
+
+  if [ "${iptables}" = "ip6tables -w 100" ] ; then
+    for subnet6 in ${intranet6[@]} ; do
+      ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet6} -j RETURN
+    done
+  else
+    for subnet in ${intranet[@]} ; do
+      ${iptables} -t mangle -A AURORA_LOCAL -d ${subnet} -j RETURN
+    done
+  fi
+
+  ${iptables} -t mangle -A AURORA_LOCAL -p tcp -j MARK --set-xmark ${mark_id}
+  ${iptables} -t mangle -A AURORA_LOCAL -p udp -j MARK --set-xmark ${mark_id}
+
+  ${iptables} -t mangle -I OUTPUT -j AURORA_LOCAL
+
+  ${iptables} -t mangle -N DIVERT
+  ${iptables} -t mangle -F DIVERT
+
+  ${iptables} -t mangle -A DIVERT -j MARK --set-xmark ${mark_id}
+  ${iptables} -t mangle -A DIVERT -j ACCEPT
+
+  ${iptables} -t mangle -I PREROUTING -p tcp -m socket -j DIVERT
+
+  if [ "${iptables}" = "ip6tables -w 100" ] ; then
+    ${iptables} -A OUTPUT -d ::1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${tproxy_port} -j REJECT
+  else
+    ${iptables} -A OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${tproxy_port} -j REJECT
+  fi
+
+  if [ "${dns_hijack}" = "true" ]  && [ "${iptables}" = "iptables -w 100" ] ; then
+    ${iptables} -t nat -N DNS_EXTERNAL
+    ${iptables} -t nat -F DNS_EXTERNAL
+
+    ${iptables} -t nat -A DNS_EXTERNAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+
+    ${iptables} -t nat -I PREROUTING -j DNS_EXTERNAL
+
+    ${iptables} -t nat -N DNS_LOCAL
+    ${iptables} -t nat -F DNS_LOCAL
+
+    ${iptables} -t nat -A DNS_LOCAL -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -j RETURN
+
+    ${iptables} -t nat -A DNS_LOCAL -p udp --dport 53 -j REDIRECT --to-ports ${dns_port}
+
+    ${iptables} -t nat -I OUTPUT -j DNS_LOCAL
+  fi
+
+  iptables -w 100 -t nat -A OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+  iptables -w 100 -t nat -A PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+
+}
+
+stop_tproxy() {
+
+  ip -6 rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
+  ip -6 route flush table ${table_id}
+  ip rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
+  ip route flush table ${table_id}
+
+  ${iptables} -t mangle -D PREROUTING -j AURORA_EXTERNAL
+
+  ${iptables} -t mangle -D PREROUTING -p tcp -m socket -j DIVERT
+
+  ${iptables} -t mangle -D OUTPUT -j AURORA_LOCAL
+
+  ${iptables} -t mangle -F AURORA_EXTERNAL
+  ${iptables} -t mangle -X AURORA_EXTERNAL
+
+  ${iptables} -t mangle -F AURORA_LOCAL
+  ${iptables} -t mangle -X AURORA_LOCAL
+
+  ${iptables} -t mangle -F DIVERT
+  ${iptables} -t mangle -X DIVERT
+
+  if [ "${iptables}" = "ip6tables -w 100" ] ; then
+    ${iptables} -D OUTPUT -d ::1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${tproxy_port} -j REJECT
+    ${iptables} -D OUTPUT -d ::1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  else
+    ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner ${kernel_user} --gid-owner ${kernel_group} -m tcp --dport ${tproxy_port} -j REJECT
+    ${iptables} -D OUTPUT -d 127.0.0.1 -p tcp -m owner --uid-owner 0 --gid-owner 3005 -m tcp --dport ${tproxy_port} -j REJECT
+  fi
+
+  iptables="iptables -w 100"
+  ${iptables} -t nat -D PREROUTING -j DNS_EXTERNAL
+
+  ${iptables} -t nat -D OUTPUT -j DNS_LOCAL
+
+  ${iptables} -t nat -F DNS_EXTERNAL
+  ${iptables} -t nat -X DNS_EXTERNAL
+
+  ${iptables} -t nat -F DNS_LOCAL
+  ${iptables} -t nat -X DNS_LOCAL
+
+  iptables -t nat -D OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+  iptables -t nat -D PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+
+}
+
+case "$1" in
+  iptables)
+    iptables_mode="$3"
+    if [ "$2" = "true" ] ; then
+      if [ "${iptables_mode}" == "Tun" ] ; then
+        ifconfig | grep -q ${tun_device} || return 1
+        mkdir -p /dev/net && [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
+      elif [ "${iptables_mode}" = "Redirect" ] ; then
+        iptables="iptables -w 100" && start_redirect > /dev/null 2>&1 && log term "Redirect iPTables rules loaded" || (log info "Redirect iPTables rule exception" ; stop_redirect > /dev/null 2>&1)
+      elif [ "${iptables_mode}" = "TProxy" ] ; then
+        iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1 && log term "TProxy iPTables rules loaded" || (log info "TProxy iPTables rule exception" ; stop_tproxy > /dev/null 2>&1)
+        if [ "${ipv6}" = "true" ] ; then
+          iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1 || (log info "TProxy iP6Tables rule exception" ; stop_tproxy > /dev/null 2>&1)
+        fi
+      else
+        log info "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
+      fi
+    elif [ "$2" = "false" ] ; then
+      if [ "${iptables_mode}" == "Tun" ] ; then
+        log term "Tun “${tun_device}” iPTables rules cleared"
+      elif [ "${iptables_mode}" = "Redirect" ] ; then
+        iptables="iptables -w 100" && stop_redirect > /dev/null 2>&1
+      elif [ "${iptables_mode}" = "TProxy" ] ; then
+        iptables="iptables -w 100" && stop_tproxy > /dev/null 2>&1
+        if [ "${ipv6}" = "true" ] ; then
+          iptables="ip6tables -w 100" && stop_tproxy > /dev/null 2>&1
+        fi
+      log term "${iptables_mode} iPTables rules cleared"
+      else
+        log info "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
+      fi
+    fi
+    ;;
+  bin)
+    if [ "$2" = "true" ] ; then
+      { Aurora ipv6 ${ipv6} ; rm ${DATADIR}/debug.log ;} > /dev/null 2>&1
+      if start_bin && pid=$(pidof ${bin_name}) ; then
+        Aurora iptables true ${iptables_mode} ; rm ${DATADIR}/Check.log
+        log info "Core “${bin_name}” is Running, iPTables Mode: ${iptables_mode}"
+      else
+        log info "Core “${bin_name}” no Started"
+        return 1
+      fi
+    elif [ "$2" = "false" ] ; then
+      Aurora iptables false ${iptables_mode} && { kill -15 ${bin_pid} || killall -15 ${bin_name} ; Aurora ipv6 true ; rm -f ${template} ;} > /dev/null 2>&1
+      log info "Core “${bin_name}” has Suspend"
+    fi
+    ;;
+  ipv6)
+    if [ "${ipv6_script}" = "true" ] ; then
+      if [ "$2" = "false" ] ; then
+        echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
+        echo 0 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
+        echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+        echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+        echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
+      elif [ "$2" = "true" ] ; then
+        echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
+        echo 1 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
+        echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+        echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+        echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
+      fi
+    fi
+    ;;
+  test)
+    echo "$time" ; echo "Datadir: ${DATADIR}" ; echo "Bin Name: ${bin_name}" ; echo "Bin Pid: ${bin_pid}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
+    return 0
+    ;;
+  script)
+    if [ "$screen" = "false" ] ; then
+      dumpsys deviceidle whitelist $whitelist
+      for trash in $(echo "$trash_list"); do
+        rm -rf "$trash"
+      done
+    fi
+    ;;
+  fstrim)
+    sm fstrim
+    fstrim -v /data
+    fstrim -v /cache
+    fstrim -v /system
+    sync
+    echo 3 > /proc/sys/vm/drop_caches
+    echo 1 > /proc/sys/vm/compact_memory
+    log info "Recycle fragmented files on storage devices"
+    ;;
+  start)
+    echo "$time - Aurora: ARCH: '$ARCH' ; Mount Path: '$SPATH' ; Datadir: '$DATADIR'" > $Services
+    nohup inotifyd ${Config}/inotify ${net_dir} > /dev/null 2>&1 &
+    nohup busybox crond -c ${Config} > /dev/null 2>&1 &
+    ;;
+  *)
+    log term "Error: '$1' Usage: init-start | bin | test | ipv6 | script | fstrim | iptables"
+    return 1
+    ;;
+esac
