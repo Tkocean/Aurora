@@ -30,14 +30,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-## Dashboard
-
-- [local](http://localhost:619/ui/?theme=light)
-
-## NAS
-
-- [local](http://localhost:68)
-
 ## Xposed module,can be used for fixed gateway IP
 
 - [Xposed](https://github.com/XhyEax/SoftApHelper)
@@ -47,5 +39,4 @@ Thanks to the developers of the following open source projects.
 - [Alist](https://github.com/alist-org/alist)
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
-- [mosdns](https://github.com/IrineSistiana/mosdns)
 - [sing-box](https://github.com/SagerNet/sing-box)
