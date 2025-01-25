@@ -1,7 +1,0 @@
-id=Aurora
-name=Aurora
-version=IPTables-S8(23.10.30)
-versionCode=2231030
-author=Tkocean
-description=Build a local transit server on the device to realize a series of functions such as routing and terminal.
-updateJson=https://raw.githubusercontent.com/Tkocean/individual/Aurora/Updata.json
