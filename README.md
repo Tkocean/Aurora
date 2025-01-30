@@ -1,7 +1,7 @@
 # Aurora
 [![platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com)
-This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy.
 
+This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy.
 
 
 ## Disclaimer
@@ -11,7 +11,6 @@ This project is not responsible for the following: bricked devices, SD card corr
 **Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
 
 If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
-
 
 
 ## UPDATA
@@ -31,11 +30,9 @@ If you're not sure how to configure this module, you might need applications lik
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
 
 
-
 ## Xposed module,can be used for fixed gateway IP
 
 - [SoftApHelper](https://github.com/XhyEax/SoftApHelper)
-
 
 
 ## Part of the code for this project comes from the following open source projects
