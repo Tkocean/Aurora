@@ -1,7 +1,18 @@
 # Aurora
-
 [![platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com)
-[![](https://img.shields.io/badge/Magisk-v26.1-blue)](https://github.com/topjohnwu/Magisk/releases/tag/v26.1)
+This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy.
+
+
+
+## Disclaimer
+
+This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
+
+**Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
+
+If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
+
+
 
 ## UPDATA
     - 2023
@@ -19,28 +30,16 @@
     - 2025
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
 
-## License
-    Copyright 2022 Mohsents
-    
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
 
 ## Xposed module,can be used for fixed gateway IP
 
 - [SoftApHelper](https://github.com/XhyEax/SoftApHelper)
 
+
+
 ## Part of the code for this project comes from the following open source projects
 Thanks to the developers of the following open source projects.
-- [Alist](https://github.com/alist-org/alist)
 - [box4](https://github.com/CHIZI-0618/box4magisk)
 - [clash meta](https://github.com/MetaCubeX/Clash.Meta)
 - [sing-box](https://github.com/SagerNet/sing-box)
