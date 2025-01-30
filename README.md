@@ -15,7 +15,7 @@ If you're not sure how to configure this module, you might need applications lik
 
 ## UPDATA
     - 2022
-    - 5.20 Update core
+    - 5.20 Update core.
     - 2023
     - 4.20 Update iptables code.
     - 4.23 Change the operating logic of some functions and simplify the configuration file.
