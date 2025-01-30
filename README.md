@@ -14,13 +14,13 @@ If you're not sure how to configure this module, you might need applications lik
 
 
 ## UPDATA
-    - **2022**
+    - 2022
     - 5.20 Update core
-    - **2023**
+    - 2023
     - 4.20 Update iptables code.
     - 4.23 Change the operating logic of some functions and simplify the configuration file.
     - 4.28 Simplify the script code and update the script running logic.
-    - **2024**
+    - 2024
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
     - 6.10 NAS server powered by Alist；Optimize the code and solve some problems.
@@ -28,7 +28,7 @@ If you're not sure how to configure this module, you might need applications lik
     - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
     - 9.17 Fixes and improvements.
     - 10.30 Code optimization and refactoring; Fixes and improvements.
-    - **2025**
+    - 2025
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
     - 1.30 Updating the configuration.
 
