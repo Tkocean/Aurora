@@ -30,11 +30,6 @@ If you're not sure how to configure this module, you might need applications lik
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
 
 
-## Xposed module,can be used for fixed gateway IP
-
-- [SoftApHelper](https://github.com/XhyEax/SoftApHelper)
-
-
 ## Part of the code for this project comes from the following open source projects
 Thanks to the developers of the following open source projects.
 - [box4](https://github.com/CHIZI-0618/box4magisk)
