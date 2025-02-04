@@ -64,7 +64,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 1.30 Updating the configuration.
 
 
-## Part of the code for this project comes from the following open source projects
+## Acknowledgements
 Thanks to the developers of the following open source projects.
 - [Box4](https://github.com/CHIZI-0618/box4magisk)
 - [Mihomo](https://github.com/MetaCubeX/mihomo)
