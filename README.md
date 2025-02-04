@@ -7,11 +7,11 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Disclaimer
 
-This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
+- This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
 
-**Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
+- **Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
 
-If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
+- If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
 
 
 ## Installation
@@ -22,9 +22,9 @@ If you're not sure how to configure this module, you might need applications lik
 
 ### Note
 
-The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
+- The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
 
-After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
+- After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
 
 
 ## Configuration
