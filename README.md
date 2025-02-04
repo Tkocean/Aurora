@@ -2,15 +2,14 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
 [![Thanks](https://img.shields.io/badge/Thanks-Box4-green.svg)](https://github.com/CHIZI-0618/box4magisk)
 
-This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy.
+This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy, as well as automatic cleaning of junk files, fstrim and other features.
+
 
 
 ## Disclaimer
 
 - This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
-
 - **Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
-
 - If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
 
 
@@ -23,8 +22,8 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 ### Note
 
 - The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
-
 - After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
+- Configuration file `/data/Aurora/Config/Trash.conf` to define the files or folders you need to delete. **Data is priceless, proceed with caution!!!**
 
 
 ## Configuration
@@ -38,7 +37,6 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 ## Additional Notes
 
 - When modifying the configuration files for each core, please ensure that the relevant configuration matches the definitions in the `/data/Aurora/config/Aurora.ini` file.
-
 - When the `Aurora` is started for the first time, the local machine IP will be added to the bypass list to prevent traffic loops. It will also start monitoring and insert local IP anti-loopback rules when network changes occur. However, if the local machine has a **public IP** address, it is still recommended to add the IP to the `intranet` array in the `/data/Aurora/config/Aurora.ini` file.
 
 
