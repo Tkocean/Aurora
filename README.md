@@ -1,6 +1,6 @@
 # Aurora
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com)
-[![Thanks](https://img.shields.io/badge/platform-Android-green.svg)](https://github.com/CHIZI-0618/box4magisk)
+[![Thanks](https://img.shields.io/badge/Box4-Magisk-green.svg)](https://github.com/CHIZI-0618/box4magisk)
 
 This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy.
 
