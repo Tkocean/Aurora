@@ -67,5 +67,5 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 ## Part of the code for this project comes from the following open source projects
 Thanks to the developers of the following open source projects.
 - [box4](https://github.com/CHIZI-0618/box4magisk)
-- [clash meta](https://github.com/MetaCubeX/Clash.Meta)
+- [Mihomo](https://github.com/MetaCubeX/mihomo)
 - [sing-box](https://github.com/SagerNet/sing-box)
