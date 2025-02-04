@@ -23,8 +23,6 @@ If you're not sure how to configure this module, you might need applications lik
     - 2024
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
-    - 6.10 NAS server powered by Alist；Optimize the code and solve some problems.
-    - 6.28 Data directory reconstruction; optimize iPtables execution logic; bypass public network iP to prevent loopback; Alist support, nas function is now available.
     - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
     - 9.17 Fixes and improvements.
     - 10.30 Code optimization and refactoring; Fixes and improvements.
