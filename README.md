@@ -13,6 +13,26 @@ This project is not responsible for the following: bricked devices, SD card corr
 If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
 
 
+## Installation
+
+- Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Simplified/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
+- Supports online updates via Magisk Manager, KernelSU Manager, or APatch.
+
+
+### Note
+
+The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
+
+After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
+
+
+## Configuration
+
+- Each core works in the `/data/Aurora/Kernel/core_name` directory, where the core_name is defined in the `bin_name` variable of the `/data/Aurora/config/Aurora.ini` file. The valid values are `mihomo`, `sing-box`, and the `bin_name` **determines the core enabled by the module**.
+- The configuration files for each core must be customized by the user. The module script checks the validity of the configuration, and the check results are stored in the `/data/Aurora/Check.log` file.
+- Tip: The `mihomo` and `sing-box` cores come with default configurations prepared for working with the transparent proxy script. It is recommended to edit the `proxy-providers` or `outbounds` sections to add your proxy server. For advanced configurations, please refer to the respective official documentation. Links: [Mihomo documentation](https://wiki.metacubex.one), [Sing-box documentation](https://sing-box.sagernet.org/).
+
+
 ## UPDATA
     - 2022
     - 5.20 Update core.
