@@ -33,7 +33,6 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 - Tip: The `mihomo` and `sing-box` cores come with default configurations prepared for working with the transparent proxy script. It is recommended to edit the `proxy-providers` or `outbounds` sections to add your proxy server. For advanced configurations, please refer to the respective official documentation. Links: [Mihomo documentation](https://wiki.metacubex.one), [Sing-box documentation](https://sing-box.sagernet.org/).
 
 
-
 ## Additional Notes
 
 - When modifying the configuration files for each core, please ensure that the relevant configuration matches the definitions in the `/data/Aurora/config/Aurora.ini` file.
@@ -61,6 +60,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 2025
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
     - 1.30 Updating the configuration.
+    - 2.04 Updated crond execution time to default to once every 5 minutes.
 
 
 ## Acknowledgements
