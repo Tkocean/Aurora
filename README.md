@@ -5,7 +5,6 @@
 This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy, as well as automatic cleaning of junk files, fstrim and other features.
 
 
-
 ## Disclaimer
 
 - This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
@@ -46,7 +45,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 - Uninstalling this module via Magisk Manager, KernelSU Manager， or APatch app
 
 
-## UPDATA
+## Changelog
     - 2022
     - 5.20 Update core.
     - 2023
