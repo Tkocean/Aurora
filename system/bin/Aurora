@@ -333,7 +333,7 @@ case "$1" in
     fi
     ;;
   test)
-    echo "$time" ; echo "Datadir: ${DATADIR}" ; echo "Bin Name: ${bin_name}" ; echo "Bin Pid: ${bin_pid}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
+    echo "$time" ; echo "Mount: $SPATH" ; echo "ARCH: ${ARCH}" ; echo "$(echo "$(dumpsys battery)")" ; echo "Bin Name: ${bin_name}" ; echo "Bin Pid: ${bin_pid}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
     return 0
     ;;
   script)
