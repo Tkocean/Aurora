@@ -61,6 +61,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
     - 1.30 Updating the configuration.
     - 2.04 Updated crond execution time to default to once every 5 minutes.
+    - 2.08 Adjusting the `test` command to show more information.
 
 
 ## Acknowledgements
