@@ -2,7 +2,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
 [![Thanks](https://img.shields.io/badge/Thanks-Box4-green.svg)](https://github.com/CHIZI-0618/box4magisk)
 
-This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TPROXY (TCP + UDP), and TUN (TCP + UDP, provided by the cores). It also supports a mixed mode of REDIRECT (TCP) + TUN (UDP) proxy, as well as automatic cleaning of junk files, fstrim and other features.
+This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy, as well as automatic cleaning of junk files, fstrim and other features.
 
 
 ## Disclaimer
