@@ -21,7 +21,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 ### Note
 
 - The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
-- After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
+- After installing the module, please download the core files for your device's architecture and place them in the `/data/adb/Aurora/Kernel/` directory.
 - ~~Configuration file `/data/adb/Aurora/Config/Trash.conf` to define the files or folders you need to delete. **Data is priceless, proceed with caution!!!**~~
 - ~~Configure `Backstage` in the `/data/adb/Aurora/Aurora.ini` file to add a battery-optimized whitelisted application.~~
 
