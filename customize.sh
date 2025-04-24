@@ -10,7 +10,7 @@ fi
 
 unzip -qo "${ZIPFILE}" -x 'META-INF/*' -d $MODPATH
 
-DATADIR="/data/Aurora"
+DATADIR="/data/adb/Aurora"
 
 mkdir -p ${DATADIR}/Kernel
 mkdir -p ${DATADIR}/Providers
