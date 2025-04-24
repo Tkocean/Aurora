@@ -41,7 +41,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Uninstallation
 
-- Uninstalling this module via Magisk Manager, KernelSU Manager， or APatch app
+- Uninstalling this module via Magisk Manager, KernelSU Manager, or APatch app
 
 
 ## Changelog
