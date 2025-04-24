@@ -1,2 +1,2 @@
 #!/sbin/sh
-rm -rf /data/Aurora
+rm -rf /data/adb/Aurora
