@@ -64,7 +64,6 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 4.23 Change the operating logic of some functions and simplify the configuration file.
     - 4.20 Update iptables code.
 
-    
     - 2022
     - 5.20 Update core.
 
