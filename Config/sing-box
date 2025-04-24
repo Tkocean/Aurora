@@ -8,7 +8,7 @@
     "servers": [
       {
         "tag": "foreign",
-        "address": "h3://8.8.8.8/dns-query",
+        "address": "https://8.8.8.8/dns-query",
         "detour": "Native"
       },
       {
@@ -28,15 +28,19 @@
         "disable_cache": true
       },
       {
-        "rule_set": ["private","apple","games","cn-domain"],
-        "domain_keyword": ["frp","time"],
+        "rule_set": [
+          "private"
+        ],
         "server": "internal"
       },
       {
-        "query_type": ["A","AAAA"],
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "server": "fakedns",
-        "rewrite_ttl": 0,
-        "disable_cache": true
+        "disable_cache": true,
+        "rewrite_ttl": 0
       }
     ],
     "fakeip": {
@@ -44,7 +48,7 @@
       "inet4_range": "198.18.0.0/15",
       "inet6_range": "fc00::/18"
     },
-    "reverse_mapping": false,
+    "strategy": "prefer_ipv4",
     "independent_cache": true
   },
   "inbounds": [
@@ -52,79 +56,24 @@
       "type": "tproxy",
       "tag": "tproxy-in",
       "listen": "::",
-      "listen_port": 26,
-      "sniff": true,
-      "udp_fragment": true,
-      "sniff_override_destination": false
+      "listen_port": 26
     }
   ],
   "outbounds": [
-    {
-      "type": "dns",
-      "tag": "dns-out"
-    },
     {
       "type": "direct",
       "tag": "direct"
     },
     {
       "type": "shadowsocks",
-      "tag": "Native",
-      "udp_fragment": true
+      "tag": "Native"
     }
   ],
   "route": {
-    "rule_set": [
-      {
-        "type": "remote",
-        "tag": "private",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/private.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      },
-      {
-        "type": "remote",
-        "tag": "apple",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      },
-      {
-        "type": "remote",
-        "tag": "google",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      },
-      {
-        "type": "remote",
-        "tag": "games",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games@cn.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      },
-      {
-        "type": "remote",
-        "tag": "cn-domain",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      },
-      {
-        "type": "remote",
-        "tag": "cn-ip",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
-        "download_detour": "direct",
-        "update_interval": "15d"
-      }
-    ],
     "rules": [
+      {
+        "action": "sniff"
+      },
       {
         "type": "logical",
         "mode": "or",
@@ -136,15 +85,14 @@
             "protocol": "dns"
           }
         ],
-        "outbound": "dns-out"
+        "action": "hijack-dns"
       },
       {
-        "rule_set": "google",
-        "outbound": "Native"
-      },
-      {
-        "rule_set": ["private","apple","games","cn-domain"],
-        "domain_keyword": ["frp","time"],
+        "rule_set": [
+          "private",
+          "apple",
+          "cn-domain"
+        ],
         "outbound": "direct"
       },
       {
@@ -156,14 +104,45 @@
         "outbound": "direct"
       }
     ],
-    "find_process": false,
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "private",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/private.srs",
+        "download_detour": "direct",
+        "update_interval": "1440h0m0s"
+      },
+      {
+        "type": "remote",
+        "tag": "apple",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs",
+        "download_detour": "direct",
+        "update_interval": "1440h0m0s"
+      },
+      {
+        "type": "remote",
+        "tag": "cn-domain",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
+        "download_detour": "direct",
+        "update_interval": "1440h0m0s"
+      },
+      {
+        "type": "remote",
+        "tag": "cn-ip",
+        "format": "binary",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
+        "download_detour": "direct",
+        "update_interval": "1440h0m0s"
+      }
+    ],
     "final": "Native"
   },
   "experimental": {
     "cache_file": {
       "enabled": true,
-      "store_rdrc": false,
-      "store_fakeip": false,
       "path": "Sbox.db"
     }
   }
