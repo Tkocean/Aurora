@@ -46,7 +46,8 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Changelog
     - 2025
-    - 4.24 Stripped out a bunch of unnecessary features；Fixes & Improvements.
+    - 4.24 Stripped out a bunch of unnecessary features; Fixes & Improvements.
+    - 4.24-2 Improved "test" command and changed to "debug"; Fixes & Improvements.
     - 2.08 Adjusting the `test` command to show more information.
     - 2.04 Updated crond execution time to default to once every 5 minutes.
     - 1.30 Updating the configuration.
