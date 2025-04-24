@@ -1,5 +1,4 @@
 #!/bin/sh
-Aurora fstrim
-Aurora test
+Aurora debug
 printf "\n"
 echo "- Done!"
