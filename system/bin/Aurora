@@ -1,15 +1,15 @@
 #!/bin/sh
-source /data/Aurora/Config/Aurora.ini
-export PATH="$KPATH:$(magisk --path 2>/dev/null)/.magisk/busybox:$PATH"
+source /data/adb/Aurora/Config/Aurora.ini
+export PATH="$KPATH:$PATH"
 SPATH=$(dirname `realpath $0`)
 time=$(date +"%Z %Y-%m-%d %H:%M:%S")
 kernel_user=$(stat -c %U /proc/${bin_pid})
 kernel_group=$(stat -c %G /proc/${bin_pid})
-trash_list=$(echo "$(cat $trash_list | grep -v '#')" | sort -u)
-screen=`dumpsys window policy | grep "mInputRestricted"|cut -d= -f2`
-whitelist=$(pm list packages -e -u | sed "s/package:/-/g")" ${Backstage}"
 intranet[${#intranet[@]}]=$(ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127.0.0.1")
 intranet6[${#intranet6[@]}]=$(ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1")
+cpusage=$((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')
+cpuvmrss=$(cat /proc/${bin_pid}/status 2> /dev/null | grep -w VmRSS | awk '{print $2$3}')
+runtime=$(busybox ps -o comm,etime | grep ${bin_name} | awk '{print $2}')
 
 log() {
 
@@ -18,7 +18,9 @@ log() {
       log term "$2" ; log ech "$2"
       ;;
     ech)
-      echo "$time - Aurora: $2" >> $Services
+      if [ "${log_ech}" = "true" ] ; then
+        echo "$time - Aurora: $2" >> $Services
+      fi
       ;;
     term)
       echo -e "\033[1;36m${time} - Aurora: $2\033[0m"
@@ -28,7 +30,6 @@ log() {
 }
 
 start_bin() {
-
   if [ -f "${KPATH}/${bin_name}" ] ; then
     ulimit -SHn 100000
     if [ "${bin_name}" = "mihomo" ] ; then
@@ -54,11 +55,9 @@ start_bin() {
     log info "There is no “${bin_name}” in “${KPATH}”"
     return 1
   fi
-
 }
 
 start_redirect() {
-
   ${iptables} -t nat -N AURORA_EXTERNAL
   ${iptables} -t nat -F AURORA_EXTERNAL
   ${iptables} -t nat -N AURORA_LOCAL
@@ -110,11 +109,9 @@ stop_redirect() {
   ${iptables} -t nat -X AURORA_EXTERNAL
   ${iptables} -t nat -F AURORA_LOCAL
   ${iptables} -t nat -X AURORA_LOCAL
-
 }
 
 start_tproxy() {
-
   if [ "${iptables}" = "ip6tables -w 100" ] ; then
     ip -6 rule add fwmark ${mark_id} table ${table_id} pref ${table_id}
     ip -6 route add local default dev lo table ${table_id}
@@ -218,11 +215,9 @@ start_tproxy() {
 
   iptables -w 100 -t nat -A OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
   iptables -w 100 -t nat -A PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
-
 }
 
 stop_tproxy() {
-
   ip -6 rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
   ip -6 route flush table ${table_id}
   ip rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
@@ -264,7 +259,6 @@ stop_tproxy() {
 
   iptables -t nat -D OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
   iptables -t nat -D PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
-
 }
 
 case "$1" in
@@ -275,11 +269,11 @@ case "$1" in
         ifconfig | grep -q ${tun_device} || return 1
         mkdir -p /dev/net && [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
       elif [ "${iptables_mode}" = "Redirect" ] ; then
-        iptables="iptables -w 100" && start_redirect > /dev/null 2>&1 && log term "Redirect iPTables rules loaded" || (log info "Redirect iPTables rule exception" ; stop_redirect > /dev/null 2>&1)
+        iptables="iptables -w 100" && start_redirect > /dev/null 2>&1 && log info "Redirect iPTables rules loaded" || (log info "Redirect iPTables rule exception" ; stop_redirect > /dev/null 2>&1)
       elif [ "${iptables_mode}" = "TProxy" ] ; then
-        iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1 && log term "TProxy iPTables rules loaded" || (log info "TProxy iPTables rule exception" ; stop_tproxy > /dev/null 2>&1)
+        iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1 && log info "TProxy iPTables rules loaded" || (log info "TProxy iPTables rule exception" ; stop_tproxy > /dev/null 2>&1)
         if [ "${ipv6}" = "true" ] ; then
-          iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1 || (log info "TProxy iP6Tables rule exception" ; stop_tproxy > /dev/null 2>&1)
+          iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1 && log info "Creating ip(6)tables transparent proxy rules" || (log info "TProxy iP6Tables rule exception" ; stop_tproxy > /dev/null 2>&1)
         fi
       else
         log info "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
@@ -303,7 +297,7 @@ case "$1" in
   bin)
     if [ "$2" = "true" ] ; then
       { Aurora ipv6 ${ipv6} ; rm ${DATADIR}/debug.log ;} > /dev/null 2>&1
-      if start_bin && pid=$(pidof ${bin_name}) ; then
+      if start_bin ; then
         Aurora iptables true ${iptables_mode} ; rm ${DATADIR}/Check.log
         log info "Core “${bin_name}” is Running, iPTables Mode: ${iptables_mode}"
       else
@@ -330,37 +324,19 @@ case "$1" in
         echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
         echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
       fi
+      log info "iPV6Network: $2"
     fi
     ;;
-  test)
-    echo "$time" ; echo "Mount: $SPATH" ; echo "ARCH: ${ARCH}" ; echo "$(echo "$(dumpsys battery)")" ; echo "Bin Name: ${bin_name}" ; echo "Bin Pid: ${bin_pid}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
+  debug)
+    echo "$time" ; echo "Mount: $SPATH" ; echo "ARCH: ${ARCH}" ; echo "Kernel Name: ${bin_name}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Kernel Pid: ${bin_pid}" ; echo "Kernel CpuSage: ${cpusage}" ; echo "Kernel CpuVmrss: ${cpuvmrss}" ; echo "Kernel Runtime: ${runtime}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
     return 0
-    ;;
-  script)
-    if [ "$screen" = "false" ] ; then
-      dumpsys deviceidle whitelist $whitelist
-      for trash in $(echo "$trash_list"); do
-        rm -rf "$trash"
-      done
-    fi
-    ;;
-  fstrim)
-    sm fstrim
-    fstrim -v /data
-    fstrim -v /cache
-    fstrim -v /system
-    sync
-    echo 3 > /proc/sys/vm/drop_caches
-    echo 1 > /proc/sys/vm/compact_memory
-    log info "Recycle fragmented files on storage devices"
     ;;
   start)
     echo "$time - Aurora: ARCH: '$ARCH' ; Mount Path: '$SPATH' ; Datadir: '$DATADIR'" > $Services
     nohup inotifyd ${Config}/inotify ${net_dir} > /dev/null 2>&1 &
-    nohup busybox crond -c ${Config} > /dev/null 2>&1 &
     ;;
   *)
-    log term "Error: '$1' Usage: init-start | bin | test | ipv6 | script | fstrim | iptables"
+    log term "Error: '$1' Usage: init-start | bin | ipv6 | debug | iptables"
     return 1
     ;;
 esac
