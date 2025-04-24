@@ -4,3 +4,4 @@ version=V25.0424.S
 versionCode=2250424
 author=Tkocean
 description=Positioning executable files within the (/system/bin) directory facilitates the invocation and execution of system functions.
+updateJson=https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/Aurora/Updata.json
