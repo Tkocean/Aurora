@@ -1,6 +1,6 @@
 id=Aurora
 name=Aurora
-version=V25.0208.S
-versionCode=2250208
+version=V25.0424.S
+versionCode=2250424
 author=Tkocean
 description=Positioning executable files within the (/system/bin) directory facilitates the invocation and execution of system functions.
