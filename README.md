@@ -22,21 +22,21 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 - The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
 - After installing the module, please download the core files for your device's architecture and place them in the `/data/Aurora/Kernel/` directory.
-- Configuration file `/data/Aurora/Config/Trash.conf` to define the files or folders you need to delete. **Data is priceless, proceed with caution!!!**
-- Configure `Backstage` in the `/data/Aurora/Aurora.ini` file to add a battery-optimized whitelisted application.
+- ~~Configuration file `/data/adb/Aurora/Config/Trash.conf` to define the files or folders you need to delete. **Data is priceless, proceed with caution!!!**~~
+- Configure `Backstage` in the `/data/adb/Aurora/Aurora.ini` file to add a battery-optimized whitelisted application.
 
 
 ## Configuration
 
-- Each core works in the `/data/Aurora/Kernel/core_name` directory, where the core_name is defined in the `bin_name` variable of the `/data/Aurora/config/Aurora.ini` file. The valid values are `mihomo`, `sing-box`, and the `bin_name` **determines the core enabled by the module**.
-- The configuration files for each core must be customized by the user. The module script checks the validity of the configuration, and the check results are stored in the `/data/Aurora/Check.log` file.
+- Each core works in the `/data/adb/Aurora/Kernel/core_name` directory, where the core_name is defined in the `bin_name` variable of the `/data/adb/Aurora/config/Aurora.ini` file. The valid values are `mihomo`, `sing-box`, and the `bin_name` **determines the core enabled by the module**.
+- The configuration files for each core must be customized by the user. The module script checks the validity of the configuration, and the check results are stored in the `/data/adb/Aurora/Check.log` file.
 - Tip: The `mihomo` and `sing-box` cores come with default configurations prepared for working with the transparent proxy script. It is recommended to edit the `proxy-providers` or `outbounds` sections to add your proxy server. For advanced configurations, please refer to the respective official documentation. Links: [Mihomo documentation](https://wiki.metacubex.one), [Sing-box documentation](https://sing-box.sagernet.org/).
 
 
 ## Additional Notes
 
-- When modifying the configuration files for each core, please ensure that the relevant configuration matches the definitions in the `/data/Aurora/config/Aurora.ini` file.
-- When the `Aurora` is started for the first time, the local machine IP will be added to the bypass list to prevent traffic loops. It will also start monitoring and insert local IP anti-loopback rules when network changes occur. However, if the local machine has a **public IP** address, it is still recommended to add the IP to the `intranet` array in the `/data/Aurora/config/Aurora.ini` file.
+- When modifying the configuration files for each core, please ensure that the relevant configuration matches the definitions in the `/data/adb/Aurora/config/Aurora.ini` file.
+- When the `Aurora` is started for the first time, the local machine IP will be added to the bypass list to prevent traffic loops. It will also start monitoring and insert local IP anti-loopback rules when network changes occur. However, if the local machine has a **public IP** address, it is still recommended to add the IP to the `intranet` array in the `/data/adb/Aurora/config/Aurora.ini` file.
 
 
 ## Uninstallation
@@ -45,24 +45,26 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 
 ## Changelog
-    - 2022
-    - 5.20 Update core.
-    - 2023
-    - 4.20 Update iptables code.
-    - 4.23 Change the operating logic of some functions and simplify the configuration file.
-    - 4.28 Simplify the script code and update the script running logic.
-    - 2024
-    - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
-    - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
-    - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
-    - 9.17 Fixes and improvements.
-    - 10.30 Code optimization and refactoring; Fixes and improvements.
     - 2025
     - 1.25 Warning: This is a major update that optimizes the file architecture, eliminates many unnecessary items, and optimizes performance on devices.
     - 1.30 Updating the configuration.
     - 2.04 Updated crond execution time to default to once every 5 minutes.
     - 2.08 Adjusting the `test` command to show more information.
 
+    - 2024
+    - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
+    - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
+    - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
+    - 9.17 Fixes and improvements.
+    - 10.30 Code optimization and refactoring; Fixes and improvements.
+    
+    - 2023
+    - 4.20 Update iptables code.
+    - 4.23 Change the operating logic of some functions and simplify the configuration file.
+    - 4.28 Simplify the script code and update the script running logic.
+    
+    - 2022
+    - 5.20 Update core.
 
 ## Acknowledgements
 Thanks to the developers of the following open source projects.
