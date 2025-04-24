@@ -50,13 +50,14 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 1.30 Updating the configuration.
     - 2.04 Updated crond execution time to default to once every 5 minutes.
     - 2.08 Adjusting the `test` command to show more information.
+    - 4.24 Stripped out a bunch of unnecessary features；Fixes & Improvements.
 
     - 2024
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
     - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
-    - 9.17 Fixes and improvements.
-    - 10.30 Code optimization and refactoring; Fixes and improvements.
+    - 9.17 Fixes & Improvements.
+    - 10.30 Code optimization and refactoring; Fixes & Improvements.
     
     - 2023
     - 4.20 Update iptables code.
