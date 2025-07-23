@@ -1,63 +1,69 @@
 #!/bin/sh
 source /data/adb/Aurora/Config/Aurora.ini
-export PATH="$KPATH:$PATH"
+export PATH="${KPATH}:$PATH"
 SPATH=$(dirname `realpath $0`)
-time=$(date +"%Z %Y-%m-%d %H:%M:%S")
 kernel_user=$(stat -c %U /proc/${bin_pid})
 kernel_group=$(stat -c %G /proc/${bin_pid})
 intranet[${#intranet[@]}]=$(ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127.0.0.1")
 intranet6[${#intranet6[@]}]=$(ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1")
-cpusage=$((/system/bin/ps -eo %CPU,NAME | grep ${bin_name} | awk '{print $1"%"}') 2> /dev/null || dumpsys cpuinfo | grep ${bin_name} | awk '{print $1}')
 cpuvmrss=$(cat /proc/${bin_pid}/status 2> /dev/null | grep -w VmRSS | awk '{print $2$3}')
 runtime=$(busybox ps -o comm,etime | grep ${bin_name} | awk '{print $2}')
 
 log() {
+  local level="$1" msg="$2"
 
-  case "$1" in
-    info)
-      log term "$2" ; log ech "$2"
+  (( $# < 2 )) && { echo "Usage: log [level] [message]" >&2; return 1; }
+
+  case "$level" in
+    norm)
+      printf "\033[0;32m%s - Aurora: %s\033[0m\n" "$time" "$msg"
+      [[ "$log" == "true" ]] && printf "%s - Aurora: %s\n" "$time" "$msg" >> "$Services"
       ;;
-    ech)
-      if [ "${log_ech}" = "true" ] ; then
-        echo "$time - Aurora: $2" >> $Services
-      fi
+    warn)
+      printf "\033[4;31m%s - Aurora: %s\033[0m\n" "$time" "$msg"
+      [[ "$log" == "true" ]] && printf "%s - Aurora: %s\n" "$time" "$msg" >> "$Services"
       ;;
-    term)
-      echo -e "\033[1;36m${time} - Aurora: $2\033[0m"
+    debug)
+      printf "\033[0;33m%s - Aurora: %s\033[0m\n" "$time" "$msg"
+      [[ "$log" == "true" ]] && printf "%s - Aurora: %s\n" "$time" "$msg" >> "$Services"
+      ;;
+    *)
+      printf "\033[0;31m%s - Aurora: %s\033[0m\n" "$time" "$msg"
       ;;
   esac
-
 }
 
 start_bin() {
+
   if [ -f "${KPATH}/${bin_name}" ] ; then
-    ulimit -SHn 100000
-    if [ "${bin_name}" = "mihomo" ] ; then
-      ln -sf ${Config}/${bin_name} ${template}
-      if mihomo -t -d ${DATADIR} -f ${template} > ${DATADIR}/Check.log 2>&1 ; then
-        nohup busybox setuidgid ${kernel_user_group} mihomo -d ${DATADIR} -f ${template} > ${DATADIR}/debug.log 2>&1 &
+    ulimit -SHn 1000000
+    if [ "${bin_name}" = "sing-box" ] ; then
+      if sing-box check -D ${DATADIR} -c ${Config}/sing-box > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/sing-box run -D ${DATADIR} -c ${Config}/sing-box > /dev/null 2>&1 &
       else
-        log info "“${bin_name}” is not configured properly"
+        log warn "“${bin_name}” is not configured properly"
         return 1
       fi
-    elif [ "${bin_name}" = "sing-box" ] ; then
-      if sing-box check -D ${DATADIR} -c ${Config}/sing-box > ${DATADIR}/Check.log 2>&1 ; then
-        nohup busybox setuidgid ${kernel_user_group} sing-box run -D ${DATADIR} -c ${Config}/sing-box > /dev/null 2>&1 &
+    elif [ "${bin_name}" = "mihomo" ] ; then
+      if mihomo -t -d ${DATADIR} -f ${Config}/Mihomo.yaml > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/mihomo -d ${DATADIR} -f ${Config}/Mihomo.yaml > ${DATADIR}/Kernel.log 2>&1 &
       else
-        log info "“${bin_name}” is not configured properly"
+        log warn "“${bin_name}” is not configured properly"
         return 1
       fi
     else
-      log info "Unsupported Kernel: “${bin_name}”"
+      log warn "Unsupported Kernel: “${bin_name}”"
       return 1
     fi
   else
-    log info "There is no “${bin_name}” in “${KPATH}”"
+    log warn "There is no “${bin_name}” in “${KPATH}”"
     return 1
   fi
+
 }
 
 start_redirect() {
+
   ${iptables} -t nat -N AURORA_EXTERNAL
   ${iptables} -t nat -F AURORA_EXTERNAL
   ${iptables} -t nat -N AURORA_LOCAL
@@ -109,9 +115,11 @@ stop_redirect() {
   ${iptables} -t nat -X AURORA_EXTERNAL
   ${iptables} -t nat -F AURORA_LOCAL
   ${iptables} -t nat -X AURORA_LOCAL
+
 }
 
 start_tproxy() {
+
   if [ "${iptables}" = "ip6tables -w 100" ] ; then
     ip -6 rule add fwmark ${mark_id} table ${table_id} pref ${table_id}
     ip -6 route add local default dev lo table ${table_id}
@@ -215,9 +223,11 @@ start_tproxy() {
 
   iptables -w 100 -t nat -A OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
   iptables -w 100 -t nat -A PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+
 }
 
 stop_tproxy() {
+
   ip -6 rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
   ip -6 route flush table ${table_id}
   ip rule del fwmark ${mark_id} table ${table_id} pref ${table_id}
@@ -259,6 +269,7 @@ stop_tproxy() {
 
   iptables -t nat -D OUTPUT -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
   iptables -t nat -D PREROUTING -d ${fake_ip_range_v4} -p icmp -j DNAT --to-destination 127.0.0.1
+
 }
 
 case "$1" in
@@ -266,21 +277,20 @@ case "$1" in
     iptables_mode="$3"
     if [ "$2" = "true" ] ; then
       if [ "${iptables_mode}" == "Tun" ] ; then
-        ifconfig | grep -q ${tun_device} || return 1
-        mkdir -p /dev/net && [ ! -L /dev/net/tun ] && ln -sf /dev/tun /dev/net/tun
+        log term "${iptables_mode} iPTables rules loaded"
       elif [ "${iptables_mode}" = "Redirect" ] ; then
-        iptables="iptables -w 100" && start_redirect > /dev/null 2>&1 && log info "Redirect iPTables rules loaded" || (log info "Redirect iPTables rule exception" ; stop_redirect > /dev/null 2>&1)
+        iptables="iptables -w 100" && start_redirect > /dev/null 2>&1 && log term "Redirect iPTables rules loaded" || (log warn "Redirect iPTables rule exception" ; stop_redirect > /dev/null 2>&1)
       elif [ "${iptables_mode}" = "TProxy" ] ; then
-        iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1 && log info "TProxy iPTables rules loaded" || (log info "TProxy iPTables rule exception" ; stop_tproxy > /dev/null 2>&1)
+        iptables="iptables -w 100" && start_tproxy > /dev/null 2>&1 && log term "TProxy iPTables rules loaded" || (log warn "TProxy iPTables rule exception" ; stop_tproxy > /dev/null 2>&1)
         if [ "${ipv6}" = "true" ] ; then
-          iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1 && log info "Creating ip(6)tables transparent proxy rules" || (log info "TProxy iP6Tables rule exception" ; stop_tproxy > /dev/null 2>&1)
+          iptables="ip6tables -w 100" && start_tproxy > /dev/null 2>&1 || (log warn "TProxy iP6Tables rule exception" ; stop_tproxy > /dev/null 2>&1)
         fi
       else
-        log info "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
+        log warn "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
       fi
     elif [ "$2" = "false" ] ; then
       if [ "${iptables_mode}" == "Tun" ] ; then
-        log term "Tun “${tun_device}” iPTables rules cleared"
+        log term "${iptables_mode} iPTables rules cleared"
       elif [ "${iptables_mode}" = "Redirect" ] ; then
         iptables="iptables -w 100" && stop_redirect > /dev/null 2>&1
       elif [ "${iptables_mode}" = "TProxy" ] ; then
@@ -290,23 +300,23 @@ case "$1" in
         fi
       log term "${iptables_mode} iPTables rules cleared"
       else
-        log info "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
+        log warn "“${iptables_mode}”, Usage: Tun | TProxy | Redirect"
       fi
     fi
     ;;
   bin)
     if [ "$2" = "true" ] ; then
-      { Aurora ipv6 ${ipv6} ; rm ${DATADIR}/debug.log ;} > /dev/null 2>&1
-      if start_bin ; then
+      { Aurora ipv6 ${ipv6} ; rm ${DATADIR}/Kernel.log ;} > /dev/null 2>&1
+      if start_bin && sleep 2 && pid=$(pidof ${bin_name}) ; then
         Aurora iptables true ${iptables_mode} ; rm ${DATADIR}/Check.log
-        log info "Core “${bin_name}” is Running, iPTables Mode: ${iptables_mode}"
+        log norm "Core “${bin_name}” is Running, iPTables Mode: ${iptables_mode}"
       else
-        log info "Core “${bin_name}” no Started"
-        return 1
+        log warn "Core “${bin_name}” no Started"
+        exit 1
       fi
     elif [ "$2" = "false" ] ; then
-      Aurora iptables false ${iptables_mode} && { kill -15 ${bin_pid} || killall -15 ${bin_name} ; Aurora ipv6 true ; rm -f ${template} ;} > /dev/null 2>&1
-      log info "Core “${bin_name}” has Suspend"
+      Aurora iptables false ${iptables_mode} && { killall -15 ${bin_name} ; Aurora ipv6 true ;} > /dev/null 2>&1
+      log debug "Core “${bin_name}” has Suspend"
     fi
     ;;
   ipv6)
@@ -323,20 +333,42 @@ case "$1" in
         echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
         echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
         echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
+      else
+        log warn "Unknown: $2, Usage: true | false"
       fi
-      log info "iPV6Network: $2"
+      log debug "iPV6Network: $2"
+    else
+      log debug "Error: '$1' If you need to adjust, please set 'ipv6_script' to 'true'"
     fi
     ;;
-  debug)
-    echo "$time" ; echo "Mount: $SPATH" ; echo "ARCH: ${ARCH}" ; echo "Kernel Name: ${bin_name}" ; echo "Kernel UserGroup: ${kernel_user}:${kernel_group}" ; echo "Kernel Pid: ${bin_pid}" ; echo "Kernel CpuSage: ${cpusage}" ; echo "Kernel CpuVmrss: ${cpuvmrss}" ; echo "Kernel Runtime: ${runtime}" ; echo "Intranet: ${intranet[@]}" ; echo "Intranet6: ${intranet6[@]}" ; echo "Variate: $PATH"
-    return 0
+  info)
+    printf '\033[0;33m%s\033[0m\n' \
+        "$time" \
+        "Mount: $SPATH" \
+        "ARCH: $ARCH" \
+        "Kernel Name: $bin_name" \
+        "Kernel UserGroup: $kernel_user:$kernel_group" \
+        "Kernel Pid: $bin_pid" \
+        "Kernel CpuVmrss: $cpuvmrss" \
+        "Kernel Runtime: $runtime" \
+        "Intranet: ${intranet[*]}" \
+        "Intranet6: ${intranet6[*]}" \
+        "Variate: $PATH" \
+        "$Text_APi"
     ;;
   start)
-    echo "$time - Aurora: ARCH: '$ARCH' ; Mount Path: '$SPATH' ; Datadir: '$DATADIR'" > $Services
-    nohup inotifyd ${Config}/inotify ${net_dir} > /dev/null 2>&1 &
+    printf "%s - Aurora: ARCH: '%s'；Mount Path: '%s'；Datadir: '%s'\n" \
+        "$time" "$ARCH" "$SPATH" "$DATADIR" > "$Services"
     ;;
   *)
-    log term "Error: '$1' Usage: init-start | bin | ipv6 | debug | iptables"
-    return 1
+    CMD_LIST="
+    Valid commands:
+      iptables
+      info
+      ipv6
+      bin
+    "
+    log error "ERROR: Invalid command '${1:-}'${CMD_LIST}"
+    exit 1
     ;;
 esac
