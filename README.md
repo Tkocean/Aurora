@@ -1,5 +1,6 @@
 # Aurora
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
+[![Source](https://img.shields.io/badge/Platform-Source-yellow.svg)](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main)
 [![ChangeLog](https://img.shields.io/badge/ChangeLog-blue.svg)](https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/Changes/README.md)
 
 This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy.
@@ -13,7 +14,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Installation
 - Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Stable/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
-- Download the source code package from the [Download](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page, then package it into a Magisk module before flashing it.
+- Download the source code package from the [Source](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page, then package it into a Magisk module before flashing it.
 - Supports online updates via Magisk Manager, KernelSU Manager, or APatch app.
 
 
