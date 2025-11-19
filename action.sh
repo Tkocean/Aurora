@@ -1,4 +1,4 @@
 #!/bin/sh
-Aurora debug
+Aurora info
 printf "\n"
 echo "- Done!"
