@@ -1,6 +1,6 @@
 #!/bin/sh
 source /data/adb/Aurora/Config/Aurora.ini
-export PATH="${KPATH}:$PATH"
+export PATH="${KPATH}:$(magisk --path 2>/dev/null)/.magisk/busybox:$PATH"
 SPATH=$(dirname `realpath $0`)
 kernel_user=$(stat -c %U /proc/${bin_pid})
 kernel_group=$(stat -c %G /proc/${bin_pid})
