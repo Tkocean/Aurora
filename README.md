@@ -1,4 +1,4 @@
-# Changelog
+# Change Log
     - 2025
     - 11.18 Fixes & Improvements and removed many unnecessary features.
     - 7.23 Fixes & Improvements.
