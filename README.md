@@ -14,7 +14,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Installation
 
-- Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Light-Weight/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
+- Download the module package from the [Download](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
 - Supports online updates via Magisk Manager, KernelSU Manager, or APatch app.
 
 
