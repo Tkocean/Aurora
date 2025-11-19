@@ -1,6 +1,6 @@
 # Aurora
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
-[![Source](https://img.shields.io/badge/Platform-Source-yellow.svg)](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main)
+[![Source](https://img.shields.io/badge/Platform-Code-yellow.svg)](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main)
 [![ChangeLog](https://img.shields.io/badge/ChangeLog-blue.svg)](https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/Changes/README.md)
 
 This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy.
