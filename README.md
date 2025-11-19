@@ -43,7 +43,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Changelog
     - 2025
-		- 11.18 Fixes & Improvements and removed many unnecessary features.
+	- 11.18 Fixes & Improvements and removed many unnecessary features.
     - 7.23 Fixes & Improvements.
     - 4.24-2 Improved `test` command and changed to `debug`; Fixes & Improvements.
     - 4.24 Stripped out a bunch of unnecessary features; Fixes & Improvements.
