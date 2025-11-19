@@ -1,0 +1,161 @@
+tproxy-port: 26
+allow-lan: true
+bind-address: "*"
+unified-delay: true
+find-process-mode: off
+mode: rule
+log-level: error
+ipv6: false
+udp: true
+ntp:
+  enable: false
+  port: 123
+  interval: 60
+  server: time.apple.com
+  write-to-system: true
+sniffer:
+  enable: false
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 443, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 853, 8443]
+    QUIC:
+      ports: [443, 853, 8443]
+tun:
+  enable: false
+  stack: system
+  device: Aurora
+  auto-route: true
+  auto-redirect: false
+  auto-detect-interface: true
+  strict-route: true
+  disable-icmp-forwarding: true
+  dns-hijack: [any:53, tcp://any:53]
+dns:
+  enable: true
+  ipv6: false
+  prefer-h3: false
+  use-hosts: false
+  listen: 0.0.0.0:1053
+  ipv6-timeout: 300
+  cache-algorithm: arc
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.0/15
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "*"
+    - "+frp"
+    - "*.lan"
+    - "*.local"
+    - "rule-set:Apple_Domain"
+    - "rule-set:CN_Domain"
+  nameserver:
+    - 'https://doh.pub/dns-query'
+    - 'https://dns.alidns.com/dns-query'
+profile:
+  store-selected: true
+  store-fake-ip: true
+tcp-concurrent: false
+keep-alive-idle: 15
+keep-alive-interval: 15
+disable-keep-alive: true
+global-client-fingerprint: safari
+external-controller: 0.0.0.0:28
+external-ui: "Providers/Dashboard"
+external-ui-url: "https://gh-proxy.com/https://github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
+secret: "0204"
+
+proxies:
+
+s: &s
+  type: http
+  interval: 86400
+  health-check:
+    enable: false
+
+proxy-providers:
+
+  BASE64:
+    <<: *s
+    url: ""
+    path: Providers/base64.bin
+  NATIVE:
+    <<: *s
+    url: ""
+    path: Providers/native.bin
+
+proxy-groups:
+
+  - name: Overall
+    type: select
+    proxies:
+      - Servers
+      - DIRECT
+  - name: Servers
+    type: select
+    use:
+      - BASE64
+      - NATIVE
+
+rule-anchor:
+
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+
+rule-providers:
+
+  Private_iP:
+    <<: *ip
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs"
+    path: "Providers/Private_iP.mrs"
+
+  Google_iP:
+    <<: *ip
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"
+    path: "Providers/Google_iP.mrs"
+
+  CN_iP:
+    <<: *ip
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+    path: "Providers/CN_iP.mrs"
+
+  Private_Domain:
+    <<: *domain
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"
+    path: "Providers/Private_Domain.mrs"
+
+  Google_Domain:
+    <<: *domain
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
+    path: "Providers/Google_Domain.mrs"
+
+  Apple_Domain:
+    <<: *domain
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
+    path: "Providers/Apple_Domain.mrs"
+
+  Games_Domain:
+    <<: *domain
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games@cn.mrs"
+    path: "Providers/Games_Domain.mrs"
+
+  CN_Domain:
+    <<: *domain
+    url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    path: "Providers/CN_Domain.mrs"
+
+rules:
+
+ - AND,((NETWORK,UDP),(DST-PORT,123)),DIRECT
+ - RULE-SET,Private_iP,DIRECT,no-resolve
+ - RULE-SET,Private_Domain,DIRECT
+ - RULE-SET,Games_Domain,DIRECT
+ - RULE-SET,Google_Domain,Servers
+ - RULE-SET,Apple_Domain,DIRECT
+ - RULE-SET,CN_Domain,DIRECT
+ - RULE-SET,Google_iP,Servers
+ - RULE-SET,CN_iP,DIRECT
+ - MATCH,Overall
