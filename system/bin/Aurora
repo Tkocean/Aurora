@@ -6,8 +6,6 @@ kernel_user=$(stat -c %U /proc/${bin_pid})
 kernel_group=$(stat -c %G /proc/${bin_pid})
 intranet[${#intranet[@]}]=$(ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127.0.0.1")
 intranet6[${#intranet6[@]}]=$(ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1")
-cpuvmrss=$(cat /proc/${bin_pid}/status 2> /dev/null | grep -w VmRSS | awk '{print $2$3}')
-runtime=$(busybox ps -o comm,etime | grep ${bin_name} | awk '{print $2}')
 
 log() {
   local level="$1" msg="$2"
@@ -38,15 +36,15 @@ start_bin() {
   if [ -f "${KPATH}/${bin_name}" ] ; then
     ulimit -SHn 1000000
     if [ "${bin_name}" = "sing-box" ] ; then
-      if sing-box check -D ${DATADIR} -c ${Config}/sing-box > ${DATADIR}/Check.log 2>&1 ; then
-        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/sing-box run -D ${DATADIR} -c ${Config}/sing-box > /dev/null 2>&1 &
+      if sing-box check -D ${DATADIR} -c ${KConfig} > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/sing-box run -D ${DATADIR} -c ${KConfig} > /dev/null 2>&1 &
       else
         log warn "“${bin_name}” is not configured properly"
         return 1
       fi
     elif [ "${bin_name}" = "mihomo" ] ; then
-      if mihomo -t -d ${DATADIR} -f ${Config}/Mihomo.yaml > ${DATADIR}/Check.log 2>&1 ; then
-        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/mihomo -d ${DATADIR} -f ${Config}/Mihomo.yaml > ${DATADIR}/Kernel.log 2>&1 &
+      if mihomo -t -d ${DATADIR} -f ${KConfig} > ${DATADIR}/Check.log 2>&1 ; then
+        nohup busybox setuidgid ${kernel_user_group} ${KPATH}/mihomo -d ${DATADIR} -f ${KConfig} > ${DATADIR}/Kernel.log 2>&1 &
       else
         log warn "“${bin_name}” is not configured properly"
         return 1
@@ -337,11 +335,12 @@ case "$1" in
         log warn "Unknown: $2, Usage: true | false"
       fi
       log debug "iPV6Network: $2"
-    else
-      log debug "Error: '$1' If you need to adjust, please set 'ipv6_script' to 'true'"
     fi
     ;;
   info)
+    TEXT_API=$(curl -s -A "Mozilla/5.0" "https://v1.hitokoto.cn/?encode=text" 2>/dev/null || echo "Copyright © 2025 Tkocean")
+    cpuvmrss=$(cat /proc/${bin_pid}/status 2> /dev/null | grep -w VmRSS | awk '{print $2$3}')
+    runtime=$(busybox ps -o comm,etime | grep ${bin_name} | awk '{print $2}')
     printf '\033[0;33m%s\033[0m\n' \
         "$time" \
         "Mount: $SPATH" \
@@ -354,7 +353,7 @@ case "$1" in
         "Intranet: ${intranet[*]}" \
         "Intranet6: ${intranet6[*]}" \
         "Variate: $PATH" \
-        "$Text_APi"
+        "$TEXT_API"
     ;;
   start)
     printf "%s - Aurora: ARCH: '%s'；Mount Path: '%s'；Datadir: '%s'\n" \
