@@ -2,14 +2,14 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
 [![Thanks](https://img.shields.io/badge/Thanks-Box4-green.svg)](https://github.com/CHIZI-0618/box4magisk)
 
-This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy.~~as well as automatic cleaning of junk files, fstrim and other features.~~
+This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy.
 
 
 ## Disclaimer
 
 - This project is not responsible for the following: bricked devices, SD card corruption, or SoC burnouts.
 - **Please ensure your configuration file does not cause a traffic loop, as this may lead to infinite device reboots.**
-- If you're not sure how to configure this module, you might need applications like ClashForAndroid, sing-box for Android, v2rayNG, surfboard, SagerNet, AnXray, etc.
+- If you're not sure how to configure this module, you might need applications like Clash for Android, sing-box for Android, etc.
 
 
 ## Installation
@@ -22,9 +22,6 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 - The module does not include binary executables for [mihomo](https://github.com/MetaCubeX/mihomo), [sing-box](https://github.com/SagerNet/sing-box).
 - After installing the module, please download the core files for your device's architecture and place them in the `/data/adb/Aurora/Kernel/` directory.
-- ~~Configuration file `/data/adb/Aurora/Config/Trash.conf` to define the files or folders you need to delete. **Data is priceless, proceed with caution!!!**~~
-- ~~Configure `Backstage` in the `/data/adb/Aurora/ConfigAurora.ini` file to add a battery-optimized whitelisted application.~~
-
 
 ## Configuration
 
@@ -46,6 +43,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 ## Changelog
     - 2025
+		- 11.18 Fixes & Improvements and removed many unnecessary features.
     - 7.23 Fixes & Improvements.
     - 4.24-2 Improved `test` command and changed to `debug`; Fixes & Improvements.
     - 4.24 Stripped out a bunch of unnecessary features; Fixes & Improvements.
@@ -60,7 +58,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 8.28 Replace the new execution logic, code execution is more efficient；Optimize mock notifications；Improved start-stop logic.
     - 6.08 Use the iptables command to shield the stun port to prevent WebRtc from leaking the real IP; optimize the local dns processing logic.
     - 5.20 Abandon the script command line and change it to an independent program, adding more new functions to the original functions; optimize the execution logic of iptables.
-    
+
     - 2023
     - 4.28 Simplify the script code and update the script running logic.
     - 4.23 Change the operating logic of some functions and simplify the configuration file.
@@ -69,8 +67,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
     - 2022
     - 5.20 Update core.
 
-## Acknowledgements
-Thanks to the developers of the following open source projects.
+## Credits
 - [Box4](https://github.com/CHIZI-0618/box4magisk)
 - [Mihomo](https://github.com/MetaCubeX/mihomo)
 - [Sing-box](https://github.com/SagerNet/sing-box)
