@@ -12,7 +12,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 
 
 ## Installation
-- ![suggest](https://img.shields.io/badge/Suggest-green.svg) Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Light-Weight/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
+- Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Light-Weight/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
 - Download the source code package from the [Download](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page, then package it into a Magisk module before flashing it.
 - Supports online updates via Magisk Manager, KernelSU Manager, or APatch app.
 
