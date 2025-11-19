@@ -1,5 +1,6 @@
 # Change Log
     - 2025
+    - 11.19 Release the stable version.
     - 11.18 Fixes & Improvements and removed many unnecessary features.
     - 7.23 Fixes & Improvements.
     - 4.24-2 Improved `test` command and changed to `debug`; Fixes & Improvements.
