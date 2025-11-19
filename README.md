@@ -1,6 +1,7 @@
 # Aurora
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
 [![Thanks](https://img.shields.io/badge/Thanks-Box4-green.svg)](https://github.com/CHIZI-0618/box4magisk)
+[![ChangeLog](https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/ChangeLog/README.md)
 
 This project deploys sing-box, mihome proxies via [Magisk](https://github.com/topjohnwu/Magisk), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch). It supports REDIRECT (TCP only), TProxy (TCP + UDP), and Tun (TCP + UDP, provided by the cores). It also supports a Mixed mode of REDIRECT (TCP) + Tun (UDP) proxy.
 
@@ -28,8 +29,6 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 - When modifying the configuration files for each core, please ensure that the relevant configuration matches the definitions in the `/data/adb/Aurora/config/Aurora.ini` file.
 - When the `Aurora` is started for the first time, the local machine IP will be added to the bypass list to prevent traffic loops. It will also start monitoring and insert local IP anti-loopback rules when network changes occur. However, if the local machine has a **public IP** address, it is still recommended to add the IP to the `intranet` array in the `/data/adb/Aurora/config/Aurora.ini` file.
 
-
-#### [Change Log](https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/ChangeLog/README.md)
 
 ## Credits
 - [Box4](https://github.com/CHIZI-0618/box4magisk)
