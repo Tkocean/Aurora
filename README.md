@@ -12,7 +12,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 - If you're not sure how to configure this module, you might need applications like Clash for Android, sing-box for Android, etc.
 
 
-## Installation
+## Install
 - Download the module package from the [Release](https://github.com/Tkocean/Aurora/releases/download/Stable/Aurora.zip) page, and install it via Magisk Manager, KernelSU Manager, or APatch.
 - Download the source code package from the [Source](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page, then package it into a Magisk module before flashing it.
 - Supports online updates via Magisk Manager, KernelSU Manager, or APatch app.
