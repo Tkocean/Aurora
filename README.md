@@ -21,7 +21,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 ## Config
 - Each core works in the `/data/adb/Aurora/Kernel/core_name` directory, where the core_name is defined in the `bin_name` variable of the `/data/adb/Aurora/config/Aurora.ini` file. The valid values are `mihomo`, `sing-box`, and the `bin_name` **determines the core enabled by the module**.
 - The configuration files for each core must be customized by the user. The module script checks the validity of the configuration, and the check results are stored in the `/data/adb/Aurora/Check.log` file.
-- Tip: The `mihomo` and `sing-box` cores come with default configurations prepared for working with the transparent proxy script. It is recommended to edit the `proxy-providers` or `outbounds` sections to add your proxy server. For advanced configurations, please refer to the respective official documentation. Links: [Mihomo documentation](https://wiki.metacubex.one), [Sing-box documentation](https://sing-box.sagernet.org/).
+- Tip: The `mihomo` and `sing-box` cores come with default configurations prepared for working with the transparent proxy script. It is recommended to edit the `proxy-providers` or `outbounds` sections to add your proxy server. For advanced configurations, please refer to the respective official documentation. Links: [Mihomo documentation](https://wiki.metacubex.one), [sing-box documentation](https://sing-box.sagernet.org/).
 
 
 ## Notes
