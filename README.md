@@ -1,5 +1,5 @@
 # Aurora
-[![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://www.android.com)
+[![Platform](https://img.shields.io/badge/Platform-Android12+-green.svg)](https://www.android.com)
 [![Source](https://img.shields.io/badge/Source-Code-yellow.svg)](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main)
 [![ChangeLog](https://img.shields.io/badge/Change-Log-blue.svg)](https://raw.githubusercontent.com/Tkocean/Aurora/refs/heads/Changes/README.md)
 
