@@ -1,5 +1,6 @@
 # Change Log
     - 2025
+    - 12.03 The project has been restructured to remove unnecessary components (e.g., REDIRECT (TCP only), REDIRECT (TCP) + Tun (UDP) proxy support), optimized execution logic, and significantly enhanced performance.
     - 11.19 Release the stable version.
     - 11.18 Fixes & Improvements and removed many unnecessary features.
     - 7.23 Fixes & Improvements.
