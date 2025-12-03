@@ -18,7 +18,7 @@ This project deploys sing-box, mihome proxies via [Magisk](https://github.com/to
 - Supports online updates via Magisk Manager, KernelSU Manager, or APatch app.
 
 ## Manual Install:
-- Step 1: Download the source files from the [Source](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page and extract them. Move the main program `Aurora` from the `/system/bin/` directory inside the extracted folder into the system variable, e.g. `/data/adb/ksu/bin`.
+- Step 1: Download the source code package from the [Source](https://codeload.github.com/Tkocean/Aurora/zip/refs/heads/main) page and extract them. Move the main program `Aurora` from the `/system/bin/` directory inside the extracted folder into the system variable, e.g. `/data/adb/ksu/bin`.
 - Step 2: Manually create the directory `/data/adb/Aurora` and move the `Config` folder from the source files into this directory.
 - Step 3: Move `service.sh` to a directory that supports boot-time execution, e.g. `/data/adb/service.d`.
 - Step 4: Set executable permissions for all files and folders as needed, recommended `755`, then reboot the device or manually execute `service.sh`.
