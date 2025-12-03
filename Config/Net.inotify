@@ -1,0 +1,25 @@
+#!/system/bin/sh
+
+events=$1
+source /data/adb/Aurora/Config/Aurora.ini
+
+rules_add() {
+  iptables -t mangle -F LOCAL_IP_V4
+  ip -4 a | awk '/inet/ {print $2}' | grep -vE "^127.0.0.1" | while read -r local_ipv4 ; do
+    iptables -w 100 -t mangle -A LOCAL_IP_V4 -d $local_ipv4 -j ACCEPT
+    rv1=$?
+    iptables -w 100 -t nat -A LOCAL_IP_V4 -d $local_ipv4 -j ACCEPT
+    rv2=$?
+    ( [ $rv1 = "0" ] || [ $rv2 = "0" ] ) && [[ "$log" == "true" ]] && printf "%s - Aurora: %s\n" "$time" "Local IP '$local_ipv4' anti-loopback rule inserted" >> "$Services"
+  done
+
+  ip6tables -t mangle -F LOCAL_IP_V6
+  ip -6 a | awk '/inet6/ {print $2}' | grep -vE "^fe80|^::1" | while read -r local_ipv6 ; do
+    ip6tables -w 100 -t mangle -A LOCAL_IP_V6 -d $local_ipv6 -j ACCEPT
+    [ $? = "0" ] && [[ "$log" == "true" ]] && printf "%s - Aurora: %s\n" "$time" "Local IP '$local_ipv6' anti-loopback rule inserted" >> "$Services"
+  done
+}
+
+if [ ${events} = "w" ] ; then
+  rules_add
+fi

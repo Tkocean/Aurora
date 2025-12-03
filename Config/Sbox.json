@@ -1,51 +1,46 @@
- {
+{
   "log": {
     "disabled": true,
     "level": "error",
-    "output": "debug.log"
+    "output": "Sbox.log",
+    "timestamp": false
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "store_fakeip": false,
+      "path": "Sbox.db"
+    }
   },
   "dns": {
+    "strategy": "prefer_ipv4",
+    "independent_cache": true,
+    "reverse_mapping": false,
     "servers": [
       {
-        "tag": "foreign",
-        "address": "https://8.8.8.8/dns-query",
-        "detour": "Server"
+        "tag": "internal",
+        "type": "udp",
+        "server": "223.5.5.5"
       },
       {
         "tag": "fakedns",
-        "address": "fakeip"
-      },
-      {
-        "tag": "internal",
-        "address": "udp://223.5.5.5",
-        "detour": "Direct"
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
       }
     ],
     "rules": [
-      {
-        "outbound": "any",
-        "server": "internal"
-      },
-      {
-        "rule_set": "private",
-        "domain_keyword": ["push","frp","ntp","time"],
-        "server": "internal"
-      },
       {
         "query_type": ["A","AAAA"],
         "server": "fakedns",
         "rewrite_ttl": 0,
         "disable_cache": true
+      },
+      {
+        "outbound": "internal",
+        "server": "internal"
       }
-    ],
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/15",
-      "inet6_range": "fc00::/18"
-    },
-    "strategy": "prefer_ipv4",
-    "reverse_mapping": false,
-    "independent_cache": true
+    ]
   },
   "inbounds": [
     {
@@ -59,59 +54,30 @@
     {
       "type": "direct",
       "tag": "Direct"
-    },
-    {
-      "tag": "Server",
-      "type": "shadowsocks"
     }
   ],
   "route": {
+    "final": "Direct",
+    "default_domain_resolver": "internal",
     "rule_set": [
       {
+        "tag": "cn-ip",
         "type": "remote",
-        "tag": "private",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/private.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
         "download_detour": "Direct",
         "update_interval": "6d"
       },
       {
-        "type": "remote",
-        "tag": "google",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs",
-        "download_detour": "Direct",
-        "update_interval": "6d"
-      },
-      {
-        "type": "remote",
-        "tag": "games",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-games@cn.srs",
-        "download_detour": "Direct",
-        "update_interval": "6d"
-      },
-      {
-        "type": "remote",
-        "tag": "apple",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs",
-        "download_detour": "Direct",
-        "update_interval": "6d"
-      },
-      {
-        "type": "remote",
         "tag": "cn-domain",
-        "format": "binary",
+        "type": "remote",
         "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
         "download_detour": "Direct",
         "update_interval": "6d"
       },
       {
+        "tag": "private",
         "type": "remote",
-        "tag": "cn-ip",
-        "format": "binary",
-        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
+        "url": "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/private.srs",
         "download_detour": "Direct",
         "update_interval": "6d"
       }
@@ -124,22 +90,13 @@
         "type": "logical",
         "mode": "or",
         "rules": [
-          {
-            "port": 53
-          },
-          {
-            "protocol": "dns"
-          }
+          {"port": 53},
+          {"protocol": "dns"}
         ],
         "action": "hijack-dns"
       },
       {
-        "rule_set": "google",
-        "outbound": "Server"
-      },
-      {
-        "rule_set": ["private","apple","games","cn-domain"],
-        "domain_keyword": ["push","frp","ntp","time"],
+        "rule_set": ["private", "cn-domain"],
         "outbound": "Direct"
       },
       {
@@ -152,14 +109,6 @@
       }
     ],
     "find_process": false,
-    "final": "Server"
-  },
-  "experimental": {
-    "cache_file": {
-      "enabled": true,
-      "store_rdrc": false,
-      "store_fakeip": false,
-      "path": "/cache/Sbox.db"
-    }
+    "auto_detect_interface": false
   }
 }
