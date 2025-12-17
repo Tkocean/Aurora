@@ -1,0 +1,117 @@
+name: Build sing-box (Android arm64 + Windows x64)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'sing-box'
+        required: true
+        default: 'v1.12.13'
+
+      go_version:
+        description: 'Go version'
+        required: true
+        default: '1.25.0'
+
+      build_tags:
+        description: 'Go build tags'
+        required: true
+        default: 'with_quic'
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go_version }}
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm lld unzip curl git
+    - name: Setup Android NDK
+      run: |
+        curl -L https://dl.google.com/android/repository/android-ndk-r26d-linux.zip -o ndk.zip
+        unzip -q ndk.zip
+    - name: Clone sing-box
+      run: |
+        git clone --recursive https://github.com/SagerNet/sing-box.git
+        cd sing-box
+        git fetch --tags
+        git checkout tags/${{ inputs.version }}
+        git submodule update --init --recursive
+    - name: Build Android arm64
+      shell: bash
+      run: |
+        set -euo pipefail
+        NDK="$GITHUB_WORKSPACE/android-ndk-r26d"
+        TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+        export GOOS=android
+        export GOARCH=arm64
+        export CGO_ENABLED=1
+        export CC="$TOOLCHAIN/aarch64-linux-android21-clang"
+        export CXX="$TOOLCHAIN/aarch64-linux-android21-clang++"
+        export AR="$TOOLCHAIN/llvm-ar"
+        export LD="$TOOLCHAIN/ld.lld"
+        export CGO_CFLAGS="-O3 -march=armv8-a+crypto -funroll-loops -flto -fomit-frame-pointer -ffast-math -fPIC -falign-functions=128 -fno-unwind-tables -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections"
+        export CGO_LDFLAGS="-flto -ldl -Wl,-O1 -Wl,--gc-sections -Wl,--icf=safe -Wl,-z,max-page-size=0x1000"
+        cd sing-box/cmd/sing-box
+        echo "Building sing-box ${{ inputs.version }} with tags: ${{ inputs.build_tags }}"
+        go build -tags ${{ inputs.build_tags }} -trimpath -ldflags "-s -w" -o sing-box-android-arm64
+        "$TOOLCHAIN/llvm-strip" sing-box-android-arm64
+        mv sing-box-android-arm64 "$GITHUB_WORKSPACE/"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: android-arm64
+        path: sing-box-android-arm64
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go_version }}
+
+    - name: Setup llvm-mingw
+      shell: bash
+      run: |
+        curl -L https://github.com/mstorsjo/llvm-mingw/releases/download/20240320/llvm-mingw-20240320-msvcrt-x86_64.zip -o llvm-mingw.zip
+        unzip -q llvm-mingw.zip -d llvm-mingw
+    - name: Clone sing-box
+      shell: bash
+      run: |
+        git clone --recursive https://github.com/SagerNet/sing-box.git
+        cd sing-box
+        git fetch --tags
+        git checkout tags/${{ inputs.version }}
+        git submodule update --init --recursive
+    - name: Build Windows x64
+      shell: bash
+      run: |
+        set -euo pipefail
+        TOOLCHAIN="$GITHUB_WORKSPACE/llvm-mingw/llvm-mingw-20240320-msvcrt-x86_64/bin"
+        export GOOS=windows
+        export GOARCH=amd64
+        export CGO_ENABLED=1
+        export CC="$TOOLCHAIN/x86_64-w64-mingw32-clang"
+        export CXX="$TOOLCHAIN/x86_64-w64-mingw32-clang++"
+        export AR="$TOOLCHAIN/llvm-ar"
+        export LD="$TOOLCHAIN/ld.lld"
+        export CGO_CFLAGS="-O3 -march=x86-64-v4 -funroll-loops -flto -falign-functions=128 -falign-jumps=64 -falign-loops=64 -fomit-frame-pointer -ffast-math -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections"
+        export CGO_LDFLAGS="-flto -Wl,-O1 -Wl,--gc-sections -Wl,--icf=safe -Wl,-z,max-page-size=0x1000"
+        cd sing-box/cmd/sing-box
+        echo "Building sing-box ${{ inputs.version }} with tags: ${{ inputs.build_tags }}"
+        go build -tags ${{ inputs.build_tags }} -trimpath -ldflags "-s -w" -o sing-box-windows-x64.exe
+        "$TOOLCHAIN/llvm-strip" sing-box-windows-x64.exe
+        mv sing-box-windows-x64.exe "$GITHUB_WORKSPACE/"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: windows-x64
+        path: sing-box-windows-x64.exe
