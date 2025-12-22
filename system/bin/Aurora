@@ -69,7 +69,10 @@ start_tproxy() {
 
   ${iptables} -t mangle -A AURORA_EXTERNAL -p tcp -m socket --transparent -j MARK --set-xmark ${mark_id}
   ${iptables} -t mangle -A AURORA_EXTERNAL -p udp -m socket --transparent -j MARK --set-xmark ${mark_id}
-  ${iptables} -t mangle -A AURORA_EXTERNAL -m socket -j RETURN
+
+  if [ "${dns_hijack}" = "true" ] ; then
+    ${iptables} -t mangle -A AURORA_EXTERNAL -m socket -j RETURN
+  fi
 
   ${iptables} -t mangle -A AURORA_EXTERNAL -m addrtype --dst-type LOCAL -j RETURN
 
